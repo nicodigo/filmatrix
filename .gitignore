@@ -1,0 +1,7 @@
+vendor/**
+**.log
+
+.env
+.git
+docker/
+*.md
