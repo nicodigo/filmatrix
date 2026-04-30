@@ -33,6 +33,14 @@ class Router
 
         try {
             list($path, $http_method) = $request->route();
+            $this->logger
+                ->info(
+                    'Petición entrante',
+                    [
+                        'Path' => $path,
+                        'Method' => $http_method,
+                    ]
+                );
 
             list($controllerName, $method) = $this->getController($path, $http_method);
             $this->logger

@@ -7,3 +7,4 @@ docker/
 *.md
 
 filmatrix-design-system.html
+.aider*
