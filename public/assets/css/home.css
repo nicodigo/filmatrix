@@ -1,122 +1,136 @@
-/* home.css
-   Estilos específicos de home.php.
-   Depende de base.css para las variables :root.
-   No hardcodea ningún valor de color, fuente o radio. */
-
-/* ════════════════════════════════════════════════════════
-   HERO
-════════════════════════════════════════════════════════ */
-.hero {
-  position: relative;
-  width: 100%;
-
-  /* Mobile: altura generosa para que el texto respire */
-  min-height: 480px;
-  height: 75svh;
-  max-height: 700px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+body {
+  background-color: var(--bg-base);
 }
 
-/* ── Imagen de fondo ─────────────────────────────────── */
-.hero__bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-
-  /* Fallback mientras carga la imagen */
-  background-color: var(--surface-el);
-}
-
-/* ── Overlay ─────────────────────────────────────────── */
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-
-  /* Gradiente de abajo hacia arriba:
-     más opaco abajo (donde está el texto) → más transparente arriba */
-  background: linear-gradient(
-    to top,
-    rgba(13, 17, 23, 0.92) 0%,
-    rgba(13, 17, 23, 0.55) 50%,
-    rgba(13, 17, 23, 0.20) 100%
-  );
-}
-
-/* ── Contenido ───────────────────────────────────────── */
-.hero__content {
+@import'base.css';
+.popular-movies {
+  background-color: var(--bg-base);
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: var(--layout-max-width, 1200px);
-  padding: 0 var(--layout-padding-x, 16px);
+}
 
-  /* Mobile: alineado al centro */
+.movie-flex{
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px 8px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .movie-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* ── Reseña del día ── */
+.daily-review {
+  padding: 2rem 1rem;
+  background-color: var(--bg-base);
+  position: relative;
+  z-index: 1;
+}
+
+.daily-review h2 {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.daily-review article {
+  background-color: var(--surface);
+  border-radius: var(--r-md);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 16px;
 }
 
-/* ── Heading ─────────────────────────────────────────── */
-.hero__heading {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(36px, 8vw, 64px);
-  line-height: 1.1;
-  color: var(--text-primary);
-  letter-spacing: -0.5px;
-}
-
-/* ── Subheading ──────────────────────────────────────── */
-.hero__subheading {
-  font-family: var(--font-ui);
-  font-size: clamp(14px, 2.5vw, 18px);
-  font-weight: 400;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  max-width: 480px;
-}
-
-/* ── CTA ─────────────────────────────────────────────── */
-.hero__cta {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 12px 28px;
-  background: var(--accent);
-  color: var(--text-primary);
-  font-family: var(--font-ui);
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: var(--r-sm);
-  transition: background 0.15s;
-}
-
-.hero__cta:hover,
-.hero__cta:focus-visible {
-  background: var(--accent-hover);
-}
-
-.hero__cta:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 3px;
-}
-
-/* ════════════════════════════════════════════════════════
-   RESPONSIVE — tablet +
-════════════════════════════════════════════════════════ */
 @media (min-width: 768px) {
-  .hero__content {
-    /* Desktop: alineado a la izquierda */
-    align-items: flex-start;
-    text-align: left;
+  .daily-review article {
+    flex-direction: row;
   }
+}
+
+.daily-review figure {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.daily-review figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 768px) {
+  .daily-review figure {
+    width: 200px;
+  }
+  .daily-review figure img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+.daily-review__content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.daily-review__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.daily-review__year {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.daily-review__author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.daily-review__author img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.daily-review__author span {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.daily-review__text {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.daily-review__likes {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--rating);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }

@@ -1,6 +1,7 @@
 /* Hero section – mobile-first, base width 360px */
 .hero {
   position: relative;
+  z-index: 1;
   min-height: 50vh;
   display: flex;
   flex-direction: column;
