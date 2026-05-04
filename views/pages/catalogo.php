@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Catálogo — Filmatrix</title>
+  <meta name="description" content="Explorá el catálogo completo de películas en Filmatrix. Filtrá por género, año y más.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/header.css">
+  <link rel="stylesheet" href="/assets/css/movie-card.css">
+  <link rel="stylesheet" href="/assets/css/footer.css">
+  <link rel="stylesheet" href="/assets/css/catalogo.css">
+</head>
+
+<?php require __DIR__ . '/../partials/header.php'; ?>
+
+<main>
+
+  <!-- ── Encabezado del catálogo ── -->
+  <input type="checkbox" id="filterToggle" class="filter-toggle-input">
+  <section class="catalogo-header">
+    <h1 class="catalogo-title">Catálogo</h1>
+
+    <!--
+      Toggle de filtros sin JS:
+      checkbox oculto + label actúa como botón.
+      El panel se muestra con el selector CSS:
+      .filter-toggle-input:checked ~ .filter-panel
+    -->
+    <label for="filterToggle" class="catalogo-filter-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="6" x2="20" y2="6"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+        <line x1="11" y1="18" x2="13" y2="18"/>
+      </svg>
+      Filtros
+    </label>
+  </section>
+
+  <!-- ── Panel de filtros (CSS-only) ── -->
+  <aside class="filter-panel">
+    <div class="filter-panel__inner">
+
+      <div class="filter-group">
+        <label class="filter-label" for="filterGenre">Género</label>
+        <select class="filter-select" id="filterGenre" name="genre">
+          <option value="">Todos</option>
+          <option value="accion">Acción</option>
+          <option value="drama">Drama</option>
+          <option value="comedia">Comedia</option>
+          <option value="terror">Terror</option>
+          <option value="ciencia-ficcion">Ciencia Ficción</option>
+          <option value="animacion">Animación</option>
+          <option value="documental">Documental</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label" for="filterYear">Año</label>
+        <select class="filter-select" id="filterYear" name="year">
+          <option value="">Todos</option>
+          <?php for ($y = date('Y'); $y >= 1970; $y--): ?>
+            <option value="<?= $y ?>"><?= $y ?></option>
+          <?php endfor; ?>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label" for="filterScore">Puntaje mínimo</label>
+        <select class="filter-select" id="filterScore" name="score">
+          <option value="">Cualquiera</option>
+          <option value="4.5">★ 4.5+</option>
+          <option value="4">★ 4.0+</option>
+          <option value="3">★ 3.0+</option>
+        </select>
+      </div>
+
+    </div>
+  </aside>
+
+  <?php
+    // Placeholder estático — reemplazar cuando exista DB/API
+    $movies = [
+      ['title' => 'Título uno',    'score' => '4.8', 'poster' => '/assets/img/hero-bg.webp'],
+      ['title' => 'Título dos',    'score' => '4.2', 'poster' => '/assets/img/hero-bg.webp'],
+      ['title' => 'Título tres',   'score' => '3.9', 'poster' => '/assets/img/hero-bg.webp'],
+      ['title' => 'Título cuatro', 'score' => '4.5', 'poster' => '/assets/img/hero-bg.webp'],
+      ['title' => 'Título cinco',  'score' => '3.5', 'poster' => '/assets/img/hero-bg.webp'],
+      ['title' => 'Título seis',   'score' => '4.1', 'poster' => '/assets/img/hero-bg.webp'],
+    ];
+  ?>
+
+  <!-- ── Recientes ── -->
+  <section class="catalogo-section">
+    <h2 class="catalogo-section__label">Recientes</h2>
+    <div class="carousel">
+      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+    </div>
+  </section>
+
+  <!-- ── Tendencias ── -->
+  <section class="catalogo-section">
+    <h2 class="catalogo-section__label">Tendencias</h2>
+    <div class="carousel">
+      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+    </div>
+  </section>
+
+  <!-- ── Más reseñados ── -->
+  <section class="catalogo-section">
+    <h2 class="catalogo-section__label">Más reseñados</h2>
+    <div class="carousel">
+      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+    </div>
+  </section>
+
+  <!-- ── Clásicos ── -->
+  <section class="catalogo-section">
+    <h2 class="catalogo-section__label">Clásicos</h2>
+    <div class="carousel">
+      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+    </div>
+  </section>
+
+</main>
+
+<?php require __DIR__ . '/../partials/footer.php'; ?>

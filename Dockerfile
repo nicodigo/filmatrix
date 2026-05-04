@@ -8,7 +8,11 @@ RUN a2enmod rewrite
 # de /var/www/html/ a /var/www/html/public, necesario para no exponer toda la raíz del proyecto
 COPY docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 
-RUN apt-get update && apt-get install -y libpq-dev \
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpq-dev \
+    zip \
     && docker-php-ext-install pdo pdo_pgsql \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,6 +29,6 @@ RUN composer install --no-dev --optimize-autoloader
 
 
 COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
