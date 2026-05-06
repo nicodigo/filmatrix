@@ -35,10 +35,12 @@ $router->setLogger($log_app);
 
 $router->get('/', 'PageController@home');
 $router->get('/catalogo', 'PageController@catalogo');
-$router->get('/eventos', 'PageController@eventos');
-$router->get('/nosotros', 'PageController@acercaDeNosotros');
-
-$router->get('/autores', 'AuthorsController@listAuthors');
-$router->get('/autor', 'AuthorController@getAuthor');
-$router->get('/autor/edit', 'AuthorController@getEdit');
-$router->post('/autor/edit', 'AuthorController@setAuthor');
+$router->get('/detalle_pelicula', 'PageController@detalle_pelicula');
+$router->get('/perfil', 'UserController@perfil');
+$router->get('/login', 'UserController@login');
+$router->post('/login', 'UserController@hacerLogin');
+$router->post('/logout', 'UserController@logout');
+$router->get('/registro', 'UserController@registro');
+$router->post('/registro', 'UserController@hacerRegistro');
+$router->get('/perfil/editar', 'UserController@editarPerfil');
+$router->post('/perfil/editar', 'UserController@guardarPerfil');

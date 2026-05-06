@@ -1,0 +1,167 @@
+@import 'base.css';
+ 
+body {
+  background-color: var(--bg-base);
+}
+ 
+/* ══════════════════════════════════════
+   Layout
+══════════════════════════════════════ */
+.perfil-main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: perfil-fadein 0.3s ease both;
+}
+ 
+@keyframes perfil-fadein {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* ══════════════════════════════════════
+   Hero: avatar + datos
+══════════════════════════════════════ */
+.perfil-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+}
+ 
+@media (min-width: 480px) {
+  .perfil-hero {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+ 
+.perfil-avatar-wrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+ 
+.perfil-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+ 
+.perfil-hero__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+ 
+.perfil-nombre {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+ 
+.perfil-email {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+ 
+.perfil-miembro {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+ 
+/* ══════════════════════════════════════
+   Stats
+══════════════════════════════════════ */
+.perfil-stats {
+  display: flex;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+ 
+.perfil-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 1.25rem 1rem;
+  background: var(--surface);
+}
+ 
+.perfil-stat__num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--text-primary);
+  line-height: 1;
+}
+ 
+.perfil-stat__label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+ 
+/* ══════════════════════════════════════
+   Acciones
+══════════════════════════════════════ */
+.perfil-acciones {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+ 
+.perfil-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+ 
+.perfil-btn--primary {
+  background: var(--accent);
+  color: #fff;
+}
+ 
+.perfil-btn--primary:hover {
+  background: var(--accent-hover);
+}
+ 
+.perfil-btn--danger {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+ 
+.perfil-btn--danger:hover {
+  border-color: #ef4444;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.08);
+}

@@ -1,0 +1,265 @@
+@import 'base.css';
+ 
+body {
+  background-color: var(--bg-base);
+}
+ 
+/* ══════════════════════════════════════
+   Layout
+══════════════════════════════════════ */
+.auth-main {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+ 
+/* ══════════════════════════════════════
+   Card
+══════════════════════════════════════ */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+ 
+  /* Entrada suave */
+  animation: auth-fadein 0.35s ease both;
+}
+ 
+@keyframes auth-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+ 
+/* ── Encabezado ── */
+.auth-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+.auth-card__title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+ 
+.auth-card__subtitle {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+ 
+/* ══════════════════════════════════════
+   Alerta de error
+══════════════════════════════════════ */
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--r-sm);
+  color: #f87171;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+}
+ 
+.auth-alert svg {
+  flex-shrink: 0;
+}
+ 
+/* ══════════════════════════════════════
+   Formulario
+══════════════════════════════════════ */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+ 
+/* ── Campo ── */
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+.auth-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+ 
+.auth-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+ 
+/* ── Input ── */
+.auth-input {
+  width: 100%;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 10px 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+ 
+.auth-input::placeholder {
+  color: var(--text-muted);
+}
+ 
+.auth-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+ 
+.auth-input--error {
+  border-color: rgba(239, 68, 68, 0.6);
+}
+ 
+.auth-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+ 
+/* ── Wrapper input con ojo ── */
+.auth-input-wrap {
+  position: relative;
+}
+ 
+.auth-input-wrap .auth-input {
+  padding-right: 42px;
+}
+ 
+/* Checkbox oculto */
+.show-pass-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+ 
+/* Botón ojo */
+.show-pass-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: var(--r-sm);
+  transition: color 0.2s ease;
+  user-select: none;
+}
+ 
+.show-pass-btn:hover {
+  color: var(--text-secondary);
+}
+ 
+/* Lógica CSS-only: mostrar/ocultar iconos según estado del checkbox */
+.show-pass-btn__icon--hide {
+  display: none;
+}
+ 
+.show-pass-input:checked ~ .show-pass-btn .show-pass-btn__icon--show {
+  display: none;
+}
+ 
+.show-pass-input:checked ~ .show-pass-btn .show-pass-btn__icon--hide {
+  display: block;
+}
+ 
+/*
+  Nota: el toggle visual del ojo funciona con CSS puro,
+  pero cambiar type="password" a type="text" requiere JS.
+  Para activarlo con JS, agregar en el HTML:
+    document.getElementById('showPass').addEventListener('change', function() {
+      const input = document.getElementById('password');
+      input.type = this.checked ? 'text' : 'password';
+    });
+*/
+ 
+/* ── Botón submit ── */
+.auth-submit {
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  margin-top: 0.25rem;
+}
+ 
+.auth-submit:hover {
+  background: var(--accent-hover);
+}
+ 
+.auth-submit:active {
+  transform: scale(0.98);
+}
+ 
+/* ══════════════════════════════════════
+   Links y navegación entre páginas
+══════════════════════════════════════ */
+.auth-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+ 
+.auth-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+ 
+.auth-link--sm {
+  font-size: 12px;
+}
+ 
+.auth-switch {
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-secondary);
+}

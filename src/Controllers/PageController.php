@@ -21,13 +21,9 @@ class PageController
         require $this->viewsDir . 'pages/catalogo.php';
     }
 
-    public function eventos()
+    public function detalle_pelicula()
     {
-        require $this->viewsDir . 'pages/locales.php';
+        require $this->viewsDir . 'pages/detalle_pelicula.php';
     }
 
-    public function acercaDeNosotros()
-    {
-        require $this->viewsDir . 'pages/nosotros.php';
-    }
 }

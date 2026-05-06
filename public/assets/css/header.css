@@ -1,4 +1,5 @@
 @import 'base.css';
+
 /* ── Header container ── */
 .site-header {
   position: sticky;
@@ -19,25 +20,91 @@
   padding: 0 8px;
 }
 
+/* ── Lado izquierdo: logo + catálogo ── */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
 /* ── Logo ── */
 .header-logo {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  height: 80%;
+
 }
 
 .header-logo img {
   display: block;
-  height: 100%;
+  height: 48px;
   width: auto;
+}
+
+/* ── Botón Catálogo ── */
+.header-catalogo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  position: relative;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Línea inferior animada */
+.header-catalogo-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 999px;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+  transform-origin: left;
+}
+
+.header-catalogo-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-el);
+  border-color: var(--border);
+}
+
+.header-catalogo-btn:hover::after {
+  transform: scaleX(1);
+}
+
+/* Estado activo: cuando la ruta actual es /catalogo
+   Añadir class="active" desde PHP cuando corresponda */
+.header-catalogo-btn.active {
+  color: var(--accent);
+  background: var(--accent-muted);
+  border-color: var(--accent);
+}
+
+.header-catalogo-btn.active::after {
+  transform: scaleX(1);
 }
 
 /* ── Actions container ── */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px; /* Espacio 3 = 12px */
+  gap: 12px;
 }
 
 /* ── Search form ── */
@@ -61,7 +128,7 @@
   border: none;
   outline: none;
   background: transparent;
-  padding: 6px 10px; /* 6px = 1.5 × 4px, 10px = 2.5 × 4px */
+  padding: 6px 10px;
   font-family: var(--font-ui);
   font-size: 14px;
   color: var(--text-primary);
@@ -134,7 +201,7 @@
 /* ── Responsive (tablet+) ── */
 @media (min-width: 768px) {
   .header-inner {
-    padding: 0 24px; /* Espacio 6 = 24px */
+    padding: 0 24px;
   }
 
   .search-form {
@@ -144,6 +211,6 @@
 
 @media (min-width: 1024px) {
   .header-inner {
-    padding: 0 32px; /* Espacio 8 = 32px */
+    padding: 0 32px;
   }
 }

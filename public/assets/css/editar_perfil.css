@@ -1,0 +1,263 @@
+@import 'base.css';
+@import 'auth.css';
+ 
+body {
+  background-color: var(--bg-base);
+}
+ 
+/* ══════════════════════════════════════
+   Layout
+══════════════════════════════════════ */
+.ep-main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: auth-fadein 0.3s ease both;
+}
+ 
+@media (min-width: 768px) {
+  .ep-main {
+    padding: 2.5rem 1.5rem 4rem;
+  }
+}
+ 
+/* ══════════════════════════════════════
+   Encabezado de página
+══════════════════════════════════════ */
+.ep-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+ 
+.ep-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  width: fit-content;
+}
+ 
+.ep-back:hover {
+  color: var(--text-secondary);
+}
+ 
+.ep-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+ 
+/* ══════════════════════════════════════
+   Alertas (éxito y error)
+══════════════════════════════════════ */
+.ep-alert {
+  margin-bottom: 1.5rem;
+}
+ 
+.ep-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--r-sm);
+  color: #4ade80;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+ 
+/* ══════════════════════════════════════
+   Formulario
+══════════════════════════════════════ */
+.ep-form {
+  display: flex;
+  flex-direction: column;
+}
+ 
+/* ── Sección ── */
+.ep-section {
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+ 
+.ep-section__title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+ 
+.ep-section__hint {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+}
+ 
+/* ── Divisor ── */
+.ep-divider {
+  height: 1px;
+  background: var(--border);
+}
+ 
+/* ── Grilla de campos ── */
+.ep-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+ 
+@media (min-width: 480px) {
+  .ep-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+ 
+  /* Campos que ocupan ancho completo dentro del grid */
+  .ep-fields .auth-field:has(#password_actual),
+  .ep-fields .auth-field:has(#password_nueva),
+  .ep-fields .auth-field:has(#password_confirm),
+  .ep-fields .auth-field:has(#nombre),
+  .ep-fields .auth-field:has(#email) {
+    grid-column: 1 / -1;
+  }
+}
+ 
+@media (min-width: 560px) {
+  /* Nombre y email en dos columnas */
+  .ep-fields .auth-field:has(#nombre),
+  .ep-fields .auth-field:has(#email) {
+    grid-column: auto;
+  }
+ 
+  /* Las de contraseña siguen full-width */
+  .ep-fields .auth-field:has(#password_actual),
+  .ep-fields .auth-field:has(#password_nueva),
+  .ep-fields .auth-field:has(#password_confirm) {
+    grid-column: 1 / -1;
+  }
+}
+ 
+/* ══════════════════════════════════════
+   Avatar
+══════════════════════════════════════ */
+.ep-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+ 
+.ep-avatar-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+ 
+.ep-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+ 
+.ep-avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+/* Input file oculto */
+.ep-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+ 
+.ep-avatar-hint {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+ 
+/* ══════════════════════════════════════
+   Botones
+══════════════════════════════════════ */
+.ep-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  flex-wrap: wrap;
+}
+ 
+.ep-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+ 
+.ep-btn--primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+ 
+.ep-btn--primary:hover {
+  background: var(--accent-hover);
+}
+ 
+.ep-btn--secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+ 
+.ep-btn--secondary:hover {
+  background: var(--surface-el);
+  color: var(--text-primary);
+}
+ 
+.ep-btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: transparent;
+}
+ 
+.ep-btn--ghost:hover {
+  color: var(--text-secondary);
+}
