@@ -2,32 +2,30 @@
 
 namespace App\Controllers;
 
+use App\Services\AuthService;
+
 class UserController
 {
+    private AuthService $authService;
     public string $viewsDir;
 
-    public function __construct()
+    public function __construct(AuthService $authService)
     {
+        $this->authService = $authService;
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
     public function perfil()
     {
-        if (!empty($_SESSION['user_id'])) {
-            require $this->viewsDir . 'pages/miperfil.php';
-        } else {
-            header('Location: /login');
-            exit;
-        }
+        require $this->viewsDir . 'pages/miperfil.php';
     }
 
     public function login()
     {
-        if (!empty($_SESSION['user_id'])) {
+        if ($this->authService->isLoggedIn()) {
             header('Location: /perfil');
             exit;
         }
-
         require $this->viewsDir . 'pages/login.php';
     }
 
@@ -41,41 +39,34 @@ class UserController
             $error = 'Completá todos los campos.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif ($email === 'demo@filmatrix.com' && $password === 'demo1234') {
-            $_SESSION['user_id'] = 1;
-            $_SESSION['user_nombre'] = 'Usuario Demo';
-
-            $destino = $_SESSION['redirect_after_login'] ?? '/perfil';
-            unset($_SESSION['redirect_after_login']);
-
-            header('Location: ' . $destino);
-            exit;
         } else {
-            $error = 'Email o contraseña incorrectos.';
+            if ($this->authService->login($email, $password)) {
+                $destino = $_SESSION['redirect_after_login'] ?? '/perfil';
+                unset($_SESSION['redirect_after_login']);
+                header('Location: ' . $destino);
+                exit;
+            } else {
+                $error = 'Email o contraseña incorrectos.';
+            }
         }
-
         require $this->viewsDir . 'pages/login.php';
     }
 
     public function logout()
     {
-        session_unset();
-        session_destroy();
-
+        $this->authService->logout();
         header('Location: /login');
         exit;
     }
 
     public function registro()
     {
-        if (!empty($_SESSION['user_id'])) {
+        if ($this->authService->isLoggedIn()) {
             header('Location: /perfil');
             exit;
         }
-
         $error = '';
         $campos = ['nombre' => '', 'email' => ''];
-
         require $this->viewsDir . 'pages/registro.php';
     }
 
@@ -103,13 +94,18 @@ class UserController
         } elseif ($password !== $confirm) {
             $error = 'Las contraseñas no coinciden.';
         } else {
-            $_SESSION['user_id'] = 99;
-            $_SESSION['user_nombre'] = $nombre;
-
-            header('Location: /perfil');
-            exit;
+            $registered = $this->authService->register([
+                'username' => $nombre,
+                'email' => $email,
+                'password' => $password,
+            ]);
+            if ($registered) {
+                header('Location: /perfil');
+                exit;
+            } else {
+                $error = 'El email ya está registrado.';
+            }
         }
-
         require $this->viewsDir . 'pages/registro.php';
     }
 
@@ -129,8 +125,6 @@ class UserController
         $error = '';
         $success = '';
 
-        // validaciones (las mismas que ya tenés)
-
         if (empty($nombre) || empty($email)) {
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -138,12 +132,9 @@ class UserController
         } elseif (!empty($password_nueva) && $password_nueva !== $password_confirm) {
             $error = 'Las contraseñas no coinciden.';
         } else {
-
             $_SESSION['user_nombre'] = $nombre;
-
             $success = 'Perfil actualizado correctamente.';
         }
-
         require $this->viewsDir . 'pages/editar_perfil.php';
     }
 }

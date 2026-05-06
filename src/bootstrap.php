@@ -12,6 +12,9 @@ use App\Core\Router;
 use App\Core\Config;
 use App\Core\Database\ConnectionBuilder;
 use App\Core\Request;
+use App\Repository\UserRepository;
+use App\Services\AuthService;
+use App\Middleware\AuthMiddleware;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->load();
@@ -26,6 +29,10 @@ $log_app->pushHandler($handler);
 $connectionBuilder = new ConnectionBuilder;
 $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
+
+$userRepository = new UserRepository($connection);
+$authService = new AuthService($userRepository, $log_app);
+$authMiddleware = new AuthMiddleware();
 
 $request = new Request;
 
@@ -44,35 +51,38 @@ $router->get('/detalle_pelicula', function(){
     $controller = new \App\Controllers\PageController();
     $controller->detalle_pelicula();
 });
-$router->get('/perfil', function(){
-    $controller = new \App\Controllers\UserController();
+$router->get('/perfil', function() use ($authMiddleware, $authService) {
+    $authMiddleware->handle();
+    $controller = new \App\Controllers\UserController($authService);
     $controller->perfil();
 });
-$router->get('/login', function(){
-    $controller = new \App\Controllers\UserController();
+$router->get('/login', function() use ($authService) {
+    $controller = new \App\Controllers\UserController($authService);
     $controller->login();
 });
-$router->post('/login', function(){
-    $controller = new \App\Controllers\UserController();
+$router->post('/login', function() use ($authService) {
+    $controller = new \App\Controllers\UserController($authService);
     $controller->hacerLogin();
 });
-$router->post('/logout', function(){
-    $controller = new \App\Controllers\UserController();
+$router->post('/logout', function() use ($authService) {
+    $controller = new \App\Controllers\UserController($authService);
     $controller->logout();
 });
-$router->get('/registro', function(){
-    $controller = new \App\Controllers\UserController();
+$router->get('/registro', function() use ($authService) {
+    $controller = new \App\Controllers\UserController($authService);
     $controller->registro();
 });
-$router->post('/registro', function(){
-    $controller = new \App\Controllers\UserController();
+$router->post('/registro', function() use ($authService) {
+    $controller = new \App\Controllers\UserController($authService);
     $controller->hacerRegistro();
 });
-$router->get('/perfil/editar', function(){
-    $controller = new \App\Controllers\UserController();
+$router->get('/perfil/editar', function() use ($authMiddleware, $authService) {
+    $authMiddleware->handle();
+    $controller = new \App\Controllers\UserController($authService);
     $controller->editarPerfil();
 });
-$router->post('/perfil/editar', function(){
-    $controller = new \App\Controllers\UserController();
+$router->post('/perfil/editar', function() use ($authMiddleware, $authService) {
+    $authMiddleware->handle();
+    $controller = new \App\Controllers\UserController($authService);
     $controller->guardarPerfil();
 });
