@@ -3,25 +3,25 @@
 namespace App\Controllers;
 
 use App\Services\AuthService;
-use App\Repository\UserRepository;
+use App\Services\UserService;
 
 class UserController
 {
     private AuthService $authService;
-    private UserRepository $userRepository;
+    private UserService $userService;
     public string $viewsDir;
 
-    public function __construct(AuthService $authService, UserRepository $userRepository)
+    public function __construct(AuthService $authService, UserService $userService)
     {
         $this->authService = $authService;
-        $this->userRepository = $userRepository;
+        $this->userService = $userService;
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
     public function perfil()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userRepository->findById($userId);
+        $usuario = $this->userService->getUserById($userId);
 
         require $this->viewsDir . 'pages/miperfil.php';
     }
@@ -130,7 +130,7 @@ class UserController
     public function editarPerfil()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userRepository->findById($userId);
+        $usuario = $this->userService->getUserById($userId);
 
         $error = '';
         $success = '';
@@ -141,7 +141,7 @@ class UserController
     public function guardarPerfil()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userRepository->findById($userId);
+        $usuario = $this->userService->getUserById($userId);
 
         $nombre           = trim($_POST['nombre'] ?? '');
         $email            = trim($_POST['email'] ?? '');
@@ -156,7 +156,7 @@ class UserController
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif ($this->userRepository->emailExists($email, $userId)) {
+        } elseif ($this->userService->emailExists($email, $userId)) {
             $error = 'El email ya está en uso.';
         } elseif (!empty($password_nueva) && strlen($password_nueva) < 8) {
             $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
@@ -168,15 +168,15 @@ class UserController
 
             if (!empty($password_nueva)) {
                 $hash = password_hash($password_nueva, PASSWORD_DEFAULT);
-                $this->userRepository->updateWithPassword($userId, $nombre, $email, $hash);
+                $this->userService->updateUserWithPassword($userId, $nombre, $email, $hash);
             } else {
-                $this->userRepository->update($userId, $nombre, $email);
+                $this->userService->updateUser($userId, $nombre, $email);
             }
 
             $_SESSION['user_nombre'] = $nombre;
             $success = 'Perfil actualizado correctamente.';
 
-            $usuario = $this->userRepository->findById($userId);
+            $usuario = $this->userService->getUserById($userId);
         }
 
         require $this->viewsDir . 'pages/editar_perfil.php';

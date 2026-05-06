@@ -33,6 +33,7 @@ $connection = $connectionBuilder->make($config);
 
 $userRepository = new UserRepository($connection);
 $authService = new AuthService($userRepository, $log_app);
+$userService = new \App\Services\UserService($userRepository);
 $authMiddleware = new AuthMiddleware();
 
 $request = new Request();
@@ -61,45 +62,45 @@ $router->get('/detalle_pelicula', function () {
 /*
 Rutas de usuario
 */
-$router->get('/perfil', function () use ($authMiddleware, $authService, $userRepository) {
+$router->get('/perfil', function () use ($authMiddleware, $authService, $userService) {
     $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->perfil();
 });
 
-$router->get('/login', function () use ($authService, $userRepository) {
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+$router->get('/login', function () use ($authService, $userService) {
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->login();
 });
 
-$router->post('/login', function () use ($authService, $userRepository) {
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+$router->post('/login', function () use ($authService, $userService) {
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->hacerLogin();
 });
 
-$router->post('/logout', function () use ($authService, $userRepository) {
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+$router->post('/logout', function () use ($authService, $userService) {
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->logout();
 });
 
-$router->get('/registro', function () use ($authService, $userRepository) {
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+$router->get('/registro', function () use ($authService, $userService) {
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->registro();
 });
 
-$router->post('/registro', function () use ($authService, $userRepository) {
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+$router->post('/registro', function () use ($authService, $userService) {
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->hacerRegistro();
 });
 
-$router->get('/perfil/editar', function () use ($authMiddleware, $authService, $userRepository) {
+$router->get('/perfil/editar', function () use ($authMiddleware, $authService, $userService) {
     $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->editarPerfil();
 });
 
-$router->post('/perfil/editar', function () use ($authMiddleware, $authService, $userRepository) {
+$router->post('/perfil/editar', function () use ($authMiddleware, $authService, $userService) {
     $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userRepository);
+    $controller = new \App\Controllers\UserController($authService, $userService);
     $controller->guardarPerfil();
 });
