@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repository\UserRepository;
+use App\Models\User;
 use Psr\Log\LoggerInterface;
 
 class AuthService
@@ -19,42 +20,60 @@ class AuthService
     public function login(string $email, string $password): bool
     {
         $user = $this->userRepository->findByEmail($email);
+
         if (!$user) {
             $this->logger->warning('Login attempt with unknown email', ['email' => $email]);
             return false;
         }
-        if (!password_verify($password, $user['password_hash'])) {
+
+        if (!$user->verifyPassword($password)) {
             $this->logger->warning('Login attempt with wrong password', ['email' => $email]);
             return false;
         }
+
         session_regenerate_id(true);
-        $_SESSION['user_id'] = (int) $user['id'];
-        $_SESSION['user_role'] = $user['role'];
-        $_SESSION['user_nombre'] = $user['username'];
+
+        $_SESSION['user_id'] = $user->getId();
+        $_SESSION['user_role'] = $user->getRole();
+        $_SESSION['user_nombre'] = $user->getUsername();
+
         return true;
     }
 
     public function register(array $data): bool
     {
         $existing = $this->userRepository->findByEmail($data['email']);
+
         if ($existing) {
-            $this->logger->warning('Registration attempt with existing email', ['email' => $data['email']]);
+            $this->logger->warning(
+                'Registration attempt with existing email',
+                ['email' => $data['email']]
+            );
             return false;
         }
+
         $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
-        $userId = $this->userRepository->save([
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'password_hash' => $passwordHash,
-            'role' => 'user',
-        ]);
+
+        $user = new User(
+            null,
+            $data['username'],
+            $data['email'],
+            $passwordHash,
+            'user'
+        );
+
+        $userId = $this->userRepository->save($user);
+
         if ($userId) {
             session_regenerate_id(true);
+
             $_SESSION['user_id'] = $userId;
-            $_SESSION['user_role'] = 'user';
-            $_SESSION['user_nombre'] = $data['username'];
+            $_SESSION['user_role'] = $user->getRole();
+            $_SESSION['user_nombre'] = $user->getUsername();
+
             return true;
         }
+
         return false;
     }
 
@@ -71,11 +90,22 @@ class AuthService
 
     public function getCurrentUserId(): ?int
     {
-        return isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+        return isset($_SESSION['user_id']) ? (int) $_SESSION['user_id'] : null;
     }
 
     public function getCurrentUserRole(): ?string
     {
         return $_SESSION['user_role'] ?? null;
+    }
+
+    public function getCurrentUser(): ?User
+    {
+        $userId = $this->getCurrentUserId();
+
+        if (!$userId) {
+            return null;
+        }
+
+        return $this->userRepository->findById($userId);
     }
 }

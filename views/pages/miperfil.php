@@ -1,14 +1,3 @@
-<?php
-$usuario = [
-    'nombre'        => $_SESSION['user_nombre'] ?? 'Usuario',
-    'email'         => 'usuario@filmatrix.com',
-    'avatar'        => '/assets/img/user_avatar.png',
-    'miembro_desde' => 'Mayo 2025',
-    'resenias'      => 12,
-    'favoritas'     => 34,
-];
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,24 +23,24 @@ $usuario = [
 
   <section class="perfil-hero">
     <div class="perfil-avatar-wrap">
-      <img class="perfil-avatar" src="<?= htmlspecialchars($usuario['avatar']) ?>" alt="Avatar de <?= htmlspecialchars($usuario['nombre']) ?>">
+      <img class="perfil-avatar" src="/assets/img/user_avatar.png" alt="Avatar de <?= htmlspecialchars($usuario->getUsername()) ?>">
     </div>
 
     <div class="perfil-hero__info">
-      <h1 class="perfil-nombre"><?= htmlspecialchars($usuario['nombre']) ?></h1>
-      <p class="perfil-email"><?= htmlspecialchars($usuario['email']) ?></p>
-      <p class="perfil-miembro">Miembro desde <?= htmlspecialchars($usuario['miembro_desde']) ?></p>
+      <h1 class="perfil-nombre"><?= htmlspecialchars($usuario->getUsername()) ?></h1>
+      <p class="perfil-email"><?= htmlspecialchars($usuario->getEmail()) ?></p>
+      <p class="perfil-miembro">Miembro desde <?= date('F Y', strtotime($usuario->getCreatedAt())) ?></p>
     </div>
   </section>
 
   <section class="perfil-stats">
     <div class="perfil-stat">
-      <span class="perfil-stat__num"><?= $usuario['resenias'] ?></span>
+      <span class="perfil-stat__num">0</span>
       <span class="perfil-stat__label">Reseñas</span>
     </div>
 
     <div class="perfil-stat">
-      <span class="perfil-stat__num"><?= $usuario['favoritas'] ?></span>
+      <span class="perfil-stat__num">0</span>
       <span class="perfil-stat__label">Favoritas</span>
     </div>
   </section>

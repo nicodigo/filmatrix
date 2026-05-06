@@ -3,20 +3,26 @@
 namespace App\Controllers;
 
 use App\Services\AuthService;
+use App\Repository\UserRepository;
 
 class UserController
 {
     private AuthService $authService;
+    private UserRepository $userRepository;
     public string $viewsDir;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, UserRepository $userRepository)
     {
         $this->authService = $authService;
+        $this->userRepository = $userRepository;
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
     public function perfil()
     {
+        $userId = $this->authService->getCurrentUserId();
+        $usuario = $this->userRepository->findById($userId);
+
         require $this->viewsDir . 'pages/miperfil.php';
     }
 
@@ -26,6 +32,9 @@ class UserController
             header('Location: /perfil');
             exit;
         }
+
+        $error = '';
+
         require $this->viewsDir . 'pages/login.php';
     }
 
@@ -43,12 +52,14 @@ class UserController
             if ($this->authService->login($email, $password)) {
                 $destino = $_SESSION['redirect_after_login'] ?? '/perfil';
                 unset($_SESSION['redirect_after_login']);
+
                 header('Location: ' . $destino);
                 exit;
             } else {
                 $error = 'Email o contraseña incorrectos.';
             }
         }
+
         require $this->viewsDir . 'pages/login.php';
     }
 
@@ -65,8 +76,13 @@ class UserController
             header('Location: /perfil');
             exit;
         }
+
         $error = '';
-        $campos = ['nombre' => '', 'email' => ''];
+        $campos = [
+            'nombre' => '',
+            'email' => ''
+        ];
+
         require $this->viewsDir . 'pages/registro.php';
     }
 
@@ -99,6 +115,7 @@ class UserController
                 'email' => $email,
                 'password' => $password,
             ]);
+
             if ($registered) {
                 header('Location: /perfil');
                 exit;
@@ -106,16 +123,26 @@ class UserController
                 $error = 'El email ya está registrado.';
             }
         }
+
         require $this->viewsDir . 'pages/registro.php';
     }
 
     public function editarPerfil()
     {
+        $userId = $this->authService->getCurrentUserId();
+        $usuario = $this->userRepository->findById($userId);
+
+        $error = '';
+        $success = '';
+
         require $this->viewsDir . 'pages/editar_perfil.php';
     }
 
     public function guardarPerfil()
     {
+        $userId = $this->authService->getCurrentUserId();
+        $usuario = $this->userRepository->findById($userId);
+
         $nombre           = trim($_POST['nombre'] ?? '');
         $email            = trim($_POST['email'] ?? '');
         $password_actual  = $_POST['password_actual'] ?? '';
@@ -129,12 +156,29 @@ class UserController
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
+        } elseif ($this->userRepository->emailExists($email, $userId)) {
+            $error = 'El email ya está en uso.';
+        } elseif (!empty($password_nueva) && strlen($password_nueva) < 8) {
+            $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
         } elseif (!empty($password_nueva) && $password_nueva !== $password_confirm) {
             $error = 'Las contraseñas no coinciden.';
+        } elseif (!empty($password_nueva) && !$usuario->verifyPassword($password_actual)) {
+            $error = 'La contraseña actual es incorrecta.';
         } else {
+
+            if (!empty($password_nueva)) {
+                $hash = password_hash($password_nueva, PASSWORD_DEFAULT);
+                $this->userRepository->updateWithPassword($userId, $nombre, $email, $hash);
+            } else {
+                $this->userRepository->update($userId, $nombre, $email);
+            }
+
             $_SESSION['user_nombre'] = $nombre;
             $success = 'Perfil actualizado correctamente.';
+
+            $usuario = $this->userRepository->findById($userId);
         }
+
         require $this->viewsDir . 'pages/editar_perfil.php';
     }
 }

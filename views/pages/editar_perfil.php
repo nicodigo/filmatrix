@@ -1,12 +1,6 @@
 <?php
-$error   = $error ?? '';
+$error = $error ?? '';
 $success = $success ?? '';
-
-$usuario = $usuario ?? [
-  'nombre' => $_SESSION['user_nombre'] ?? 'Usuario',
-  'email'  => 'usuario@filmatrix.com',
-  'avatar' => '/assets/img/user_avatar.png',
-];
 ?>
 
 <!DOCTYPE html>
@@ -33,15 +27,7 @@ $usuario = $usuario ?? [
 <main class="ep-main">
 
   <div class="ep-header">
-    <a href="/perfil" class="ep-back">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"/>
-        <polyline points="12 19 5 12 12 5"/>
-      </svg>
-      Volver al perfil
-    </a>
+    <a href="/perfil" class="ep-back">Volver al perfil</a>
     <h1 class="ep-title">Editar perfil</h1>
   </div>
 
@@ -57,40 +43,8 @@ $usuario = $usuario ?? [
     </div>
   <?php endif; ?>
 
-  <form class="ep-form" method="POST" action="/perfil/editar" enctype="multipart/form-data">
+  <form class="ep-form" method="POST" action="/perfil/editar">
 
-    <!-- Avatar -->
-    <section class="ep-section">
-      <h2 class="ep-section__title">Foto de perfil</h2>
-
-      <div class="ep-avatar-row">
-        <div class="ep-avatar-wrap">
-          <img class="ep-avatar"
-               src="<?= htmlspecialchars($usuario['avatar']) ?>"
-               id="avatarPreview"
-               alt="Avatar">
-        </div>
-
-        <div class="ep-avatar-actions">
-          <label for="avatar" class="ep-btn ep-btn--secondary">
-            Subir imagen
-          </label>
-
-          <input type="file"
-                 id="avatar"
-                 name="avatar"
-                 accept="image/*"
-                 class="ep-file-input"
-                 onchange="previewAvatar(this)">
-
-          <p class="ep-avatar-hint">JPG, PNG o WebP</p>
-        </div>
-      </div>
-    </section>
-
-    <div class="ep-divider"></div>
-
-    <!-- Datos -->
     <section class="ep-section">
       <h2 class="ep-section__title">Datos personales</h2>
 
@@ -102,7 +56,7 @@ $usuario = $usuario ?? [
                  type="text"
                  id="nombre"
                  name="nombre"
-                 value="<?= htmlspecialchars($usuario['nombre']) ?>">
+                 value="<?= htmlspecialchars($usuario->getUsername()) ?>">
         </div>
 
         <div class="auth-field">
@@ -111,7 +65,7 @@ $usuario = $usuario ?? [
                  type="email"
                  id="email"
                  name="email"
-                 value="<?= htmlspecialchars($usuario['email']) ?>">
+                 value="<?= htmlspecialchars($usuario->getEmail()) ?>">
         </div>
 
       </div>
@@ -119,7 +73,6 @@ $usuario = $usuario ?? [
 
     <div class="ep-divider"></div>
 
-    <!-- Password -->
     <section class="ep-section">
       <h2 class="ep-section__title">Cambiar contraseña</h2>
 
@@ -131,6 +84,10 @@ $usuario = $usuario ?? [
                  type="password"
                  name="password_actual">
         </div>
+
+      </div>
+
+      <div class="ep-fields">
 
         <div class="auth-field">
           <label class="auth-label">Nueva contraseña</label>
@@ -151,7 +108,6 @@ $usuario = $usuario ?? [
 
     <div class="ep-divider"></div>
 
-    <!-- Actions -->
     <div class="ep-actions">
       <a href="/perfil" class="ep-btn ep-btn--ghost">Cancelar</a>
       <button type="submit" class="ep-btn ep-btn--primary">Guardar cambios</button>
@@ -160,18 +116,6 @@ $usuario = $usuario ?? [
   </form>
 
 </main>
-
-<script>
-function previewAvatar(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      document.getElementById('avatarPreview').src = e.target.result;
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-</script>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>
 
