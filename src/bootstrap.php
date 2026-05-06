@@ -33,14 +33,47 @@ $request = new Request;
 $router = new Router($log_app);
 $router->setLogger($log_app);
 
-$router->get('/', 'PageController@home');
-$router->get('/catalogo', 'PageController@catalogo');
-$router->get('/detalle_pelicula', 'PageController@detalle_pelicula');
-$router->get('/perfil', 'UserController@perfil');
-$router->get('/login', 'UserController@login');
-$router->post('/login', 'UserController@hacerLogin');
-$router->post('/logout', 'UserController@logout');
-$router->get('/registro', 'UserController@registro');
-$router->post('/registro', 'UserController@hacerRegistro');
-$router->get('/perfil/editar', 'UserController@editarPerfil');
-$router->post('/perfil/editar', 'UserController@guardarPerfil');
+$router->get('/', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\PageController();
+    $controller->home();
+});
+$router->get('/catalogo', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\PageController();
+    $controller->catalogo();
+});
+$router->get('/detalle_pelicula', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\PageController();
+    $controller->detalle_pelicula();
+});
+$router->get('/perfil', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->perfil();
+});
+$router->get('/login', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->login();
+});
+$router->post('/login', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->hacerLogin();
+});
+$router->post('/logout', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->logout();
+});
+$router->get('/registro', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->registro();
+});
+$router->post('/registro', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->hacerRegistro();
+});
+$router->get('/perfil/editar', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->editarPerfil();
+});
+$router->post('/perfil/editar', function() use ($connection, $log_app) {
+    $controller = new \App\Controllers\UserController();
+    $controller->guardarPerfil();
+});

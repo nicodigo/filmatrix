@@ -24,13 +24,19 @@ class Router
 
     public function __construct()
     {
-        $this->get($this->notFound, 'ErrorController@notFound');
-        $this->get($this->internalError, 'ErrorController@internalError');
+        $this->get($this->notFound, function() {
+            $controller = new \App\Controllers\ErrorController();
+            $controller->notFound();
+        });
+        $this->get($this->internalError, function() {
+            $controller = new \App\Controllers\ErrorController();
+            $controller->internalError();
+        });
     }
 
     public function dispatch(Request $request): void
     {
-
+        $action = null;
         try {
             list($path, $http_method) = $request->route();
             $this->logger
@@ -42,7 +48,7 @@ class Router
                     ]
                 );
 
-            list($controllerName, $method) = $this->getController($path, $http_method);
+            $action = $this->getAction($path, $http_method);
             $this->logger
                 ->info(
                     'Status Code: 200 OK',
@@ -52,49 +58,46 @@ class Router
                     ]
                 );
         } catch (RouteNotFoundException $e) {
-
-            list($controllerName, $method) = $this->getController($this->notFound, 'GET');
+            $action = $this->getAction($this->notFound, 'GET');
             $this->logger->debug(
                 'Status Code: 404 - Route Not Found',
                 ['ERROR' => $e],
             );
         } catch (Exception $e) {
-
-            list($controllerName, $method) = $this->getController($this->internalError, 'GET');
+            $action = $this->getAction($this->internalError, 'GET');
             $this->logger->debug(
                 'Status Code: 500 - Internal Server Error',
                 ['ERROR' => $e],
             );
         } finally {
-            $this->call($controllerName, $method);
+            $this->call($action);
         }
     }
 
-    public function getController($path, $http_method)
+    public function getAction($path, $http_method): callable
     {
         if (!$this->routeExists($path, $http_method)) {
             throw new RouteNotFoundException('No existe ruta para este Path');
         }
-        return explode('@', $this->routes[$http_method][$path]);
+        return $this->routes[$http_method][$path];
     }
 
-    public function call($controllerName, $method)
+    public function call(callable $action): void
     {
-        $controller = new ("App\\Controllers\\{$controllerName}");
-        $controller->$method();
+        $action();
     }
 
-    public function loadRoutes($path, $action, $http_method = 'GET'): void
+    public function loadRoutes($path, callable $action, $http_method = 'GET'): void
     {
         $this->routes[$http_method][$path] = $action;
     }
 
-    public function get($path, $action)
+    public function get($path, callable $action)
     {
         $this->loadRoutes($path, $action, 'GET');
     }
 
-    public function post($path, $action)
+    public function post($path, callable $action)
     {
         $this->loadRoutes($path, $action, 'POST');
     }
