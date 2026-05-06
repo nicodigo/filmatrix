@@ -4,7 +4,6 @@ vendor/**
 .env
 .git
 docker/
-*.md
 
 filmatrix-design-system.html
 .aider*

@@ -38,69 +38,34 @@ $authMiddleware = new AuthMiddleware();
 
 $request = new Request();
 
+// Factories de controllers
+$makeUserCtrl = fn() => new \App\Controllers\UserController($authService, $userService);
+$makePageCtrl = fn() => new \App\Controllers\PageController();
+
+// Helper para rutas protegidas
+$protegida = fn(callable $action) => function() use ($authMiddleware, $action) {
+    $authMiddleware->handle();
+    return $action();
+};
+
 $router = new Router();
 $router->setLogger($log_app);
 
 /*
 Rutas generales
 */
-$router->get('/', function () {
-    $controller = new \App\Controllers\PageController();
-    $controller->home();
-});
-
-$router->get('/catalogo', function () {
-    $controller = new \App\Controllers\PageController();
-    $controller->catalogo();
-});
-
-$router->get('/detalle_pelicula', function () {
-    $controller = new \App\Controllers\PageController();
-    $controller->detalle_pelicula();
-});
+$router->get('/', fn() => $makePageCtrl()->home());
+$router->get('/catalogo', fn() => $makePageCtrl()->catalogo());
+$router->get('/detalle_pelicula', fn() => $makePageCtrl()->detalle_pelicula());
 
 /*
 Rutas de usuario
 */
-$router->get('/perfil', function () use ($authMiddleware, $authService, $userService) {
-    $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->perfil();
-});
-
-$router->get('/login', function () use ($authService, $userService) {
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->login();
-});
-
-$router->post('/login', function () use ($authService, $userService) {
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->hacerLogin();
-});
-
-$router->post('/logout', function () use ($authService, $userService) {
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->logout();
-});
-
-$router->get('/registro', function () use ($authService, $userService) {
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->registro();
-});
-
-$router->post('/registro', function () use ($authService, $userService) {
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->hacerRegistro();
-});
-
-$router->get('/perfil/editar', function () use ($authMiddleware, $authService, $userService) {
-    $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->editarPerfil();
-});
-
-$router->post('/perfil/editar', function () use ($authMiddleware, $authService, $userService) {
-    $authMiddleware->handle();
-    $controller = new \App\Controllers\UserController($authService, $userService);
-    $controller->guardarPerfil();
-});
+$router->get('/perfil', $protegida(fn() => $makeUserCtrl()->perfil()));
+$router->get('/login', fn() => $makeUserCtrl()->login());
+$router->post('/login', fn() => $makeUserCtrl()->hacerLogin());
+$router->post('/logout', fn() => $makeUserCtrl()->logout());
+$router->get('/registro', fn() => $makeUserCtrl()->registro());
+$router->post('/registro', fn() => $makeUserCtrl()->hacerRegistro());
+$router->get('/perfil/editar', $protegida(fn() => $makeUserCtrl()->editarPerfil()));
+$router->post('/perfil/editar', $protegida(fn() => $makeUserCtrl()->guardarPerfil()));
