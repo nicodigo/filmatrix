@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Core\Exceptions\EmailAlreadyExistsException;
+use App\Core\Exceptions\UsernameAlreadyExists;
 use App\Services\AuthService;
 use App\Services\UserService;
 
@@ -88,20 +90,51 @@ class UserController
 
     public function hacerRegistro()
     {
-        $nombre   = trim($_POST['nombre'] ?? '');
-        $email    = trim($_POST['email'] ?? '');
+        $nombre   = mb_strtolower(trim($_POST['nombre'] ?? ''), 'UTF8');
+        $email    = mb_strtolower(trim($_POST['email'] ?? ''), 'UTF-8');
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm'] ?? '';
 
-        $error = '';
+
         $campos = [
             'nombre' => $nombre,
             'email'  => $email
         ];
 
-        if (empty($nombre) || empty($email) || empty($password) || empty($confirm)) {
+        $error = $this->verifyRegisterFields($nombre, $email, $password, $confirm);
+        if ($error) {
+            require $this->viewsDir . 'pages/registro.php';
+            exit;
+        }
+
+        try {
+            $this->authService->register([
+                'username' => $nombre,
+                'email' => $email,
+                'password' => $password,
+            ]);
+        } catch (UsernameAlreadyExists $e) {
+            $error = $e->getMessage();
+        } catch (EmailAlreadyExistsException $e) {
+            $error = $e->getMessage();
+        } finally {
+            if ($error) {
+                require $this->viewsDir . 'pages/registro.php';
+            } else {
+                require $this->viewsDir . 'pages/login.php';
+            }
+        }
+    }
+
+    private function verifyRegisterFields(
+        string $username,
+        string $email,
+        string $password,
+        string $confirm
+    ): ?string {
+        if (empty($username) || empty($email) || empty($password) || empty($confirm)) {
             $error = 'Completá todos los campos.';
-        } elseif (strlen($nombre) < 2) {
+        } elseif (strlen($username) < 2) {
             $error = 'El nombre debe tener al menos 2 caracteres.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
@@ -110,21 +143,10 @@ class UserController
         } elseif ($password !== $confirm) {
             $error = 'Las contraseñas no coinciden.';
         } else {
-            $registered = $this->authService->register([
-                'username' => $nombre,
-                'email' => $email,
-                'password' => $password,
-            ]);
-
-            if ($registered) {
-                header('Location: /perfil');
-                exit;
-            } else {
-                $error = 'El email ya está registrado.';
-            }
+            return null;
         }
 
-        require $this->viewsDir . 'pages/registro.php';
+        return $error;
     }
 
     public function editarPerfil()

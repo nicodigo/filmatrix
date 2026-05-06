@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Core\Exceptions\UsernameAlreadyExists;
 use App\Repository\UserRepository;
 use App\Models\User;
 use Psr\Log\LoggerInterface;
@@ -40,16 +41,26 @@ class AuthService
         return true;
     }
 
-    public function register(array $data): bool
+    public function register(array $data)
     {
-        $existing = $this->userRepository->findByEmail($data['email']);
+        $existingEmail = $this->userRepository->findByEmail($data['email']);
 
-        if ($existing) {
+        if ($existingEmail) {
             $this->logger->warning(
                 'Registration attempt with existing email',
-                ['email' => $data['email']]
+                ['email' => mb_strtolower($data['email'], 'UTF8')]
             );
-            return false;
+            throw new UsernameAlreadyExists('Email registrado');
+        }
+
+        $existingUsername = $this->userRepository->findByUsername($data['username']);
+
+        if ($existingUsername) {
+            $this->logger->warning(
+                'Registration attempt with existing username',
+                ['username' => mb_strtolower($data['username'], 'UTF8')]
+            );
+            throw new UsernameAlreadyExists('Username registrado');
         }
 
         $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -57,24 +68,12 @@ class AuthService
         $user = new User(
             null,
             $data['username'],
-            $data['email'],
+            mb_strtolower($data['email'], 'UTF8'),
             $passwordHash,
             'user'
         );
 
-        $userId = $this->userRepository->save($user);
-
-        if ($userId) {
-            session_regenerate_id(true);
-
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['user_role'] = $user->getRole();
-            $_SESSION['user_nombre'] = $user->getUsername();
-
-            return true;
-        }
-
-        return false;
+        $this->userRepository->save($user);
     }
 
     public function logout(): void

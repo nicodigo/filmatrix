@@ -52,6 +52,25 @@ class UserRepository
         return User::fromArray($row);
     }
 
+    public function findByUsername(string $username): ?User
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM users WHERE username = :username LIMIT 1'
+        );
+
+        $stmt->execute([
+            ':username' => trim($username)
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return User::fromArray($row);
+    }
+
     public function save(User $user): int
     {
         $stmt = $this->pdo->prepare(
