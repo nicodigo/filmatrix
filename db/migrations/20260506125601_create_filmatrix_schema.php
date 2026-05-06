@@ -13,7 +13,7 @@ final class CreateFilmatrixSchema extends AbstractMigration
         $table->addColumn('username', 'string', ['limit' => 100, 'null' => false])
               ->addColumn('email', 'string', ['limit' => 150, 'null' => false])
               ->addColumn('password_hash', 'string', ['limit' => 255, 'null' => false])
-              ->addColumn('role', 'enum', ['values' => ['user', 'admin'], 'default' => 'user', 'null' => false])
+              ->addColumn('role', 'string', ['limit' => 20, 'values' => ['user', 'admin'], 'default' => 'user', 'null' => false])
               ->addTimestamps()
               ->addIndex('username', ['unique' => true])
               ->addIndex('email', ['unique' => true])
@@ -38,7 +38,7 @@ final class CreateFilmatrixSchema extends AbstractMigration
         // 4. titles
         $table = $this->table('titles');
         $table->addColumn('tmdb_id', 'integer', ['null' => false])
-              ->addColumn('type', 'enum', ['values' => ['movie', 'series'], 'null' => false])
+              ->addColumn('type', 'string', ['limit' => 20, 'values' => ['movie', 'series'], 'null' => false])
               ->addColumn('title', 'string', ['limit' => 255, 'null' => false])
               ->addColumn('synopsis', 'text', ['null' => true])
               ->addColumn('poster_url', 'string', ['limit' => 255, 'null' => true])
@@ -63,7 +63,7 @@ final class CreateFilmatrixSchema extends AbstractMigration
         $table = $this->table('title_cast', ['id' => false, 'primary_key' => ['title_id', 'person_id']]);
         $table->addColumn('title_id', 'integer', ['null' => false])
               ->addColumn('person_id', 'integer', ['null' => false])
-              ->addColumn('role', 'enum', ['values' => ['actor', 'director'], 'null' => false])
+              ->addColumn('role', 'string', ['limit' => 20, 'values' => ['actor', 'director'], 'null' => false])
               ->addColumn('character_name', 'string', ['limit' => 150, 'null' => true])
               ->addColumn('billing_order', 'smallinteger', ['null' => false])
               ->addForeignKey('title_id', 'titles', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
@@ -74,7 +74,7 @@ final class CreateFilmatrixSchema extends AbstractMigration
         $table = $this->table('watchlist_items');
         $table->addColumn('user_id', 'integer', ['null' => false])
               ->addColumn('title_id', 'integer', ['null' => false])
-              ->addColumn('status', 'enum', ['values' => ['pending', 'watching', 'watched'], 'null' => false])
+              ->addColumn('status', 'string', ['limit' => 20, 'values' => ['pending', 'watching', 'watched'], 'null' => false])
               ->addColumn('added_at', 'datetime', ['null' => false])
               ->addColumn('updated_at', 'datetime', ['null' => false])
               ->addForeignKey('user_id', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
