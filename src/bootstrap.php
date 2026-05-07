@@ -12,53 +12,87 @@ use App\Core\Router;
 use App\Core\Config;
 use App\Core\Database\ConnectionBuilder;
 use App\Core\Request;
+
 use App\Repository\UserRepository;
-use App\Services\AuthService;
-use App\Middleware\AuthMiddleware;
-use App\Infrastructure\Tmdb\TmdbClient;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\CatalogListRepository;
+use App\Repository\ReviewRepository;
+
+use App\Services\AuthService;
+use App\Services\UserService;
 use App\Services\TitleService;
 use App\Services\CatalogSyncService;
+
+use App\Middleware\AuthMiddleware;
+
+use App\Infrastructure\Tmdb\TmdbClient;
+
+use App\Controllers\PageController;
 use App\Controllers\CatalogController;
-use App\Repository\ReviewRepository;
 use App\Controllers\MovieController;
+use App\Controllers\UserController;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 $config = new Config();
 
+/*
+|--------------------------------------------------------------------------
+| Logger
+|--------------------------------------------------------------------------
+*/
 $log_app = new Logger('log-app');
 $handler = new StreamHandler($config->get('LOG_PATH'));
 $handler->setLevel($config->get('LOG_LEVEL'));
 $log_app->pushHandler($handler);
 
+/*
+|--------------------------------------------------------------------------
+| DB
+|--------------------------------------------------------------------------
+*/
 $connectionBuilder = new ConnectionBuilder();
 $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
 
-
-$userRepository = new UserRepository($connection);
-$authService = new AuthService($userRepository, $log_app);
-$userService = new \App\Services\UserService($userRepository);
-
-$titleRepository = new TitleRepository($connection);
-$genreRepository = new GenreRepository($connection);
-$peopleRepository = new PeopleRepository($connection);
+/*
+|--------------------------------------------------------------------------
+| Repositories
+|--------------------------------------------------------------------------
+*/
+$userRepository        = new UserRepository($connection);
+$titleRepository       = new TitleRepository($connection);
+$genreRepository       = new GenreRepository($connection);
+$peopleRepository      = new PeopleRepository($connection);
 $catalogListRepository = new CatalogListRepository($connection);
-$reviewRepository = new ReviewRepository($connection);
+$reviewRepository      = new ReviewRepository($connection);
 
+/*
+|--------------------------------------------------------------------------
+| External clients
+|--------------------------------------------------------------------------
+*/
 $tmdbClient = new TmdbClient($config);
+
+/*
+|--------------------------------------------------------------------------
+| Services
+|--------------------------------------------------------------------------
+*/
+$authService = new AuthService($userRepository, $log_app);
+$userService = new UserService($userRepository);
+
 $titleService = new TitleService(
     $titleRepository,
     $genreRepository,
     $peopleRepository,
     $tmdbClient,
     $config,
-    $log_app
+    $log_app,
+    $catalogListRepository
 );
 
 $catalogSyncService = new CatalogSyncService(
@@ -69,39 +103,76 @@ $catalogSyncService = new CatalogSyncService(
     $log_app
 );
 
+$reviewService = new \App\Services\ReviewService($reviewRepository);
+
+/*
+|--------------------------------------------------------------------------
+| Middleware
+|--------------------------------------------------------------------------
+*/
 $authMiddleware = new AuthMiddleware();
 
+/*
+|--------------------------------------------------------------------------
+| Request
+|--------------------------------------------------------------------------
+*/
 $request = new Request();
 
-// Factories de controllers
-$makeUserCtrl = fn() => new \App\Controllers\UserController($authService, $userService);
-$makePageCtrl = fn() => new \App\Controllers\PageController($catalogListRepository);
-$makeCatalogCtrl = fn() => new CatalogController($titleService, $catalogListRepository);
-$makeMovieCtrl = fn() => new MovieController(
-    $titleService,
-    $reviewRepository,
+/*
+|--------------------------------------------------------------------------
+| Controllers factories
+|--------------------------------------------------------------------------
+*/
+$makeUserCtrl = fn() => new UserController($authService, $userService);
+
+$makePageCtrl = fn() => new PageController($catalogListRepository);
+
+$makeCatalogCtrl = fn() => new CatalogController(
     $catalogSyncService
 );
 
-// Helper para rutas protegidas
+$makeMovieCtrl = fn() => new MovieController(
+    $titleService,
+    $reviewService,
+    $catalogSyncService,
+    $genreRepository,
+    $peopleRepository
+);
+
+/*
+|--------------------------------------------------------------------------
+| Protected helper
+|--------------------------------------------------------------------------
+*/
 $protegida = fn(callable $action) => function() use ($authMiddleware, $action) {
     $authMiddleware->handle();
     return $action();
 };
 
+/*
+|--------------------------------------------------------------------------
+| Router
+|--------------------------------------------------------------------------
+*/
 $router = new Router();
 $router->setLogger($log_app);
 
 /*
-Rutas generales
+|--------------------------------------------------------------------------
+| Routes
+|--------------------------------------------------------------------------
 */
 $router->get('/', fn() => $makePageCtrl()->home());
+
 $router->get('/catalog', fn() => $makeCatalogCtrl()->index());
-$router->get('/detalle_pelicula', fn() => $makePageCtrl()->home()); // dead route, keep for reference
+
 $router->get('/movie', fn() => $makeMovieCtrl()->show());
 
 /*
-Rutas de usuario
+|--------------------------------------------------------------------------
+| User routes
+|--------------------------------------------------------------------------
 */
 $router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));
 $router->get('/login', fn() => $makeUserCtrl()->login());

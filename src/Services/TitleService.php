@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Core\Config;
 use App\Infrastructure\Tmdb\TmdbClient;
+use App\Models\Title;
+use App\Repository\CatalogListRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\TitleRepository;
@@ -12,16 +14,13 @@ use Psr\Log\LoggerInterface;
 
 class TitleService
 {
-    private const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
-    private const TMDB_PROFILE_BASE = 'https://image.tmdb.org/t/p/w185';
-    private const TMDB_YOUTUBE_BASE = 'https://www.youtube.com/watch?v=';
-
     private TitleRepository $titleRepository;
     private GenreRepository $genreRepository;
     private PeopleRepository $peopleRepository;
     private TmdbClient $tmdbClient;
     private Config $config;
     private LoggerInterface $logger;
+    private CatalogListRepository $catalogListRepository;
 
     public function __construct(
         TitleRepository $titleRepository,
@@ -29,7 +28,8 @@ class TitleService
         PeopleRepository $peopleRepository,
         TmdbClient $tmdbClient,
         Config $config,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CatalogListRepository $catalogListRepository
     ) {
         $this->titleRepository = $titleRepository;
         $this->genreRepository = $genreRepository;
@@ -37,98 +37,139 @@ class TitleService
         $this->tmdbClient = $tmdbClient;
         $this->config = $config;
         $this->logger = $logger;
+        $this->catalogListRepository = $catalogListRepository;
     }
 
-    private function isCacheStale(?array $row): bool
+    /* =========================
+       CACHE / CORE
+    ========================= */
+
+    private function isCacheStale(?Title $title): bool
     {
-        if ($row === null) {
+        if ($title === null) {
             return true;
         }
 
         $ttl = (int) ($this->config->get('TMDB_CACHE_TTL_DAYS') ?? 30);
 
-        $cachedAt = new DateTime($row['cached_at']);
+        $cachedAt = new DateTime($title->getCachedAt());
         $now = new DateTime();
 
-        $diff = $cachedAt->diff($now);
-
-        return $diff->days > $ttl;
+        return $cachedAt->diff($now)->days > $ttl;
     }
 
-    private function extractTrailerUrl(array $videosResponse): ?string
+    public function getTitle(int $tmdbId): Title
     {
-        $results = $videosResponse['results'] ?? [];
+        $title = $this->titleRepository->findByTmdbIdWithScore($tmdbId); 
 
-        foreach ($results as $video) {
-            if (($video['site'] ?? '') === 'YouTube' && ($video['type'] ?? '') === 'Trailer') {
-                return self::TMDB_YOUTUBE_BASE . $video['key'];
+        if ($this->isCacheStale($title)) {
+            return $this->persistTitle($tmdbId);
+        }
+
+        return $title;
+    }
+
+    /* =========================
+       DETAIL HELPERS
+    ========================= */
+
+    public function getTitleGenres(int $titleId): array
+    {
+        return $this->titleRepository->findGenresByTitleId($titleId);
+    }
+
+    public function getTitleCast(int $titleId): array
+    {
+        return $this->titleRepository->findCastByTitleId($titleId);
+    }
+
+    /* =========================
+       SYNC TMDB
+    ========================= */
+
+    public function persistTitle(int $tmdbId): Title
+    {
+        $movie = $this->tmdbClient->getMovie($tmdbId);
+        $videos = $this->tmdbClient->getVideos($tmdbId);
+
+        $trailerUrl = null;
+
+        foreach ($videos['results'] ?? [] as $video) {
+            if (($video['site'] ?? '') === 'YouTube' &&
+                ($video['type'] ?? '') === 'Trailer') {
+                $trailerUrl = 'https://www.youtube.com/watch?v=' . $video['key'];
+                break;
             }
         }
 
-        return null;
-    }
+        $releaseYear = !empty($movie['release_date'])
+            ? (int) date('Y', strtotime($movie['release_date']))
+            : null;
 
-    public function persistTitle(int $tmdbId): array
-    {
-        $movie = $this->tmdbClient->getMovie($tmdbId);
-        $videosResponse = $this->tmdbClient->getVideos($tmdbId);
-        $trailerUrl = $this->extractTrailerUrl($videosResponse);
+        $title = new Title(
+            null,
+            $movie['id'],
+            'movie',
+            $movie['title'],
+            $movie['overview'] ?? null,
+            !empty($movie['poster_path'])
+                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
+                : null,
+            $trailerUrl,
+            $releaseYear,
+            $movie['original_language'] ?? null,
+            $movie['runtime'] ?? null,
+            (float) ($movie['vote_average'] ?? 0)
+        );
 
-        $releaseYear = null;
-        if (!empty($movie['release_date'])) {
-            $releaseYear = (int) date('Y', strtotime($movie['release_date']));
-        }
+        $titleId = $this->titleRepository->upsert($title);
 
-        $titleId = $this->titleRepository->upsert([
-            'tmdb_id' => $movie['id'],
-            'type' => 'movie',
-            'title' => $movie['title'],
-            'synopsis' => $movie['overview'] ?? null,
-            'poster_url' => $movie['poster_path'] ? self::TMDB_IMAGE_BASE . $movie['poster_path'] : null,
-            'trailer_url' => $trailerUrl,
-            'release_year' => $releaseYear,
-            'language' => $movie['original_language'] ?? null,
-            'duration_minutes' => $movie['runtime'] ?? null,
-            'tmdb_rating' => $movie['vote_average'] ?? null,
-        ]);
-
-        $credits = $this->tmdbClient->getCredits($tmdbId);
-
-        // sync genres
+        /* genres */
         $this->titleRepository->clearGenres($titleId);
+
         foreach ($movie['genres'] ?? [] as $genre) {
-            $genreId = $this->genreRepository->upsert($genre['id'], $genre['name']);
+            $genreId = $this->genreRepository->upsert(
+                $genre['id'],
+                $genre['name']
+            );
+
             $this->titleRepository->attachGenre($titleId, $genreId);
         }
 
-        // sync cast (first 10 actors)
+        /* cast */
         $this->titleRepository->clearCast($titleId);
-        $cast = array_slice($credits['cast'] ?? [], 0, 10);
-        foreach ($cast as $member) {
-            $profileUrl = $member['profile_path'] ? self::TMDB_PROFILE_BASE . $member['profile_path'] : null;
+
+        $credits = $this->tmdbClient->getCredits($tmdbId);
+
+        foreach (array_slice($credits['cast'] ?? [], 0, 10) as $member) {
             $personId = $this->peopleRepository->upsert(
                 $member['id'],
                 $member['name'],
-                $profileUrl
+                $member['profile_path']
+                    ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
+                    : null
             );
+
             $this->titleRepository->attachCastMember(
                 $titleId,
                 $personId,
                 'actor',
                 $member['character'] ?? null,
-                $member['order']
+                $member['order'] ?? 0
             );
         }
 
-        // sync directors
+        /* directors */
         foreach ($credits['crew'] ?? [] as $member) {
             if (($member['job'] ?? '') === 'Director') {
-                $profileUrl = $member['profile_path'] ? self::TMDB_PROFILE_BASE . $member['profile_path'] : null;
                 $personId = $this->peopleRepository->upsert(
                     $member['id'],
                     $member['name'],
-                    $profileUrl
+                    $member['profile_path']
+                        ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
+                        : null
                 );
+
                 $this->titleRepository->attachCastMember(
                     $titleId,
                     $personId,
@@ -139,40 +180,8 @@ class TitleService
             }
         }
 
-        $this->logger->info('Title cached from TMDB', ['tmdb_id' => $tmdbId]);
+        $this->logger->info('Title synced', ['tmdb_id' => $tmdbId]);
 
         return $this->titleRepository->findByTmdbId($tmdbId);
-    }
-
-    public function getTitle(int $tmdbId): array
-    {
-        $row = $this->titleRepository->findByTmdbId($tmdbId);
-
-        if ($this->isCacheStale($row)) {
-            return $this->persistTitle($tmdbId);
-        }
-
-        return $row;
-    }
-
-    public function syncGenres(): void
-    {
-        $response = $this->tmdbClient->getGenres();
-
-        foreach ($response['genres'] ?? [] as $genre) {
-            $this->genreRepository->upsert($genre['id'], $genre['name']);
-        }
-
-        $this->logger->info('Genres synced from TMDB', ['count' => count($response['genres'] ?? [])]);
-    }
-
-    public function getTitleGenres(int $titleId): array
-    {
-        return $this->titleRepository->findGenresByTitleId($titleId);
-    }
-
-    public function getTitleCast(int $titleId): array
-    {
-        return $this->titleRepository->findCastByTitleId($titleId);
     }
 }

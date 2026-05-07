@@ -15,10 +15,10 @@ class PageController
         $this->catalogListRepository = $catalogListRepository;
     }
 
-    public function home()
+    public function home(): void
     {
         $popular = $this->catalogListRepository->findBySection('popular', 4);
+
         require $this->viewsDir . 'pages/home.php';
     }
-
 }

@@ -2,25 +2,25 @@
 
 namespace App\Controllers;
 
-use App\Repository\CatalogListRepository;
-use App\Services\TitleService;
+use App\Services\CatalogSyncService;
 
 class CatalogController
 {
-    private TitleService $titleService;
-    private CatalogListRepository $catalogListRepository;
+    private CatalogSyncService $catalogService;
     private string $viewsDir;
 
-    public function __construct(TitleService $titleService, CatalogListRepository $catalogListRepository)
-    {
-        $this->titleService = $titleService;
-        $this->catalogListRepository = $catalogListRepository;
+    public function __construct(
+        CatalogSyncService $catalogService
+    ) {
+        $this->catalogService = $catalogService;
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
     public function index(): void
     {
-        $titles = $this->catalogListRepository->findAllByPopularity(40);
+        $titles = $this->catalogService
+            ->findAllByPopularity(40);
+
         require $this->viewsDir . 'pages/catalogo.php';
     }
 }

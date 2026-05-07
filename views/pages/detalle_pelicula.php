@@ -22,10 +22,6 @@
  
 <main class="detalle-main">
  
-  <?php
-    // Data provided by DetalleController
-  ?>
- 
   <!-- ══════════════════════════════════
        PORTADA + TÍTULO
   ══════════════════════════════════════ -->
@@ -33,18 +29,18 @@
     <div class="detalle-hero__poster-wrap">
       <img
         class="detalle-hero__poster"
-        src="<?= htmlspecialchars($title['poster_url'] ?? '/assets/img/hero-bg.webp') ?>"
-        alt="Portada de <?= htmlspecialchars($title['title']) ?>"
+        src="<?= htmlspecialchars($title->getPosterUrl() ?? '/assets/img/hero-bg.webp') ?>"
+        alt="Portada de <?= htmlspecialchars($title->getTitle()) ?>"
       >
     </div>
     <div class="detalle-hero__info">
-      <h1 class="detalle-titulo"><?= htmlspecialchars($title['title']) ?></h1>
+      <h1 class="detalle-titulo"><?= htmlspecialchars($title->getTitle()) ?></h1>
       <div class="detalle-meta">
-        <span class="detalle-meta__item"><?= htmlspecialchars($title['release_year'] ?? 'S/D') ?></span>
+        <span class="detalle-meta__item"><?= htmlspecialchars($title->getReleaseYear() ?? 'S/D') ?></span>
         <span class="detalle-meta__sep">·</span>
         <span class="detalle-meta__item"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
         <span class="detalle-meta__sep">·</span>
-        <span class="detalle-meta__item"><?= htmlspecialchars($genreLabel?: 'S/D') ?></span>
+        <span class="detalle-meta__item"><?= htmlspecialchars($genreLabel ?: 'S/D') ?></span>
       </div>
     </div>
   </section>
@@ -58,7 +54,7 @@
  
       <div class="detalle-sinopsis">
         <h2 class="detalle-section-label">Sinopsis</h2>
-        <p class="detalle-sinopsis__texto"><?= htmlspecialchars($title['synopsis'] ?? 'Sin sinopsis disponible.') ?></p>
+        <p class="detalle-sinopsis__texto"><?= htmlspecialchars($title->getSynopsis() ?? 'Sin sinopsis disponible.') ?></p>
       </div>
  
       <div class="detalle-datos">
@@ -69,7 +65,14 @@
             <svg class="detalle-dato__star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
-            <span class="detalle-dato__val"><?= htmlspecialchars($title['avg_score'] ?? 'S/P') ?></span>
+            <?php
+              // avg_score viene del JOIN en findByTmdbIdWithScore()
+              // Si el modelo lo expone como getAvgScore(), usalo; si no, cae a 'S/P'
+              $avgScore = method_exists($title, 'getAvgScore')
+                ? $title->getAvgScore()
+                : null;
+            ?>
+            <span class="detalle-dato__val"><?= htmlspecialchars($avgScore ?? 'S/P') ?></span>
             <span class="detalle-dato__max">/ 5</span>
           </div>
         </div>
@@ -81,13 +84,25 @@
  
         <div class="detalle-dato">
           <span class="detalle-dato__label">Año</span>
-          <span class="detalle-dato__val"><?= htmlspecialchars($title['release_year'] ?? 'S/D') ?></span>
+          <span class="detalle-dato__val"><?= htmlspecialchars($title->getReleaseYear() ?? 'S/D') ?></span>
         </div>
  
         <div class="detalle-dato">
           <span class="detalle-dato__label">Duración</span>
           <span class="detalle-dato__val"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
         </div>
+
+        <div class="detalle-dato">
+          <span class="detalle-dato__label">Idioma original</span>
+          <span class="detalle-dato__val"><?= htmlspecialchars(strtoupper($title->getLanguage() ?? 'S/D')) ?></span>
+        </div>
+
+        <?php if ($title->getTmdbRating()): ?>
+        <div class="detalle-dato">
+          <span class="detalle-dato__label">Rating TMDB</span>
+          <span class="detalle-dato__val"><?= htmlspecialchars(number_format($title->getTmdbRating(), 1)) ?> / 10</span>
+        </div>
+        <?php endif; ?>
  
       </div>
  
@@ -136,10 +151,9 @@
       Escribir reseña
     </label>
  
-    <!-- Formulario CSS-only, visible cuando el checkbox está marcado -->
     <div class="resena-form-wrap">
       <form class="resena-form" action="/resenas/crear" method="POST">
-        <input type="hidden" name="pelicula_id" value="<?= $title['id'] ?>">
+        <input type="hidden" name="pelicula_id" value="<?= $title->getId() ?>">
  
         <div class="resena-form__stars" role="group" aria-label="Puntuación">
           <?php for ($i = 5; $i >= 1; $i--): ?>
@@ -177,7 +191,7 @@
       <?php if (empty($reviews)): ?>
         <p class="detalle-empty">Todavía no hay reseñas.</p>
       <?php else: ?>
-        <?php foreach ($reviews as $index => $resenia): ?>
+        <?php foreach ($reviews as $resenia): ?>
           <article class="resenia-card">
  
             <header class="resenia-card__header">

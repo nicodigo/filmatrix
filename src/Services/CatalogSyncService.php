@@ -34,7 +34,11 @@ class CatalogSyncService
         foreach ($tmdbResults as $i => $movie) {
             try {
                 $this->titleService->persistTitle($movie['id']);
-                $titleId = $this->titleRepository->findByTmdbId($movie['id'])['id'];
+                $title = $this->titleRepository->findByTmdbId($movie['id']);
+                if ($title === null) {
+                    continue;
+                }
+                $titleId = $title->getId();
                 $this->catalogListRepository->insert($section, $titleId, $pageOffset + $i);
             } catch (\Throwable $e) {
                 $this->logger->warning('Failed to sync movie in section', [
@@ -72,5 +76,20 @@ class CatalogSyncService
     public function findSuggested(int $excludeTitleId, int $limit): array
     {
         return $this->catalogListRepository->findSuggested($excludeTitleId, $limit);
+    }
+
+    public function findAllByPopularity(
+        int $limit
+    ): array {
+        return $this->catalogListRepository
+            ->findAllByPopularity($limit);
+    }
+
+    public function findBySection(
+        string $section,
+        int $limit
+    ): array {
+        return $this->catalogListRepository
+            ->findBySection($section, $limit);
     }
 }
