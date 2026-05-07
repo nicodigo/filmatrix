@@ -21,7 +21,7 @@ class UserRepository
         );
 
         $stmt->execute([
-            ':email' => trim($email)
+            ':email' => $email
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +59,7 @@ class UserRepository
         );
 
         $stmt->execute([
-            ':username' => trim($username)
+            ':username' => $username
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -88,24 +88,7 @@ class UserRepository
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function update(int $id, string $username, string $email): bool
-    {
-        $stmt = $this->pdo->prepare(
-            'UPDATE users
-             SET username = :username,
-                 email = :email,
-                 updated_at = NOW()
-             WHERE id = :id'
-        );
-
-        return $stmt->execute([
-            ':username' => trim($username),
-            ':email' => trim($email),
-            ':id' => $id
-        ]);
-    }
-
-    public function updateWithPassword(int $id, string $username, string $email, string $passwordHash): bool
+    public function update(User $user): bool
     {
         $stmt = $this->pdo->prepare(
             'UPDATE users
@@ -117,41 +100,10 @@ class UserRepository
         );
 
         return $stmt->execute([
-            ':username' => trim($username),
-            ':email' => trim($email),
-            ':password_hash' => $passwordHash,
-            ':id' => $id
+            ':username' => $user->getUsername(),
+            ':email' => $user->getEmail(),
+            ':password_hash' => $user->getPasswordHash(),
+            ':id' => $user->getId()
         ]);
-    }
-
-    public function emailExists(string $email, ?int $excludeId = null): bool
-    {
-        if ($excludeId !== null) {
-            $stmt = $this->pdo->prepare(
-                'SELECT id
-                 FROM users
-                 WHERE email = :email
-                 AND id != :id
-                 LIMIT 1'
-            );
-
-            $stmt->execute([
-                ':email' => trim($email),
-                ':id' => $excludeId
-            ]);
-        } else {
-            $stmt = $this->pdo->prepare(
-                'SELECT id
-                 FROM users
-                 WHERE email = :email
-                 LIMIT 1'
-            );
-
-            $stmt->execute([
-                ':email' => trim($email)
-            ]);
-        }
-
-        return (bool) $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

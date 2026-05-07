@@ -19,18 +19,70 @@ class UserService
         return $this->userRepository->findById($id);
     }
 
-    public function emailExists(string $email, ?int $excludeId = null): bool
+    public function updateProfile(int $id, string $username, string $email): bool
     {
-        return $this->userRepository->emailExists($email, $excludeId);
+        $user = $this->userRepository->findById($id);
+        if ($user === null) {
+            return false;
+        }
+
+        $user->setUsername(trim($username));
+        $user->setEmail(trim($email));
+
+        return $this->userRepository->update($user);
     }
 
-    public function updateUser(int $id, string $username, string $email): bool
+    public function updatePassword(int $id, string $currentPassword, string $newPassword): bool
     {
-        return $this->userRepository->update($id, $username, $email);
+        $user = $this->userRepository->findById($id);
+        if ($user === null) {
+            return false;
+        }
+
+        if (!$user->verifyPassword($currentPassword)) {
+            return false;
+        }
+
+        $user->setPasswordHash(password_hash($newPassword, PASSWORD_DEFAULT));
+
+        return $this->userRepository->update($user);
     }
 
-    public function updateUserWithPassword(int $id, string $username, string $email, string $passwordHash): bool
+    public function updateProfileWithPassword(
+        int $id,
+        string $username,
+        string $email,
+        string $currentPassword,
+        string $newPassword
+    ): bool {
+        $user = $this->userRepository->findById($id);
+        if ($user === null) {
+            return false;
+        }
+
+        if (!$user->verifyPassword($currentPassword)) {
+            return false;
+        }
+
+        $user->setUsername(trim($username));
+        $user->setEmail(trim($email));
+        $user->setPasswordHash(password_hash($newPassword, PASSWORD_DEFAULT));
+
+        return $this->userRepository->update($user);
+    }
+
+    public function isEmailTaken(string $email, ?int $excludeId = null): bool
     {
-        return $this->userRepository->updateWithPassword($id, $username, $email, $passwordHash);
+        $email = trim($email);
+        $found = $this->userRepository->findByEmail($email);
+        if ($found === null) {
+            return false;
+        }
+
+        if ($excludeId !== null) {
+            return $found->getId() !== $excludeId;
+        }
+
+        return true;
     }
 }

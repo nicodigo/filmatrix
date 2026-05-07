@@ -178,27 +178,33 @@ class UserController
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif ($this->userService->emailExists($email, $userId)) {
+        } elseif ($this->userService->isEmailTaken($email, $userId)) {
             $error = 'El email ya está en uso.';
         } elseif (!empty($password_nueva) && strlen($password_nueva) < 8) {
             $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
         } elseif (!empty($password_nueva) && $password_nueva !== $password_confirm) {
             $error = 'Las contraseñas no coinciden.';
-        } elseif (!empty($password_nueva) && !$usuario->verifyPassword($password_actual)) {
-            $error = 'La contraseña actual es incorrecta.';
         } else {
-
             if (!empty($password_nueva)) {
-                $hash = password_hash($password_nueva, PASSWORD_DEFAULT);
-                $this->userService->updateUserWithPassword($userId, $nombre, $email, $hash);
+                $result = $this->userService->updateProfileWithPassword(
+                    $userId,
+                    $nombre,
+                    $email,
+                    $password_actual,
+                    $password_nueva
+                );
+                if (!$result) {
+                    $error = 'La contraseña actual es incorrecta.';
+                }
             } else {
-                $this->userService->updateUser($userId, $nombre, $email);
+                $this->userService->updateProfile($userId, $nombre, $email);
             }
 
-            $_SESSION['user_nombre'] = $nombre;
-            $success = 'Perfil actualizado correctamente.';
-
-            $usuario = $this->userService->getUserById($userId);
+            if (empty($error)) {
+                $_SESSION['user_nombre'] = $nombre;
+                $success = 'Perfil actualizado correctamente.';
+                $usuario = $this->userService->getUserById($userId);
+            }
         }
 
         require $this->viewsDir . 'pages/editar_perfil.php';
