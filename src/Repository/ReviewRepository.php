@@ -103,8 +103,8 @@ class ReviewRepository
             ':title_id' => $review->getTitleId(),
             ':score' => $review->getScore(),
             ':body' => $review->getBody(),
-            ':is_flagged' => $review->isFlagged(),
-            ':is_visible' => $review->isVisible(),
+            ':is_flagged' => (int) $review->isFlagged(),
+            ':is_visible' => (int) $review->isVisible(),
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -142,5 +142,18 @@ class ReviewRepository
         return $stmt->execute([
             ':id' => $id,
         ]);
+    }
+    public function findByTitleIdWithAuthorUsername(int $titleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT r.*, u.username
+        FROM reviews r
+        JOIN users u ON u.id = r.user_id
+        WHERE r.title_id = :title_id
+        AND r.body IS NOT NULL
+        ORDER BY r.created_at DESC'
+        );
+        $stmt->execute([':title_id' => $titleId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

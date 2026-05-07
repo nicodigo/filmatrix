@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Core\Exceptions\ReviewAlreadyExistException;
 use App\Models\Review;
 use App\Repository\ReviewRepository;
 
@@ -26,7 +27,7 @@ class ReviewService
     {
         return $this->reviewRepository->findById($id);
     }
-    
+
     public function getByUserAndTitle(int $userId, int $titleId): ?Review
     {
         return $this->reviewRepository->findByUserAndTitle($userId, $titleId);
@@ -40,11 +41,13 @@ class ReviewService
     ): int {
         $existing = $this->reviewRepository
             ->findByUserAndTitle($userId, $titleId);
-    
+
         if ($existing !== null) {
-            return $existing->getId();
+            throw new ReviewAlreadyExistException('El usuario ya escribió una reseña para esta película');
         }
-    
+
+        $body = trim($body) ?: null;
+
         $review = new Review(
             null,
             $userId,
@@ -52,7 +55,7 @@ class ReviewService
             $score,
             $body
         );
-    
+
         return $this->reviewRepository->save($review);
     }
 
@@ -77,4 +80,10 @@ class ReviewService
     {
         return $this->reviewRepository->delete($reviewId);
     }
+
+    public function getByTitleIdWithAuthor(int $titleId): array
+    {
+        return $this->reviewRepository->findByTitleIdWithAuthorUsername($titleId);
+    }
 }
+

@@ -35,6 +35,7 @@ use App\Infrastructure\Tmdb\TmdbClient;
 use App\Controllers\PageController;
 use App\Controllers\CatalogController;
 use App\Controllers\MovieController;
+use App\Controllers\ReviewController;
 use App\Controllers\UserController;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
@@ -42,30 +43,18 @@ $dotenv->load();
 
 $config = new Config();
 
-/*
-|--------------------------------------------------------------------------
-| Logger
-|--------------------------------------------------------------------------
-*/
+// Logger
 $log_app = new Logger('log-app');
 $handler = new StreamHandler($config->get('LOG_PATH'));
 $handler->setLevel($config->get('LOG_LEVEL'));
 $log_app->pushHandler($handler);
 
-/*
-|--------------------------------------------------------------------------
-| DB
-|--------------------------------------------------------------------------
-*/
+// DB
 $connectionBuilder = new ConnectionBuilder();
 $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
 
-/*
-|--------------------------------------------------------------------------
-| Repositories
-|--------------------------------------------------------------------------
-*/
+// Repositories
 $userRepository        = new UserRepository($connection);
 $titleRepository       = new TitleRepository($connection);
 $genreRepository       = new GenreRepository($connection);
@@ -73,18 +62,10 @@ $peopleRepository      = new PeopleRepository($connection);
 $catalogListRepository = new CatalogListRepository($connection);
 $reviewRepository      = new ReviewRepository($connection);
 
-/*
-|--------------------------------------------------------------------------
-| External clients
-|--------------------------------------------------------------------------
-*/
+// External clients
 $tmdbClient = new TmdbClient($config);
 
-/*
-|--------------------------------------------------------------------------
-| Services
-|--------------------------------------------------------------------------
-*/
+// Services
 $authService   = new AuthService($userRepository, $log_app);
 $userService   = new UserService($userRepository);
 $genreService  = new GenreService($genreRepository);
@@ -108,25 +89,13 @@ $catalogSyncService = new CatalogSyncService(
     $log_app
 );
 
-/*
-|--------------------------------------------------------------------------
-| Middleware
-|--------------------------------------------------------------------------
-*/
+// Middleware
 $authMiddleware = new AuthMiddleware();
 
-/*
-|--------------------------------------------------------------------------
-| Request
-|--------------------------------------------------------------------------
-*/
+// Request
 $request = new Request();
 
-/*
-|--------------------------------------------------------------------------
-| Controllers factories
-|--------------------------------------------------------------------------
-*/
+// Controllers factories
 $makeUserCtrl = fn() => new UserController($authService, $userService);
 
 $makePageCtrl = fn() => new PageController($catalogListRepository);
@@ -143,40 +112,24 @@ $makeMovieCtrl = fn() => new MovieController(
     $peopleService
 );
 
-/*
-|--------------------------------------------------------------------------
-| Protected helper
-|--------------------------------------------------------------------------
-*/
+$makeReviewCtrl = fn() => new ReviewController($reviewService);
+
+// Protected helper
 $protegida = fn(callable $action) => function() use ($authMiddleware, $action) {
     $authMiddleware->handle();
     return $action();
 };
 
-/*
-|--------------------------------------------------------------------------
-| Router
-|--------------------------------------------------------------------------
-*/
+// Router
 $router = new Router();
 $router->setLogger($log_app);
 
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-*/
+// Routes
 $router->get('/', fn() => $makePageCtrl()->home());
-
 $router->get('/catalog', fn() => $makeCatalogCtrl()->index());
-
 $router->get('/movie', fn() => $makeMovieCtrl()->show());
 
-/*
-|--------------------------------------------------------------------------
-| User routes
-|--------------------------------------------------------------------------
-*/
+
 $router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));
 $router->get('/login', fn() => $makeUserCtrl()->login());
 $router->post('/login', fn() => $makeUserCtrl()->handleLogin());
@@ -185,3 +138,5 @@ $router->get('/register', fn() => $makeUserCtrl()->register());
 $router->post('/register', fn() => $makeUserCtrl()->handleRegister());
 $router->get('/profile/edit', $protegida(fn() => $makeUserCtrl()->editProfile()));
 $router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));
+$router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));
+$router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()));

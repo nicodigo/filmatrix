@@ -49,23 +49,19 @@ class MovieController
         }
 
         /*
-        |--------------------------------------------------------------------------
         | Relaciones desde services
-        |--------------------------------------------------------------------------
         */
         $genres = $this->genreService->getByTitleId($title->getId());
         $cast   = $this->peopleService->getCastByTitleId($title->getId());
 
         $reviews = $this->reviewService
-            ->getVisibleByTitleId($title->getId());
+            ->getByTitleIdWithAuthor($title->getId());
 
         $suggested = $this->catalogSyncService
             ->findSuggested($title->getId(), 4);
 
         /*
-        |--------------------------------------------------------------------------
         | Duración formateada
-        |--------------------------------------------------------------------------
         */
         $duration = null;
 
@@ -79,9 +75,7 @@ class MovieController
         }
 
         /*
-        |--------------------------------------------------------------------------
         | Labels para vista
-        |--------------------------------------------------------------------------
         */
         $genreLabel = implode(', ', array_map(
             fn($genre) => is_array($genre) ? $genre['name'] : $genre->getName(),
@@ -89,9 +83,7 @@ class MovieController
         ));
 
         /*
-        |--------------------------------------------------------------------------
         | Render
-        |--------------------------------------------------------------------------
         */
         require $this->viewsDir . 'pages/detalle_pelicula.php';
     }
