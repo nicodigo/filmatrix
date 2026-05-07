@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
-use App\Core\Exceptions\UsernameAlreadyExists;
+use App\Core\Exceptions\EmailAlreadyTakenException;
+use App\Core\Exceptions\InvalidPasswordException;
+use App\Core\Exceptions\UserNotFoundException;
+use App\Core\Exceptions\UsernameAlreadyExistsException;
 use App\Repository\UserRepository;
 use App\Models\User;
 use Psr\Log\LoggerInterface;
@@ -18,18 +21,18 @@ class AuthService
         $this->logger = $logger;
     }
 
-    public function login(string $email, string $password): bool
+    public function login(string $email, string $password): void
     {
         $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {
             $this->logger->warning('Login attempt with unknown email', ['email' => $email]);
-            return false;
+            throw new UserNotFoundException("User with email {$email} not found");
         }
 
         if (!$user->verifyPassword($password)) {
             $this->logger->warning('Login attempt with wrong password', ['email' => $email]);
-            return false;
+            throw new InvalidPasswordException("Invalid password");
         }
 
         session_regenerate_id(true);
@@ -37,11 +40,9 @@ class AuthService
         $_SESSION['user_id'] = $user->getId();
         $_SESSION['user_role'] = $user->getRole();
         $_SESSION['user_nombre'] = $user->getUsername();
-
-        return true;
     }
 
-    public function register(array $data)
+    public function register(array $data): void
     {
         $existingEmail = $this->userRepository->findByEmail($data['email']);
 
@@ -50,7 +51,7 @@ class AuthService
                 'Registration attempt with existing email',
                 ['email' => mb_strtolower($data['email'], 'UTF8')]
             );
-            throw new UsernameAlreadyExists('Email registrado');
+            throw new EmailAlreadyTakenException('Email registrado');
         }
 
         $existingUsername = $this->userRepository->findByUsername($data['username']);
@@ -60,7 +61,7 @@ class AuthService
                 'Registration attempt with existing username',
                 ['username' => mb_strtolower($data['username'], 'UTF8')]
             );
-            throw new UsernameAlreadyExists('Username registrado');
+            throw new UsernameAlreadyExistsException('Username registrado');
         }
 
         $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);

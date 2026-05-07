@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Core\Exceptions\EmailAlreadyTakenException;
+use App\Core\Exceptions\InvalidPasswordException;
+use App\Core\Exceptions\UserNotFoundException;
 use App\Repository\UserRepository;
 use App\Models\User;
 
@@ -14,38 +17,42 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    public function getUserById(int $id): ?User
-    {
-        return $this->userRepository->findById($id);
-    }
-
-    public function updateProfile(int $id, string $username, string $email): bool
+    public function getUserById(int $id): User
     {
         $user = $this->userRepository->findById($id);
         if ($user === null) {
-            return false;
+            throw new UserNotFoundException("User {$id} not found");
+        }
+        return $user;
+    }
+
+    public function updateProfile(int $id, string $username, string $email): void
+    {
+        $user = $this->userRepository->findById($id);
+        if ($user === null) {
+            throw new UserNotFoundException("User {$id} not found");
         }
 
         $user->setUsername(trim($username));
         $user->setEmail(trim($email));
 
-        return $this->userRepository->update($user);
+        $this->userRepository->update($user);
     }
 
-    public function updatePassword(int $id, string $currentPassword, string $newPassword): bool
+    public function updatePassword(int $id, string $currentPassword, string $newPassword): void
     {
         $user = $this->userRepository->findById($id);
         if ($user === null) {
-            return false;
+            throw new UserNotFoundException("User {$id} not found");
         }
 
         if (!$user->verifyPassword($currentPassword)) {
-            return false;
+            throw new InvalidPasswordException("Current password is incorrect");
         }
 
         $user->setPasswordHash(password_hash($newPassword, PASSWORD_DEFAULT));
 
-        return $this->userRepository->update($user);
+        $this->userRepository->update($user);
     }
 
     public function updateProfileWithPassword(
@@ -54,35 +61,35 @@ class UserService
         string $email,
         string $currentPassword,
         string $newPassword
-    ): bool {
+    ): void {
         $user = $this->userRepository->findById($id);
         if ($user === null) {
-            return false;
+            throw new UserNotFoundException("User {$id} not found");
         }
 
         if (!$user->verifyPassword($currentPassword)) {
-            return false;
+            throw new InvalidPasswordException("Current password is incorrect");
         }
 
         $user->setUsername(trim($username));
         $user->setEmail(trim($email));
         $user->setPasswordHash(password_hash($newPassword, PASSWORD_DEFAULT));
 
-        return $this->userRepository->update($user);
+        $this->userRepository->update($user);
     }
 
-    public function isEmailTaken(string $email, ?int $excludeId = null): bool
+    public function assertEmailNotTaken(string $email, ?int $excludeId = null): void
     {
         $email = trim($email);
         $found = $this->userRepository->findByEmail($email);
         if ($found === null) {
-            return false;
+            return;
         }
 
-        if ($excludeId !== null) {
-            return $found->getId() !== $excludeId;
+        if ($excludeId !== null && $found->getId() === $excludeId) {
+            return;
         }
 
-        return true;
+        throw new EmailAlreadyTakenException("Email {$email} is already in use");
     }
 }

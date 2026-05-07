@@ -65,7 +65,7 @@ class Router
             );
         } catch (Exception $e) {
             $action = $this->getAction($this->internalError, 'GET');
-            $this->logger->debug(
+            $this->logger->error(
                 'Status Code: 500 - Internal Server Error',
                 ['ERROR' => $e],
             );

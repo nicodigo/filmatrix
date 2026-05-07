@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Core\Exceptions\EmailAlreadyExistsException;
-use App\Core\Exceptions\UsernameAlreadyExists;
+use App\Core\Exceptions\EmailAlreadyTakenException;
+use App\Core\Exceptions\InvalidPasswordException;
+use App\Core\Exceptions\UserNotFoundException;
+use App\Core\Exceptions\UsernameAlreadyExistsException;
 use App\Services\AuthService;
 use App\Services\UserService;
 
@@ -51,14 +53,17 @@ class UserController
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
         } else {
-            if ($this->authService->login($email, $password)) {
+            try {
+                $this->authService->login($email, $password);
                 $destino = $_SESSION['redirect_after_login'] ?? '/profile';
                 unset($_SESSION['redirect_after_login']);
 
                 header('Location: ' . $destino);
                 exit;
-            } else {
-                $error = 'Email o contraseña incorrectos.';
+            } catch (UserNotFoundException $e) {
+                $error = $e->getMessage();
+            } catch (InvalidPasswordException $e) {
+                $error = $e->getMessage();
             }
         }
 
@@ -113,9 +118,9 @@ class UserController
                 'email' => $email,
                 'password' => $password,
             ]);
-        } catch (UsernameAlreadyExists $e) {
+        } catch (UsernameAlreadyExistsException $e) {
             $error = $e->getMessage();
-        } catch (EmailAlreadyExistsException $e) {
+        } catch (EmailAlreadyTakenException $e) {
             $error = $e->getMessage();
         } finally {
             if ($error) {
@@ -178,32 +183,34 @@ class UserController
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif ($this->userService->isEmailTaken($email, $userId)) {
-            $error = 'El email ya está en uso.';
         } elseif (!empty($password_nueva) && strlen($password_nueva) < 8) {
             $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
         } elseif (!empty($password_nueva) && $password_nueva !== $password_confirm) {
             $error = 'Las contraseñas no coinciden.';
         } else {
-            if (!empty($password_nueva)) {
-                $result = $this->userService->updateProfileWithPassword(
-                    $userId,
-                    $nombre,
-                    $email,
-                    $password_actual,
-                    $password_nueva
-                );
-                if (!$result) {
-                    $error = 'La contraseña actual es incorrecta.';
+            try {
+                $this->userService->assertEmailNotTaken($email, $userId);
+                if (!empty($password_nueva)) {
+                    $this->userService->updateProfileWithPassword(
+                        $userId,
+                        $nombre,
+                        $email,
+                        $password_actual,
+                        $password_nueva
+                    );
+                } else {
+                    $this->userService->updateProfile($userId, $nombre, $email);
                 }
-            } else {
-                $this->userService->updateProfile($userId, $nombre, $email);
-            }
 
-            if (empty($error)) {
                 $_SESSION['user_nombre'] = $nombre;
                 $success = 'Perfil actualizado correctamente.';
                 $usuario = $this->userService->getUserById($userId);
+            } catch (EmailAlreadyTakenException $e) {
+                $error = $e->getMessage();
+            } catch (InvalidPasswordException $e) {
+                $error = $e->getMessage();
+            } catch (UserNotFoundException $e) {
+                $error = $e->getMessage();
             }
         }
 
