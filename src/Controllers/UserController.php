@@ -11,7 +11,7 @@ class UserController
 {
     private AuthService $authService;
     private UserService $userService;
-    public string $viewsDir;
+    private string $viewsDir;
 
     public function __construct(AuthService $authService, UserService $userService)
     {
@@ -20,7 +20,7 @@ class UserController
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
-    public function perfil()
+    public function profile()
     {
         $userId = $this->authService->getCurrentUserId();
         $usuario = $this->userService->getUserById($userId);
@@ -31,7 +31,7 @@ class UserController
     public function login()
     {
         if ($this->authService->isLoggedIn()) {
-            header('Location: /perfil');
+            header('Location: /profile');
             exit;
         }
 
@@ -40,7 +40,7 @@ class UserController
         require $this->viewsDir . 'pages/login.php';
     }
 
-    public function hacerLogin()
+    public function handleLogin()
     {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -52,7 +52,7 @@ class UserController
             $error = 'El email no es válido.';
         } else {
             if ($this->authService->login($email, $password)) {
-                $destino = $_SESSION['redirect_after_login'] ?? '/perfil';
+                $destino = $_SESSION['redirect_after_login'] ?? '/profile';
                 unset($_SESSION['redirect_after_login']);
 
                 header('Location: ' . $destino);
@@ -72,10 +72,10 @@ class UserController
         exit;
     }
 
-    public function registro()
+    public function register()
     {
         if ($this->authService->isLoggedIn()) {
-            header('Location: /perfil');
+            header('Location: /profile');
             exit;
         }
 
@@ -88,7 +88,7 @@ class UserController
         require $this->viewsDir . 'pages/registro.php';
     }
 
-    public function hacerRegistro()
+    public function handleRegister()
     {
         $nombre   = mb_strtolower(trim($_POST['nombre'] ?? ''), 'UTF8');
         $email    = mb_strtolower(trim($_POST['email'] ?? ''), 'UTF-8');
@@ -149,7 +149,7 @@ class UserController
         return $error;
     }
 
-    public function editarPerfil()
+    public function editProfile()
     {
         $userId = $this->authService->getCurrentUserId();
         $usuario = $this->userService->getUserById($userId);
@@ -160,7 +160,7 @@ class UserController
         require $this->viewsDir . 'pages/editar_perfil.php';
     }
 
-    public function guardarPerfil()
+    public function updateProfile()
     {
         $userId = $this->authService->getCurrentUserId();
         $usuario = $this->userService->getUserById($userId);

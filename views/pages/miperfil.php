@@ -46,7 +46,7 @@
   </section>
 
   <section class="perfil-acciones">
-    <a href="/perfil/editar" class="perfil-btn perfil-btn--primary">Editar perfil</a>
+    <a href="/profile/edit" class="perfil-btn perfil-btn--primary">Editar perfil</a>
 
     <form action="/logout" method="POST">
       <button type="submit" class="perfil-btn perfil-btn--danger">Cerrar sesión</button>

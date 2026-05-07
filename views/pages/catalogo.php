@@ -89,10 +89,10 @@
 
   <section class="catalogo-section">
     <div class="catalogo-grid">
-      <?php if (empty($titulos)): ?>
+      <?php if (empty($titles)): ?>
         <p class="catalogo-empty">Sin títulos disponibles.</p>
       <?php else: ?>
-        <?php foreach ($titulos as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+        <?php foreach ($titles as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
       <?php endif; ?>
     </div>
   </section>

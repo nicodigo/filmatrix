@@ -39,7 +39,7 @@ $campos = $campos ?? ['nombre' => '', 'email' => ''];
       </div>
     <?php endif; ?>
 
-    <form class="auth-form" method="POST" action="/registro" novalidate>
+    <form class="auth-form" method="POST" action="/register" novalidate>
 
       <div class="auth-field">
         <label class="auth-label" for="nombre">Nombre</label>

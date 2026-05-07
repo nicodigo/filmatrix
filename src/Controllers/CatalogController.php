@@ -5,11 +5,11 @@ namespace App\Controllers;
 use App\Repository\CatalogListRepository;
 use App\Services\TitleService;
 
-class CatalogoController
+class CatalogController
 {
     private TitleService $titleService;
     private CatalogListRepository $catalogListRepository;
-    public string $viewsDir;
+    private string $viewsDir;
 
     public function __construct(TitleService $titleService, CatalogListRepository $catalogListRepository)
     {
@@ -20,7 +20,7 @@ class CatalogoController
 
     public function index(): void
     {
-        $titulos = $this->catalogListRepository->findAllByPopularity(40);
+        $titles = $this->catalogListRepository->findAllByPopularity(40);
         require $this->viewsDir . 'pages/catalogo.php';
     }
 }

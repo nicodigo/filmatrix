@@ -104,7 +104,7 @@
 
     <p class="auth-switch">
       ¿No tenés cuenta?
-      <a class="auth-link" href="/registro">Registrate gratis</a>
+      <a class="auth-link" href="/register">Registrate gratis</a>
     </p>
 
   </div>

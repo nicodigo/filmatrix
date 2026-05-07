@@ -15,15 +15,16 @@ use App\Core\Request;
 use App\Repository\UserRepository;
 use App\Services\AuthService;
 use App\Middleware\AuthMiddleware;
-use App\Core\TmdbClient;
+use App\Infrastructure\Tmdb\TmdbClient;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\CatalogListRepository;
 use App\Services\TitleService;
-use App\Controllers\CatalogoController;
+use App\Services\CatalogSyncService;
+use App\Controllers\CatalogController;
 use App\Repository\ReviewRepository;
-use App\Controllers\DetalleController;
+use App\Controllers\MovieController;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->load();
@@ -57,8 +58,15 @@ $titleService = new TitleService(
     $peopleRepository,
     $tmdbClient,
     $config,
-    $log_app,
-    $catalogListRepository
+    $log_app
+);
+
+$catalogSyncService = new CatalogSyncService(
+    $titleService,
+    $titleRepository,
+    $catalogListRepository,
+    $tmdbClient,
+    $log_app
 );
 
 $authMiddleware = new AuthMiddleware();
@@ -68,12 +76,11 @@ $request = new Request();
 // Factories de controllers
 $makeUserCtrl = fn() => new \App\Controllers\UserController($authService, $userService);
 $makePageCtrl = fn() => new \App\Controllers\PageController($catalogListRepository);
-$makeCatalogoCtrl = fn() => new CatalogoController($titleService, $catalogListRepository);
-$makeDetalleCtrl = fn() => new DetalleController(
+$makeCatalogCtrl = fn() => new CatalogController($titleService, $catalogListRepository);
+$makeMovieCtrl = fn() => new MovieController(
     $titleService,
-    $titleRepository,
     $reviewRepository,
-    $catalogListRepository
+    $catalogSyncService
 );
 
 // Helper para rutas protegidas
@@ -89,18 +96,18 @@ $router->setLogger($log_app);
 Rutas generales
 */
 $router->get('/', fn() => $makePageCtrl()->home());
-$router->get('/catalogo', fn() => $makeCatalogoCtrl()->index());
-$router->get('/detalle_pelicula', fn() => $makePageCtrl()->detalle_pelicula());
-$router->get('/pelicula', fn() => $makeDetalleCtrl()->show());
+$router->get('/catalog', fn() => $makeCatalogCtrl()->index());
+$router->get('/detalle_pelicula', fn() => $makePageCtrl()->home()); // dead route, keep for reference
+$router->get('/movie', fn() => $makeMovieCtrl()->show());
 
 /*
 Rutas de usuario
 */
-$router->get('/perfil', $protegida(fn() => $makeUserCtrl()->perfil()));
+$router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));
 $router->get('/login', fn() => $makeUserCtrl()->login());
-$router->post('/login', fn() => $makeUserCtrl()->hacerLogin());
+$router->post('/login', fn() => $makeUserCtrl()->handleLogin());
 $router->post('/logout', fn() => $makeUserCtrl()->logout());
-$router->get('/registro', fn() => $makeUserCtrl()->registro());
-$router->post('/registro', fn() => $makeUserCtrl()->hacerRegistro());
-$router->get('/perfil/editar', $protegida(fn() => $makeUserCtrl()->editarPerfil()));
-$router->post('/perfil/editar', $protegida(fn() => $makeUserCtrl()->guardarPerfil()));
+$router->get('/register', fn() => $makeUserCtrl()->register());
+$router->post('/register', fn() => $makeUserCtrl()->handleRegister());
+$router->get('/profile/edit', $protegida(fn() => $makeUserCtrl()->editProfile()));
+$router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));

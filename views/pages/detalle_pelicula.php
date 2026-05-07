@@ -42,9 +42,9 @@
       <div class="detalle-meta">
         <span class="detalle-meta__item"><?= htmlspecialchars($title['release_year'] ?? 'S/D') ?></span>
         <span class="detalle-meta__sep">·</span>
-        <span class="detalle-meta__item"><?= htmlspecialchars($duracion ?? 'S/D') ?></span>
+        <span class="detalle-meta__item"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
         <span class="detalle-meta__sep">·</span>
-        <span class="detalle-meta__item"><?= htmlspecialchars($generoLabel ?: 'S/D') ?></span>
+        <span class="detalle-meta__item"><?= htmlspecialchars($genreLabel?: 'S/D') ?></span>
       </div>
     </div>
   </section>
@@ -76,7 +76,7 @@
  
         <div class="detalle-dato">
           <span class="detalle-dato__label">Género</span>
-          <span class="detalle-dato__badge"><?= htmlspecialchars($generoLabel ?: 'S/D') ?></span>
+          <span class="detalle-dato__badge"><?= htmlspecialchars($genreLabel ?: 'S/D') ?></span>
         </div>
  
         <div class="detalle-dato">
@@ -86,7 +86,7 @@
  
         <div class="detalle-dato">
           <span class="detalle-dato__label">Duración</span>
-          <span class="detalle-dato__val"><?= htmlspecialchars($duracion ?? 'S/D') ?></span>
+          <span class="detalle-dato__val"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
         </div>
  
       </div>
@@ -210,7 +210,7 @@
       <div class="sugeridas-lista">
         <?php if (!empty($suggested)): ?>
           <?php foreach ($suggested as $sug): ?>
-            <a href="/pelicula?tmdb_id=<?= $sug['tmdb_id'] ?>" class="sugerida-item">
+            <a href="/movie?tmdb_id=<?= $sug['tmdb_id'] ?>" class="sugerida-item">
               <img
                 class="sugerida-item__poster"
                 src="<?= htmlspecialchars($sug['poster_url'] ?? '/assets/img/hero-bg.webp') ?>"

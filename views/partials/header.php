@@ -5,7 +5,7 @@
       <a href="/" class="header-logo">
         <img src="/assets/img/filmatrix_isotipo.webp" alt="Filmatrix">
       </a>
-      <a href="/catalogo" class="header-catalogo-btn">
+      <a href="/catalog" class="header-catalogo-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -19,7 +19,7 @@
     </div>
  
     <div class="header-actions">
-      <form role="search" class="search-form" action="/catalogo" method="GET">
+      <form role="search" class="search-form" action="/catalog" method="GET">
         <input type="search" name="q" placeholder="Buscar…" class="search-input">
         <button type="submit" class="search-submit" aria-label="Buscar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,7 +28,7 @@
           </svg>
         </button>
       </form>
-      <a href="/perfil" class="header-avatar">
+      <a href="/profile" class="header-avatar">
         <img src="/assets/img/user_avatar.png" alt="Avatar" width="32" height="32">
       </a>
       <button class="header-menu" aria-label="Menú">

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core;
+namespace App\Infrastructure\Tmdb;
 
 use App\Core\Config;
 use App\Core\Exceptions\TmdbApiException;
@@ -78,14 +78,24 @@ class TmdbClient
 
     public function getNowPlaying(int $page = 1): array
     {
-        return $this->request('/movie/now_playing', [
+        $startDate = date('Y-m-d', strtotime('-30 days'));
+        $endDate = date('Y-m-d');
+        return $this->request('/discover/movie', [
+            'sort_by' => 'primary_release_date.desc',
+            'include_adult' => 'false',
+            'with_release_type' => '2|3',
+            'primary_release_date.gte' => $startDate,
+            'primary_release_date.lte' => $endDate,
             'page' => $page,
         ]);
     }
 
     public function getPopular(int $page = 1): array
     {
-        return $this->request('/movie/popular', [
+        return $this->request('/discover/movie', [
+            'sort_by' => 'popularity.desc',
+            'include_adult' => 'false',
+            'vote_count.gte' => 500,
             'page' => $page,
         ]);
     }

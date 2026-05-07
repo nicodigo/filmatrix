@@ -8,11 +8,12 @@ use Dotenv\Dotenv;
 
 use App\Core\Config;
 use App\Core\Database\ConnectionBuilder;
-use App\Core\TmdbClient;
+use App\Infrastructure\Tmdb\TmdbClient;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\CatalogListRepository;
+use App\Services\CatalogSyncService;
 use App\Services\TitleService;
 
 // 1. Load environment
@@ -48,8 +49,16 @@ $titleService = new TitleService(
     $peopleRepository,
     $tmdbClient,
     $config,
-    $logger,
-    $catalogListRepository
+    $logger
+);
+
+// 8. CatalogSyncService
+$catalogSyncService = new CatalogSyncService(
+    $titleService,
+    $titleRepository,
+    $catalogListRepository,
+    $tmdbClient,
+    $logger
 );
 
 // Parse CLI arguments
@@ -81,11 +90,11 @@ try {
         echo "Done.\n";
 
         echo "Syncing now_playing...\n";
-        $titleService->syncNowPlaying($pages);
+        $catalogSyncService->syncNowPlaying($pages);
         echo "Done.\n";
 
         echo "Syncing popular...\n";
-        $titleService->syncPopular($pages);
+        $catalogSyncService->syncPopular($pages);
         echo "Done.\n";
     } elseif ($section === 'now_playing') {
         echo "Syncing now_playing...\n";
@@ -93,7 +102,7 @@ try {
         echo "Done.\n";
 
         echo "Syncing now_playing...\n";
-        $titleService->syncNowPlaying($pages);
+        $catalogSyncService->syncNowPlaying($pages);
         echo "Done.\n";
     } elseif ($section === 'popular') {
         echo "Syncing popular...\n";
@@ -101,7 +110,7 @@ try {
         echo "Done.\n";
 
         echo "Syncing popular...\n";
-        $titleService->syncPopular($pages);
+        $catalogSyncService->syncPopular($pages);
         echo "Done.\n";
     }
 } catch (\Throwable $e) {

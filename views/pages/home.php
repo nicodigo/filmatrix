@@ -34,10 +34,10 @@
 
   <section class="popular-movies">
     <div class="movie-flex">
-      <?php if (empty($populares)): ?>
+      <?php if (empty($popular)): ?>
         <p class="catalogo-empty">Sin títulos disponibles.</p>
       <?php else: ?>
-        <?php foreach ($populares as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+        <?php foreach ($popular as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
       <?php endif; ?>
     </div>
   </section>

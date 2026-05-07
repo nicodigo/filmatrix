@@ -27,7 +27,7 @@ $success = $success ?? '';
 <main class="ep-main">
 
   <div class="ep-header">
-    <a href="/perfil" class="ep-back">Volver al perfil</a>
+    <a href="/profile" class="ep-back">Volver al perfil</a>
     <h1 class="ep-title">Editar perfil</h1>
   </div>
 
@@ -43,7 +43,7 @@ $success = $success ?? '';
     </div>
   <?php endif; ?>
 
-  <form class="ep-form" method="POST" action="/perfil/editar">
+  <form class="ep-form" method="POST" action="/profile/edit">
 
     <section class="ep-section">
       <h2 class="ep-section__title">Datos personales</h2>
@@ -109,7 +109,7 @@ $success = $success ?? '';
     <div class="ep-divider"></div>
 
     <div class="ep-actions">
-      <a href="/perfil" class="ep-btn ep-btn--ghost">Cancelar</a>
+      <a href="/profile" class="ep-btn ep-btn--ghost">Cancelar</a>
       <button type="submit" class="ep-btn ep-btn--primary">Guardar cambios</button>
     </div>
 
