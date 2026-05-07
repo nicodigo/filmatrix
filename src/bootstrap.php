@@ -24,6 +24,8 @@ use App\Services\AuthService;
 use App\Services\UserService;
 use App\Services\TitleService;
 use App\Services\CatalogSyncService;
+use App\Services\GenreService;
+use App\Services\PeopleService;
 
 use App\Middleware\AuthMiddleware;
 
@@ -104,6 +106,8 @@ $catalogSyncService = new CatalogSyncService(
 );
 
 $reviewService = new \App\Services\ReviewService($reviewRepository);
+$genreService = new GenreService($genreRepository);
+$peopleService = new PeopleService($peopleRepository);
 
 /*
 |--------------------------------------------------------------------------
@@ -136,8 +140,8 @@ $makeMovieCtrl = fn() => new MovieController(
     $titleService,
     $reviewService,
     $catalogSyncService,
-    $genreRepository,
-    $peopleRepository
+    $genreService,
+    $peopleService
 );
 
 /*

@@ -5,30 +5,30 @@ namespace App\Controllers;
 use App\Services\CatalogSyncService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
-use App\Repository\GenreRepository;
-use App\Repository\PeopleRepository;
+use App\Services\GenreService;
+use App\Services\PeopleService;
 
 class MovieController
 {
     private TitleService $titleService;
     private ReviewService $reviewService;
     private CatalogSyncService $catalogSyncService;
-    private GenreRepository $genreRepository;
-    private PeopleRepository $peopleRepository;
+    private GenreService $genreService;
+    private PeopleService $peopleService;
     private string $viewsDir;
 
     public function __construct(
         TitleService $titleService,
         ReviewService $reviewService,
         CatalogSyncService $catalogSyncService,
-        GenreRepository $genreRepository,
-        PeopleRepository $peopleRepository
+        GenreService $genreService,
+        PeopleService $peopleService
     ) {
         $this->titleService = $titleService;
         $this->reviewService = $reviewService;
         $this->catalogSyncService = $catalogSyncService;
-        $this->genreRepository = $genreRepository;
-        $this->peopleRepository = $peopleRepository;
+        $this->genreService = $genreService;
+        $this->peopleService = $peopleService;
         $this->viewsDir = __DIR__ . '/../../views/';
     }
 
@@ -50,11 +50,11 @@ class MovieController
 
         /*
         |--------------------------------------------------------------------------
-        | Relaciones reales desde BD
+        | Relaciones desde services
         |--------------------------------------------------------------------------
         */
-        $genres = $this->titleService->getTitleGenres($title->getId()) ?? [];
-        $cast   = $this->titleService->getTitleCast($title->getId()) ?? [];
+        $genres = $this->genreService->getByTitleId($title->getId());
+        $cast   = $this->peopleService->getCastByTitleId($title->getId());
 
         $reviews = $this->reviewService
             ->getVisibleByTitleId($title->getId());
@@ -71,11 +71,11 @@ class MovieController
 
         if ($title->getDurationMinutes() !== null) {
             $hours = (int) floor($title->getDurationMinutes() / 60);
-            $mins = (int) ($title->getDurationMinutes() % 60);
+            $mins  = (int) ($title->getDurationMinutes() % 60);
 
             $duration =
                 ($hours > 0 ? $hours . 'h ' : '') .
-                ($mins > 0 ? $mins . 'm' : '');
+                ($mins  > 0 ? $mins  . 'm'  : '');
         }
 
         /*

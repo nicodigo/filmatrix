@@ -31,4 +31,12 @@ class GenreService
     {
         return $this->genreRepository->findByTmdbId($tmdbGenreId);
     }
+
+    /**
+     * @return Genre[]
+     */
+    public function getByTitleId(int $titleId): array
+    {
+        return $this->genreRepository->findByTitleId($titleId);
+    }
 }
