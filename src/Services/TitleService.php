@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Core\Config;
 use App\Core\TmdbClient;
+use App\Repository\CatalogListRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\TitleRepository;
@@ -22,6 +23,7 @@ class TitleService
     private TmdbClient $tmdbClient;
     private Config $config;
     private LoggerInterface $logger;
+    private CatalogListRepository $catalogListRepository;
 
     public function __construct(
         TitleRepository $titleRepository,
@@ -29,7 +31,8 @@ class TitleService
         PeopleRepository $peopleRepository,
         TmdbClient $tmdbClient,
         Config $config,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CatalogListRepository $catalogListRepository
     ) {
         $this->titleRepository = $titleRepository;
         $this->genreRepository = $genreRepository;
@@ -37,6 +40,7 @@ class TitleService
         $this->tmdbClient = $tmdbClient;
         $this->config = $config;
         $this->logger = $logger;
+        $this->catalogListRepository = $catalogListRepository;
     }
 
     private function isCacheStale(?array $row): bool
@@ -68,7 +72,7 @@ class TitleService
         return null;
     }
 
-    private function persistTitle(int $tmdbId): array
+    public function persistTitle(int $tmdbId): array
     {
         $movie = $this->tmdbClient->getMovie($tmdbId);
         $videosResponse = $this->tmdbClient->getVideos($tmdbId);
@@ -164,5 +168,45 @@ class TitleService
         }
 
         $this->logger->info('Genres synced from TMDB', ['count' => count($response['genres'] ?? [])]);
+    }
+
+    private function syncSection(string $section, array $tmdbResults, int $pageOffset): void
+    {
+        foreach ($tmdbResults as $i => $movie) {
+            try {
+                $this->persistTitle($movie['id']);
+                $titleId = $this->titleRepository->findByTmdbId($movie['id'])['id'];
+                $this->catalogListRepository->insert($section, $titleId, $pageOffset + $i);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Failed to sync movie in section', [
+                    'tmdb_id' => $movie['id'] ?? null,
+                    'exception' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    public function syncNowPlaying(int $pages = 1): void
+    {
+        $this->catalogListRepository->clearSection('now_playing');
+
+        for ($page = 1; $page <= $pages; $page++) {
+            $response = $this->tmdbClient->getNowPlaying($page);
+            $this->syncSection('now_playing', $response['results'], ($page - 1) * 20);
+        }
+
+        $this->logger->info('now_playing synced', ['pages' => $pages]);
+    }
+
+    public function syncPopular(int $pages = 1): void
+    {
+        $this->catalogListRepository->clearSection('popular');
+
+        for ($page = 1; $page <= $pages; $page++) {
+            $response = $this->tmdbClient->getPopular($page);
+            $this->syncSection('popular', $response['results'], ($page - 1) * 20);
+        }
+
+        $this->logger->info('popular synced', ['pages' => $pages]);
     }
 }

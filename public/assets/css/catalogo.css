@@ -205,3 +205,34 @@ body {
   .carousel .movie-card { flex-basis: 200px; }
   .catalogo-header { padding: 2rem 2rem 1rem; }
 }
+
+/* ══════════════════════════════════════
+   Grilla de catálogo
+══════════════════════════════════════ */
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 0 1rem;
+}
+
+@media (min-width: 480px) {
+  .catalogo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .catalogo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalogo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding: 0 2rem;
+  }
+}

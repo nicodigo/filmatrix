@@ -126,4 +126,74 @@ class TitleRepository
             ':billing_order' => $billingOrder,
         ]);
     }
+
+    public function findByTmdbIdWithScore(int $tmdbId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                 t.*,
+                 COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+             FROM titles t
+             LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+             WHERE t.tmdb_id = :tmdb_id
+             GROUP BY t.id
+             LIMIT 1'
+        );
+
+        $stmt->execute([
+            ':tmdb_id' => $tmdbId,
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return $row;
+    }
+
+    public function findGenresByTitleId(int $titleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT g.id, g.name
+             FROM title_genres tg
+             JOIN genres g ON g.id = tg.genre_id
+             WHERE tg.title_id = :title_id
+             ORDER BY g.name ASC'
+        );
+
+        $stmt->execute([
+            ':title_id' => $titleId,
+        ]);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $rows ?: [];
+    }
+
+    public function findCastByTitleId(int $titleId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+               p.id,
+               p.name,
+               p.profile_url,
+               tc.role,
+               tc.character_name,
+               tc.billing_order
+             FROM title_cast tc
+             JOIN people p ON p.id = tc.person_id
+             WHERE tc.title_id = :title_id
+             ORDER BY tc.billing_order ASC'
+        );
+
+        $stmt->execute([
+            ':title_id' => $titleId,
+        ]);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $rows ?: [];
+    }
 }

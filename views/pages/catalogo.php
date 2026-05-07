@@ -86,47 +86,14 @@
     </div>
   </aside>
 
-  <?php
-    // Placeholder estático — reemplazar cuando exista DB/API
-    $movies = [
-      ['title' => 'Título uno',    'score' => '4.8', 'poster' => '/assets/img/hero-bg.webp'],
-      ['title' => 'Título dos',    'score' => '4.2', 'poster' => '/assets/img/hero-bg.webp'],
-      ['title' => 'Título tres',   'score' => '3.9', 'poster' => '/assets/img/hero-bg.webp'],
-      ['title' => 'Título cuatro', 'score' => '4.5', 'poster' => '/assets/img/hero-bg.webp'],
-      ['title' => 'Título cinco',  'score' => '3.5', 'poster' => '/assets/img/hero-bg.webp'],
-      ['title' => 'Título seis',   'score' => '4.1', 'poster' => '/assets/img/hero-bg.webp'],
-    ];
-  ?>
 
-  <!-- ── Recientes ── -->
   <section class="catalogo-section">
-    <h2 class="catalogo-section__label">Recientes</h2>
-    <div class="carousel">
-      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
-    </div>
-  </section>
-
-  <!-- ── Tendencias ── -->
-  <section class="catalogo-section">
-    <h2 class="catalogo-section__label">Tendencias</h2>
-    <div class="carousel">
-      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
-    </div>
-  </section>
-
-  <!-- ── Más reseñados ── -->
-  <section class="catalogo-section">
-    <h2 class="catalogo-section__label">Más reseñados</h2>
-    <div class="carousel">
-      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
-    </div>
-  </section>
-
-  <!-- ── Clásicos ── -->
-  <section class="catalogo-section">
-    <h2 class="catalogo-section__label">Clásicos</h2>
-    <div class="carousel">
-      <?php foreach ($movies as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+    <div class="catalogo-grid">
+      <?php if (empty($titulos)): ?>
+        <p class="catalogo-empty">Sin títulos disponibles.</p>
+      <?php else: ?>
+        <?php foreach ($titulos as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+      <?php endif; ?>
     </div>
   </section>
 

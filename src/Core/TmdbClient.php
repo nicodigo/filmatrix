@@ -33,7 +33,6 @@ class TmdbClient
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);
-        curl_close($ch);
 
         if ($curlError !== '') {
             $this->logger->error($curlError);
@@ -73,6 +72,20 @@ class TmdbClient
     {
         return $this->request('/search/movie', [
             'query' => $query,
+            'page' => $page,
+        ]);
+    }
+
+    public function getNowPlaying(int $page = 1): array
+    {
+        return $this->request('/movie/now_playing', [
+            'page' => $page,
+        ]);
+    }
+
+    public function getPopular(int $page = 1): array
+    {
+        return $this->request('/movie/popular', [
             'page' => $page,
         ]);
     }

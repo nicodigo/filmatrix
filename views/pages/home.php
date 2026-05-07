@@ -34,19 +34,11 @@
 
   <section class="popular-movies">
     <div class="movie-flex">
-      <?php
-        // Placeholder hasta que exista lógica real.
-        // Reemplazar con fetch a DB o API.
-        $movies = [
-          ['title' => 'Título uno',  'score' => '4.5', 'poster' => '/assets/img/hero-bg.webp'],
-          ['title' => 'Título dos',  'score' => '3.0', 'poster' => '/assets/img/hero-bg.webp'],
-          ['title' => 'Título tres', 'score' => '4.0', 'poster' => '/assets/img/hero-bg.webp'],
-          ['title' => 'Título cuatro','score'=> '2.5', 'poster' => '/assets/img/hero-bg.webp'],
-        ];
-        foreach ($movies as $movie):
-          require __DIR__ . '/includes/movie-card.php';
-        endforeach;
-      ?>
+      <?php if (empty($populares)): ?>
+        <p class="catalogo-empty">Sin títulos disponibles.</p>
+      <?php else: ?>
+        <?php foreach ($populares as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
+      <?php endif; ?>
     </div>
   </section>
 

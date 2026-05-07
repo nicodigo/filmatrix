@@ -20,6 +20,8 @@ class Config
         $this->configs['DB_PASSWORD'] = getenv('DB_PASSWORD') ?: '';
         $this->configs['DB_PORT'] = getenv('DB_PORT') ?: '5432';
         $this->configs['DB_CHARSET'] = getenv('DB_CHARSET') ?: 'utf8';
+
+        $this->configs['TMDB_READ_ACCESS_TOKEN'] = getenv('TMDB_READ_ACCESS_TOKEN') ?: '';
     }
 
     public function get($name)
