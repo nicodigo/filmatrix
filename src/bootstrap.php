@@ -22,10 +22,11 @@ use App\Repository\ReviewRepository;
 
 use App\Services\AuthService;
 use App\Services\UserService;
-use App\Services\TitleService;
-use App\Services\CatalogSyncService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
+use App\Services\ReviewService;
+use App\Services\TitleService;
+use App\Services\CatalogSyncService;
 
 use App\Middleware\AuthMiddleware;
 
@@ -84,13 +85,16 @@ $tmdbClient = new TmdbClient($config);
 | Services
 |--------------------------------------------------------------------------
 */
-$authService = new AuthService($userRepository, $log_app);
-$userService = new UserService($userRepository);
+$authService   = new AuthService($userRepository, $log_app);
+$userService   = new UserService($userRepository);
+$genreService  = new GenreService($genreRepository);
+$peopleService = new PeopleService($peopleRepository);
+$reviewService = new ReviewService($reviewRepository);
 
 $titleService = new TitleService(
     $titleRepository,
-    $genreRepository,
-    $peopleRepository,
+    $genreService,
+    $peopleService,
     $tmdbClient,
     $config,
     $log_app,
@@ -99,15 +103,10 @@ $titleService = new TitleService(
 
 $catalogSyncService = new CatalogSyncService(
     $titleService,
-    $titleRepository,
     $catalogListRepository,
     $tmdbClient,
     $log_app
 );
-
-$reviewService = new \App\Services\ReviewService($reviewRepository);
-$genreService = new GenreService($genreRepository);
-$peopleService = new PeopleService($peopleRepository);
 
 /*
 |--------------------------------------------------------------------------

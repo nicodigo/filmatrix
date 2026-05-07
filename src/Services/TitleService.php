@@ -6,8 +6,6 @@ use App\Core\Config;
 use App\Infrastructure\Tmdb\TmdbClient;
 use App\Models\Title;
 use App\Repository\CatalogListRepository;
-use App\Repository\GenreRepository;
-use App\Repository\PeopleRepository;
 use App\Repository\TitleRepository;
 use DateTime;
 use Psr\Log\LoggerInterface;
@@ -15,8 +13,8 @@ use Psr\Log\LoggerInterface;
 class TitleService
 {
     private TitleRepository $titleRepository;
-    private GenreRepository $genreRepository;
-    private PeopleRepository $peopleRepository;
+    private GenreService $genreService;
+    private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
     private Config $config;
     private LoggerInterface $logger;
@@ -24,19 +22,19 @@ class TitleService
 
     public function __construct(
         TitleRepository $titleRepository,
-        GenreRepository $genreRepository,
-        PeopleRepository $peopleRepository,
+        GenreService $genreService,
+        PeopleService $peopleService,
         TmdbClient $tmdbClient,
         Config $config,
         LoggerInterface $logger,
         CatalogListRepository $catalogListRepository
     ) {
-        $this->titleRepository = $titleRepository;
-        $this->genreRepository = $genreRepository;
-        $this->peopleRepository = $peopleRepository;
-        $this->tmdbClient = $tmdbClient;
-        $this->config = $config;
-        $this->logger = $logger;
+        $this->titleRepository       = $titleRepository;
+        $this->genreService          = $genreService;
+        $this->peopleService         = $peopleService;
+        $this->tmdbClient            = $tmdbClient;
+        $this->config                = $config;
+        $this->logger                = $logger;
         $this->catalogListRepository = $catalogListRepository;
     }
 
@@ -53,14 +51,14 @@ class TitleService
         $ttl = (int) ($this->config->get('TMDB_CACHE_TTL_DAYS') ?? 30);
 
         $cachedAt = new DateTime($title->getCachedAt());
-        $now = new DateTime();
+        $now      = new DateTime();
 
         return $cachedAt->diff($now)->days > $ttl;
     }
 
     public function getTitle(int $tmdbId): Title
     {
-        $title = $this->titleRepository->findByTmdbIdWithScore($tmdbId); 
+        $title = $this->titleRepository->findByTmdbIdWithScore($tmdbId);
 
         if ($this->isCacheStale($title)) {
             return $this->persistTitle($tmdbId);
@@ -89,7 +87,7 @@ class TitleService
 
     public function persistTitle(int $tmdbId): Title
     {
-        $movie = $this->tmdbClient->getMovie($tmdbId);
+        $movie  = $this->tmdbClient->getMovie($tmdbId);
         $videos = $this->tmdbClient->getVideos($tmdbId);
 
         $trailerUrl = null;
@@ -128,11 +126,7 @@ class TitleService
         $this->titleRepository->clearGenres($titleId);
 
         foreach ($movie['genres'] ?? [] as $genre) {
-            $genreId = $this->genreRepository->upsert(
-                $genre['id'],
-                $genre['name']
-            );
-
+            $genreId = $this->genreService->sync($genre['id'], $genre['name']);
             $this->titleRepository->attachGenre($titleId, $genreId);
         }
 
@@ -142,10 +136,10 @@ class TitleService
         $credits = $this->tmdbClient->getCredits($tmdbId);
 
         foreach (array_slice($credits['cast'] ?? [], 0, 10) as $member) {
-            $personId = $this->peopleRepository->upsert(
+            $personId = $this->peopleService->sync(
                 $member['id'],
                 $member['name'],
-                $member['profile_path']
+                !empty($member['profile_path'])
                     ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
                     : null
             );
@@ -162,10 +156,10 @@ class TitleService
         /* directors */
         foreach ($credits['crew'] ?? [] as $member) {
             if (($member['job'] ?? '') === 'Director') {
-                $personId = $this->peopleRepository->upsert(
+                $personId = $this->peopleService->sync(
                     $member['id'],
                     $member['name'],
-                    $member['profile_path']
+                    !empty($member['profile_path'])
                         ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
                         : null
                 );
@@ -182,6 +176,6 @@ class TitleService
 
         $this->logger->info('Title synced', ['tmdb_id' => $tmdbId]);
 
-        return $this->titleRepository->findByTmdbId($tmdbId);
+        return $this->titleRepository->findByTmdbIdWithScore($tmdbId);
     }
 }
