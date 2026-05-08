@@ -54,6 +54,15 @@ $connectionBuilder = new ConnectionBuilder();
 $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
 
+// twig
+/* $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views'); */
+/**/
+/* $twig = new \Twig\Environment($loader, [ */
+/*     'cache' => __DIR__ . '/../cache/twig', */
+/*     'auto_reload' => true,  // recompila si la vista cambió */
+/*     'debug' => true,        // false en producción */
+/* ]); */
+
 // Repositories
 $userRepository        = new UserRepository($connection);
 $titleRepository       = new TitleRepository($connection);
