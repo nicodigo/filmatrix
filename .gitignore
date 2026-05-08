@@ -7,3 +7,5 @@ docker/
 
 filmatrix-design-system.html
 .aider*
+
+/cache/twig/
