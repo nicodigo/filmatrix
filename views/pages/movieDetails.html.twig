@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/assets/css/detalle_pelicula.css">
 </head>
 
-<?php require __DIR__ . '/../partials/header.php'; ?>
+{% include 'partials/header.html.twig' %}
 
 <main class="detalle-main">
   <!-- ══════════════════════════════════
@@ -29,17 +29,17 @@
     <div class="detalle-hero__poster-wrap">
       <img
         class="detalle-hero__poster"
-        src="<?= htmlspecialchars($title->getPosterUrl() ?? '/assets/img/hero-bg.webp') ?>"
-        alt="Portada de <?= htmlspecialchars($title->getTitle()) ?>">
+        src="{{ title.posterUrl|default('/assets/img/hero-bg.webp') }}"
+        alt="Portada de {{ title.title }}">
     </div>
     <div class="detalle-hero__info">
-      <h1 class="detalle-titulo"><?= htmlspecialchars($title->getTitle()) ?></h1>
+      <h1 class="detalle-titulo">{{ title.title }}</h1>
       <div class="detalle-meta">
-        <span class="detalle-meta__item"><?= htmlspecialchars($title->getReleaseYear() ?? 'S/D') ?></span>
+        <span class="detalle-meta__item">{{ title.releaseYear|default('S/D') }}</span>
         <span class="detalle-meta__sep">·</span>
-        <span class="detalle-meta__item"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
+        <span class="detalle-meta__item">{{ duration|default('S/D') }}</span>
         <span class="detalle-meta__sep">·</span>
-        <span class="detalle-meta__item"><?= htmlspecialchars($genreLabel ?: 'S/D') ?></span>
+        <span class="detalle-meta__item">{{ genreLabel|default('S/D') }}</span>
       </div>
     </div>
   </section>
@@ -48,105 +48,77 @@
        SINOPSIS / VALORACIÓN / GÉNERO
   ══════════════════════════════════════ -->
   <section class="detalle-info-section">
-
     <div class="detalle-info-grid">
-
       <div class="detalle-sinopsis">
         <h2 class="detalle-section-label">Sinopsis</h2>
-        <p class="detalle-sinopsis__texto"><?= htmlspecialchars($title->getSynopsis() ?? 'Sin sinopsis disponible.') ?></p>
+        <p class="detalle-sinopsis__texto">{{ title.synopsis|default('Sin sinopsis disponible.') }}</p>
       </div>
-
       <div class="detalle-datos">
-
         <div class="detalle-dato">
           <span class="detalle-dato__label">Valoración</span>
           <div class="detalle-dato__rating">
             <svg class="detalle-dato__star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            <?php
-            // avg_score viene del JOIN en findByTmdbIdWithScore()
-            // Si el modelo lo expone como getAvgScore(), usalo; si no, cae a 'S/P'
-            $avgScore = method_exists($title, 'getAvgScore')
-              ? $title->getAvgScore()
-              : null;
-            ?>
-            <span class="detalle-dato__val"><?= htmlspecialchars($avgScore ?? 'S/P') ?></span>
+            <span class="detalle-dato__val">{{ title.avgScore|default('S/P') }}</span>
             <span class="detalle-dato__max">/ 5</span>
           </div>
         </div>
-
         <div class="detalle-dato">
           <span class="detalle-dato__label">Género</span>
-          <span class="detalle-dato__badge"><?= htmlspecialchars($genreLabel ?: 'S/D') ?></span>
+          <span class="detalle-dato__badge">{{ genreLabel|default('S/D') }}</span>
         </div>
-
         <div class="detalle-dato">
           <span class="detalle-dato__label">Año</span>
-          <span class="detalle-dato__val"><?= htmlspecialchars($title->getReleaseYear() ?? 'S/D') ?></span>
+          <span class="detalle-dato__val">{{ title.releaseYear|default('S/D') }}</span>
         </div>
-
         <div class="detalle-dato">
           <span class="detalle-dato__label">Duración</span>
-          <span class="detalle-dato__val"><?= htmlspecialchars($duration ?? 'S/D') ?></span>
+          <span class="detalle-dato__val">{{ duration|default('S/D') }}</span>
         </div>
-
         <div class="detalle-dato">
           <span class="detalle-dato__label">Idioma original</span>
-          <span class="detalle-dato__val"><?= htmlspecialchars(strtoupper($title->getLanguage() ?? 'S/D')) ?></span>
+          <span class="detalle-dato__val">{{ title.language|upper|default('S/D') }}</span>
         </div>
-
-        <?php if ($title->getTmdbRating()): ?>
+        {% if title.tmdbRating %}
           <div class="detalle-dato">
             <span class="detalle-dato__label">Rating TMDB</span>
-            <span class="detalle-dato__val"><?= htmlspecialchars(number_format($title->getTmdbRating(), 1)) ?> / 10</span>
+            <span class="detalle-dato__val">{{ title.tmdbRating|number_format(1) }} / 10</span>
           </div>
-        <?php endif; ?>
-
+        {% endif %}
       </div>
-
     </div>
   </section>
-
-  <!-- ══════════════════════════════════
-       REPARTO
-  ══════════════════════════════════════ -->
   <section class="detalle-reparto-section">
     <h2 class="detalle-section-label">Reparto</h2>
     <div class="reparto-grid">
-      <?php if (empty($cast)): ?>
+      {% if cast is empty %}
         <p class="detalle-empty">Sin información de reparto.</p>
-      <?php else: ?>
-        <?php foreach ($cast as $actor): ?>
+      {% else %}
+        {% for actor in cast %}
           <div class="reparto-card">
             <div class="reparto-card__foto-wrap">
               <img
                 class="reparto-card__foto"
-                src="<?= htmlspecialchars($actor['profile_url'] ?? '/assets/img/hero-bg.webp') ?>"
-                alt="Foto de <?= htmlspecialchars($actor['name']) ?>">
+                src="{{ actor.profile_url|default('/assets/img/hero-bg.webp') }}"
+                alt="Foto de {{ actor.name }}">
             </div>
-            <span class="reparto-card__nombre"><?= htmlspecialchars($actor['name']) ?></span>
-            <span class="reparto-card__rol"><?= htmlspecialchars($actor['character_name'] ?? $actor['role']) ?></span>
+            <span class="reparto-card__nombre">{{ actor.name }}</span>
+            <span class="reparto-card__rol">{{ actor.character_name|default(actor.role) }}</span>
           </div>
-        <?php endforeach; ?>
-      <?php endif; ?>
+        {% endfor %}
+      {% endif %}
     </div>
   </section>
 
-  <!-- ══════════════════════════════════
-       BOTÓN CREAR RESEÑA
-  ══════════════════════════════════════ -->
-
   <h2>
-    <?php if (isset($_SESSION['flash_error'])): ?>
-      <p><?= htmlspecialchars($_SESSION['flash_error']) ?></p>
-      <?php unset($_SESSION['flash_error']); ?>
-    <?php endif; ?>
+    {% if flashError is defined %}
+      <p>{{ flashError }}</p>
+    {% endif %}
   </h2>
 
   <section class="detalle-nueva-resenia-section">
     <input type="checkbox" id="resenaToggle" class="resena-toggle-input">
-
     <label for="resenaToggle" class="btn-crear-resenia">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
         fill="none" stroke="currentColor" stroke-width="2"
@@ -156,26 +128,22 @@
       </svg>
       Escribir reseña
     </label>
-
     <div class="resena-form-wrap">
       <form class="resena-form" action="/review/post" method="POST">
-        <input type="hidden" name="title-id" value="<?= $title->getId() ?>">
-        <input type="hidden" name="tmdb-id" value="<?= $tmdbId ?>">
-
+        <input type="hidden" name="title_id" value="{{ title.id }}">
+        <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
         <div class="resena-form__stars" role="group" aria-label="Puntuación">
-          <?php for ($i = 5; $i >= 1; $i--): ?>
-            <input type="radio" id="star<?= $i ?>" name="score" value="<?= $i ?>" class="star-input">
-            <label for="star<?= $i ?>" class="star-label" aria-label="<?= $i ?> estrellas">★</label>
-          <?php endfor; ?>
+          {% for i in range(5, 1) %}
+            <input type="radio" id="star{{ i }}" name="score" value="{{ i }}" class="star-input">
+            <label for="star{{ i }}" class="star-label" aria-label="{{ i }} estrellas">★</label>
+          {% endfor %}
         </div>
-
         <textarea
           class="resena-form__textarea"
-          name="review-text"
+          name="review_body"
           placeholder="Contá qué te pareció la película…"
           rows="5"
           maxlength="1000"></textarea>
-
         <div class="resena-form__actions">
           <label for="resenaToggle" class="btn-cancelar">Cancelar</label>
           <button type="submit" class="btn-publicar">Publicar reseña</button>
@@ -184,64 +152,51 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════
-       RESEÑAS + TAL VEZ TE INTERESE
-  ══════════════════════════════════════ -->
   <section class="detalle-bottom-section">
-
-    <!-- ── Reseñas ── -->
     <div class="resenias-col">
       <h2 class="detalle-section-label">Reseñas</h2>
-
-      <?php if (empty($reviews)): ?>
+      {% if reviews is empty %}
         <p class="detalle-empty">Todavía no hay reseñas.</p>
-      <?php else: ?>
-        <?php foreach ($reviews as $review): ?>
+      {% else %}
+        {% for review in reviews %}
           <article class="resenia-card">
-
             <header class="resenia-card__header">
               <img
                 class="resenia-card__avatar"
                 src="/assets/img/hero-bg.webp"
-                alt="Avatar de <?= htmlspecialchars($review['username']) ?>">
+                alt="Avatar de {{ review.username }}">
               <div class="resenia-card__meta">
-                <span class="resenia-card__usuario"><?= htmlspecialchars($review['username']) ?></span>
-                <div class="resenia-card__estrellas" aria-label="<?= (int) round($review['score']) ?> estrellas">
-                  <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <span class="resenia-card__star <?= $i <= (int) round($review['score']) ? 'resenia-card__star--filled' : '' ?>">★</span>
-                  <?php endfor; ?>
+                <span class="resenia-card__usuario">{{ review.username }}</span>
+                <div class="resenia-card__estrellas" aria-label="{{ review.score|round }} estrellas">
+                  {% for i in 1..5 %}
+                    <span class="resenia-card__star {{ i <= review.score|round(0) ? 'resenia-card__star--filled' : '' }}">★</span>
+                  {% endfor %}
                 </div>
               </div>
-              <time class="resenia-card__fecha"><?= htmlspecialchars(date('d M Y', strtotime($review['created_at']))) ?></time>
+              <time class="resenia-card__fecha">{{ review.created_at|date('d M Y') }}</time>
             </header>
-
-            <p class="resenia-card__texto"><?= htmlspecialchars($review['body'] ?? '') ?></p>
-
+            <p class="resenia-card__texto">{{ review.body|default('') }}</p>
           </article>
-        <?php endforeach; ?>
-      <?php endif; ?>
+        {% endfor %}
+      {% endif %}
     </div>
 
-    <!-- ── Tal vez te interese ── -->
     <aside class="sugeridas-col">
       <h2 class="detalle-section-label">Tal vez te interese</h2>
       <div class="sugeridas-lista">
-        <?php if (!empty($suggested)): ?>
-          <?php foreach ($suggested as $sug): ?>
-            <a href="/movie?tmdb_id=<?= $sug['tmdb_id'] ?>" class="sugerida-item">
-              <img
-                class="sugerida-item__poster"
-                src="<?= htmlspecialchars($sug['poster_url'] ?? '/assets/img/hero-bg.webp') ?>"
-                alt="Portada de <?= htmlspecialchars($sug['title']) ?>">
-              <span class="sugerida-item__titulo"><?= htmlspecialchars($sug['title']) ?></span>
-            </a>
-          <?php endforeach; ?>
-        <?php endif; ?>
+        {% for sug in suggested %}
+          <a href="/movie?tmdb_id={{ sug.tmdb_id }}" class="sugerida-item">
+            <img
+              class="sugerida-item__poster"
+              src="{{ sug.poster_url|default('/assets/img/hero-bg.webp') }}"
+              alt="Portada de {{ sug.title }}">
+            <span class="sugerida-item__titulo">{{ sug.title }}</span>
+          </a>
+        {% endfor %}
       </div>
     </aside>
-
   </section>
 
 </main>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+{% include 'partials/footer.html.twig' %}

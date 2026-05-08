@@ -39,7 +39,7 @@ class AuthService
 
         $_SESSION['user_id'] = $user->getId();
         $_SESSION['user_role'] = $user->getRole();
-        $_SESSION['user_nombre'] = $user->getUsername();
+        $_SESSION['username'] = $user->getUsername();
     }
 
     public function register(array $data): void

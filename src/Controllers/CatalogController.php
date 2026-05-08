@@ -17,17 +17,19 @@
 namespace App\Controllers;
 
 use App\Services\CatalogSyncService;
+use Twig\Environment;
 
 class CatalogController
 {
     private CatalogSyncService $catalogService;
-    private string $viewsDir;
+    private Environment $twig;
 
     public function __construct(
+        Environment $twig,
         CatalogSyncService $catalogService
     ) {
         $this->catalogService = $catalogService;
-        $this->viewsDir = __DIR__ . '/../../views/';
+        $this->twig = $twig;
     }
 
     public function index(): void
@@ -35,6 +37,9 @@ class CatalogController
         $recent = $this->catalogService->findBySection('now_playing', 8);
         $popular = $this->catalogService->findBySection('popular', 8);
 
-        require $this->viewsDir . 'pages/catalogo.php';
+        echo $this->twig->render('pages/catalog.html.twig', [
+            'titles' => $titles,
+        ]);
+
     }
 }

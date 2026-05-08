@@ -23,22 +23,36 @@
 namespace App\Controllers;
 
 use App\Repository\CatalogListRepository;
+use Twig\Environment;
 
 class PageController
 {
-    private string $viewsDir;
     private CatalogListRepository $catalogListRepository;
+    private Environment $twig;
 
-    public function __construct(CatalogListRepository $catalogListRepository)
+    public function __construct(Environment $twig, CatalogListRepository $catalogListRepository)
     {
-        $this->viewsDir = __DIR__ . '/../../views/';
+        $this->twig = $twig;
         $this->catalogListRepository = $catalogListRepository;
     }
 
     public function home(): void
     {
         $popular = $this->catalogListRepository->findBySection('popular', 4);
+        $dailyReview = [
+            'title'       => 'Dune: Part Two',
+            'year'        => '2024',
+            'author'      => 'María López',
+            'avatar'      => '/assets/img/user_avatar.png',
+            'body' => 'Una obra maestra visual que expande el universo de Frank Herbert con una narrativa épica y actuaciones memorables.',
+            'likes'       => 128,
+            'url_banner'  => '/assets/img/hero-bg.webp',
+        ];
 
-        require $this->viewsDir . 'pages/home.php';
+        echo $this->twig->render('pages/home.html.twig', [
+            'popular' => $popular,
+            'dailyReview' => $dailyReview,
+        ]
+        );
     }
 }

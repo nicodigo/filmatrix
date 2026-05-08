@@ -37,26 +37,29 @@ use App\Core\Exceptions\UserNotFoundException;
 use App\Core\Exceptions\UsernameAlreadyExistsException;
 use App\Services\AuthService;
 use App\Services\UserService;
+use Twig\Environment;
 
 class UserController
 {
+    private Environment $twig;
     private AuthService $authService;
     private UserService $userService;
-    private string $viewsDir;
 
-    public function __construct(AuthService $authService, UserService $userService)
+    public function __construct(Environment $twig, AuthService $authService, UserService $userService)
     {
+        $this->twig = $twig;
         $this->authService = $authService;
         $this->userService = $userService;
-        $this->viewsDir = __DIR__ . '/../../views/';
     }
 
     public function profile()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userService->getUserById($userId);
+        $user = $this->userService->getUserById($userId);
 
-        require $this->viewsDir . 'pages/miperfil.php';
+        echo $this->twig->render('pages/profile.html.twig', [
+            'user' => $user,
+        ]);
     }
 
     public function login()
@@ -68,7 +71,10 @@ class UserController
 
         $error = '';
 
-        require $this->viewsDir . 'pages/login.php';
+        echo $this->twig->render('pages/login.html.twig', [
+            'error' => $error,
+            'emailValue' => '',
+        ]);
     }
 
     public function handleLogin()
@@ -84,10 +90,10 @@ class UserController
         } else {
             try {
                 $this->authService->login($email, $password);
-                $destino = $_SESSION['redirect_after_login'] ?? '/profile';
+                $destination = $_SESSION['redirect_after_login'] ?? '/profile';
                 unset($_SESSION['redirect_after_login']);
 
-                header('Location: ' . $destino);
+                header('Location: ' . $destination);
                 exit;
             } catch (UserNotFoundException $e) {
                 $error = $e->getMessage();
@@ -96,7 +102,10 @@ class UserController
             }
         }
 
-        require $this->viewsDir . 'pages/login.php';
+        echo $this->twig->render('pages/login.html.twig', [
+            'error' => $error,
+            'emailValue' => $email,
+        ]);
     }
 
     public function logout()
@@ -114,36 +123,42 @@ class UserController
         }
 
         $error = '';
-        $campos = [
-            'nombre' => '',
+        $fields = [
+            'username' => '',
             'email' => ''
         ];
 
-        require $this->viewsDir . 'pages/registro.php';
+        echo $this->twig->render('pages/register.html.twig', [
+            'error' => $error,
+            'fields' => $fields,
+        ]);
     }
 
     public function handleRegister()
     {
-        $nombre   = mb_strtolower(trim($_POST['nombre'] ?? ''), 'UTF8');
+        $username = mb_strtolower(trim($_POST['username'] ?? ''), 'UTF-8');
         $email    = mb_strtolower(trim($_POST['email'] ?? ''), 'UTF-8');
         $password = $_POST['password'] ?? '';
-        $confirm  = $_POST['confirm'] ?? '';
+        $confirm  = $_POST['confirm_password'] ?? '';
 
 
-        $campos = [
-            'nombre' => $nombre,
+        $fields = [
+            'username' => $username,
             'email'  => $email
         ];
 
-        $error = $this->verifyRegisterFields($nombre, $email, $password, $confirm);
+        $error = $this->verifyRegisterFields($username, $email, $password, $confirm);
         if ($error) {
-            require $this->viewsDir . 'pages/registro.php';
+            echo $this->twig->render('pages/register.html.twig', [
+                'error' => $error,
+                'fields' => $fields,
+            ]);
             exit;
         }
 
         try {
             $this->authService->register([
-                'username' => $nombre,
+                'username' => $username,
                 'email' => $email,
                 'password' => $password,
             ]);
@@ -153,9 +168,15 @@ class UserController
             $error = $e->getMessage();
         } finally {
             if ($error) {
-                require $this->viewsDir . 'pages/registro.php';
+                echo $this->twig->render('pages/register.html.twig', [
+                    'error' => $error,
+                    'fields' => $fields,
+                ]);
             } else {
-                require $this->viewsDir . 'pages/login.php';
+                echo $this->twig->render('pages/login.html.twig', [
+                    'error' => '',
+                    'emailValue' => '',
+                ]);
             }
         }
     }
@@ -186,54 +207,58 @@ class UserController
     public function editProfile()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userService->getUserById($userId);
+        $user = $this->userService->getUserById($userId);
 
         $error = '';
         $success = '';
 
-        require $this->viewsDir . 'pages/editar_perfil.php';
+        echo $this->twig->render('pages/edit-profile.html.twig', [
+            'user'    => $user,
+            'error'   => $error,
+            'success' => $success,
+        ]);
     }
 
     public function updateProfile()
     {
         $userId = $this->authService->getCurrentUserId();
-        $usuario = $this->userService->getUserById($userId);
+        $user = $this->userService->getUserById($userId);
 
-        $nombre           = trim($_POST['nombre'] ?? '');
+        $username           = trim($_POST['username'] ?? '');
         $email            = trim($_POST['email'] ?? '');
-        $password_actual  = $_POST['password_actual'] ?? '';
-        $password_nueva   = $_POST['password_nueva'] ?? '';
-        $password_confirm = $_POST['password_confirm'] ?? '';
+        $currentPassword  = $_POST['current_password'] ?? '';
+        $newPassword   = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
 
         $error = '';
         $success = '';
 
-        if (empty($nombre) || empty($email)) {
+        if (empty($username) || empty($email)) {
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif (!empty($password_nueva) && strlen($password_nueva) < 8) {
+        } elseif (!empty($newPassword) && strlen($newPassword) < 8) {
             $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
-        } elseif (!empty($password_nueva) && $password_nueva !== $password_confirm) {
+        } elseif (!empty($newPassword) && $newPassword !== $confirmPassword) {
             $error = 'Las contraseñas no coinciden.';
         } else {
             try {
                 $this->userService->assertEmailNotTaken($email, $userId);
-                if (!empty($password_nueva)) {
+                if (!empty($newPassword)) {
                     $this->userService->updateProfileWithPassword(
                         $userId,
-                        $nombre,
+                        $username,
                         $email,
-                        $password_actual,
-                        $password_nueva
+                        $currentPassword,
+                        $newPassword
                     );
                 } else {
-                    $this->userService->updateProfile($userId, $nombre, $email);
+                    $this->userService->updateProfile($userId, $username, $email);
                 }
 
-                $_SESSION['user_nombre'] = $nombre;
+                $_SESSION['username'] = $username;
                 $success = 'Perfil actualizado correctamente.';
-                $usuario = $this->userService->getUserById($userId);
+                $user = $this->userService->getUserById($userId);
             } catch (EmailAlreadyTakenException $e) {
                 $error = $e->getMessage();
             } catch (InvalidPasswordException $e) {
@@ -243,6 +268,10 @@ class UserController
             }
         }
 
-        require $this->viewsDir . 'pages/editar_perfil.php';
+        echo $this->twig->render('pages/edit-profile.html.twig', [
+            'user'    => $user,
+            'error'   => $error,
+            'success' => $success,
+        ]);
     }
 }
