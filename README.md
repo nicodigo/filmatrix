@@ -19,10 +19,6 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 
 ![Sitemap](doc/imgs/sitemap.png)
 
-## Diagrama Entidad-Relacion
-
-![DER](doc/imgs/Tp_integrador-DERsvg.svg)
-
 ## Estructura del proyecto
 
 ```
@@ -89,26 +85,20 @@ cd filmatrix
 cp .env.example .env
 ```
 
-Editar las variables `DB_USERNAME`, `DB_PASSWORD` y, si corresponde, `DB_HOSTNAME`, `DB_DBNAME`, `DB_PORT`  , `TMDB_READ_ACCESS_TOKEN`.
+**Editar las variables `DB_USERNAME`, `DB_PASSWORD` y, si corresponde, `DB_HOSTNAME`, `DB_DBNAME`, `DB_PORT`  , `TMDB_READ_ACCESS_TOKEN`.**
 
-3. Instalar las dependencias de Composer:
 
-```bash
-composer update
-```
-
-5. Iniciar el servidor de desarrollo:
+3. Iniciar el servidor de desarrollo:
 
 ```bash
  docker compose up --build
 ```
 La aplicación estará disponible en `http://localhost:8000`.
 
-6. (Opcional) poblar DB desde tmdb:
+4. (Opcional) poblar DB desde tmdb:
 ```bash
 docker compose exec app php bin/sync_catalog.php --section=popular --pages=3
 ```
-
 
 ## Para desarrolladores
 
