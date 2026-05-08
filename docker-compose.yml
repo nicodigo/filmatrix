@@ -10,7 +10,7 @@ services:
       - "5433:${DB_PORT}"
     volumes:
       # - ./db-init:/docker-entrypoint-initdb.d:ro,Z
-      - pawprints_postgres_data:/var/lib/postgresql/data
+      - filmatrix_postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DBNAME}"]
       interval: 5s
@@ -32,4 +32,4 @@ services:
       db:
         condition: service_healthy
 volumes:
-  pawprints_postgres_data:
+  filmatrix_postgres:
