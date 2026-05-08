@@ -130,8 +130,8 @@
     </label>
     <div class="resena-form-wrap">
       <form class="resena-form" action="/review/post" method="POST">
-        <input type="hidden" name="title-id" value="{{ title.id }}">
-        <input type="hidden" name="tmdb-id" value="{{ tmdbId }}">
+        <input type="hidden" name="title_id" value="{{ title.id }}">
+        <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
         <div class="resena-form__stars" role="group" aria-label="Puntuación">
           {% for i in range(5, 1) %}
             <input type="radio" id="star{{ i }}" name="score" value="{{ i }}" class="star-input">
@@ -140,7 +140,7 @@
         </div>
         <textarea
           class="resena-form__textarea"
-          name="review-text"
+          name="review_body"
           placeholder="Contá qué te pareció la película…"
           rows="5"
           maxlength="1000"></textarea>

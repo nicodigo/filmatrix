@@ -17,19 +17,19 @@
 
 <body>
 
-<?php require __DIR__ . '/../partials/header.php'; ?>
+{% include 'partials/header.html.twig' %}
 
 <main class="perfil-main">
 
   <section class="perfil-hero">
     <div class="perfil-avatar-wrap">
-      <img class="perfil-avatar" src="/assets/img/user_avatar.png" alt="Avatar de <?= htmlspecialchars($usuario->getUsername()) ?>">
+      <img class="perfil-avatar" src="/assets/img/user_avatar.png" alt="Avatar de {{ user.username }}">
     </div>
 
     <div class="perfil-hero__info">
-      <h1 class="perfil-nombre"><?= htmlspecialchars($usuario->getUsername()) ?></h1>
-      <p class="perfil-email"><?= htmlspecialchars($usuario->getEmail()) ?></p>
-      <p class="perfil-miembro">Miembro desde <?= date('F Y', strtotime($usuario->getCreatedAt())) ?></p>
+      <h1 class="perfil-nombre">{{ user.username }}</h1>
+      <p class="perfil-email">{{ user.email }}</p>
+      <p class="perfil-miembro">Miembro desde {{ user.createdAt|date('F Y') }}</p>
     </div>
   </section>
 
@@ -55,7 +55,7 @@
 
 </main>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+{% include 'partials/footer.html.twig' %}
 
 </body>
 </html>

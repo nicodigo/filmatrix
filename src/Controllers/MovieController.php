@@ -95,6 +95,7 @@ class MovieController
             'reviews' => $reviews,
             'suggested' => $suggested,
             'duration' => $duration,
+            'tmdbId' => $tmdbId,
         ]);
     }
 }

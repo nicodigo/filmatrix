@@ -1,8 +1,3 @@
-<?php
-$error = $error ?? '';
-$campos = $campos ?? ['username' => '', 'email' => ''];
-?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -23,7 +18,7 @@ $campos = $campos ?? ['username' => '', 'email' => ''];
 
 <body>
 
-<?php require __DIR__ . '/../partials/header.php'; ?>
+{% include 'partials/header.html.twig' %}
 
 <main class="auth-main">
   <div class="auth-card">
@@ -33,25 +28,25 @@ $campos = $campos ?? ['username' => '', 'email' => ''];
       <p class="auth-card__subtitle">Gratis. Sin publicidad. Solo películas.</p>
     </div>
 
-    <?php if ($error): ?>
+    {% if error %}
       <div class="auth-alert" role="alert">
-        <?= htmlspecialchars($error) ?>
+        {{ error }}
       </div>
-    <?php endif; ?>
+    {% endif %}
 
     <form class="auth-form" method="POST" action="/register" novalidate>
 
       <div class="auth-field">
         <label class="auth-label" for="username">Nombre</label>
         <input class="auth-input" type="text" id="username" name="username"
-               value="<?= htmlspecialchars($campos['username']) ?>"
+               value="{{ fields.username|default('') }}"
                placeholder="Tu nombre" required>
       </div>
 
       <div class="auth-field">
         <label class="auth-label" for="email">Email</label>
         <input class="auth-input" type="email" id="email" name="email"
-               value="<?= htmlspecialchars($campos['email']) ?>"
+               value="{{ fields.email|default('') }}"
                placeholder="tu@email.com" required>
       </div>
 
@@ -62,8 +57,8 @@ $campos = $campos ?? ['username' => '', 'email' => ''];
       </div>
 
       <div class="auth-field">
-        <label class="auth-label" for="confirm">Repetir contraseña</label>
-        <input class="auth-input" type="password" id="confirm" name="confirm"
+        <label class="auth-label" for="confirm_password">Repetir contraseña</label>
+        <input class="auth-input" type="password" id="confirm_password" name="confirm_password"
                placeholder="••••••••" required>
       </div>
 
@@ -78,7 +73,7 @@ $campos = $campos ?? ['username' => '', 'email' => ''];
   </div>
 </main>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+{% include 'partials/footer.html.twig' %}
 
 </body>
 </html>

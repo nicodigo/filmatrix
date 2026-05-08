@@ -253,11 +253,11 @@ class __TwigTemplate_ac18d2e31375cb5bf3028f86a00b0e05 extends Template
     </label>
     <div class=\"resena-form-wrap\">
       <form class=\"resena-form\" action=\"/review/post\" method=\"POST\">
-        <input type=\"hidden\" name=\"title-id\" value=\"";
+        <input type=\"hidden\" name=\"title_id\" value=\"";
         // line 133
         yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(CoreExtension::getAttribute($this->env, $this->source, ($context["title"] ?? null), "id", [], "any", false, false, false, 133), "html", null, true);
         yield "\">
-        <input type=\"hidden\" name=\"tmdb-id\" value=\"";
+        <input type=\"hidden\" name=\"tmdb_id\" value=\"";
         // line 134
         yield $this->env->getRuntime('Twig\Runtime\EscaperRuntime')->escape(($context["tmdbId"] ?? null), "html", null, true);
         yield "\">
@@ -288,7 +288,7 @@ class __TwigTemplate_ac18d2e31375cb5bf3028f86a00b0e05 extends Template
         yield "        </div>
         <textarea
           class=\"resena-form__textarea\"
-          name=\"review-text\"
+          name=\"review_body\"
           placeholder=\"Contá qué te pareció la película…\"
           rows=\"5\"
           maxlength=\"1000\"></textarea>
@@ -575,8 +575,8 @@ class __TwigTemplate_ac18d2e31375cb5bf3028f86a00b0e05 extends Template
     </label>
     <div class=\"resena-form-wrap\">
       <form class=\"resena-form\" action=\"/review/post\" method=\"POST\">
-        <input type=\"hidden\" name=\"title-id\" value=\"{{ title.id }}\">
-        <input type=\"hidden\" name=\"tmdb-id\" value=\"{{ tmdbId }}\">
+        <input type=\"hidden\" name=\"title_id\" value=\"{{ title.id }}\">
+        <input type=\"hidden\" name=\"tmdb_id\" value=\"{{ tmdbId }}\">
         <div class=\"resena-form__stars\" role=\"group\" aria-label=\"Puntuación\">
           {% for i in range(5, 1) %}
             <input type=\"radio\" id=\"star{{ i }}\" name=\"score\" value=\"{{ i }}\" class=\"star-input\">
@@ -585,7 +585,7 @@ class __TwigTemplate_ac18d2e31375cb5bf3028f86a00b0e05 extends Template
         </div>
         <textarea
           class=\"resena-form__textarea\"
-          name=\"review-text\"
+          name=\"review_body\"
           placeholder=\"Contá qué te pareció la película…\"
           rows=\"5\"
           maxlength=\"1000\"></textarea>
