@@ -89,27 +89,26 @@ cd filmatrix
 cp .env.example .env
 ```
 
-Editar las variables `DB_USERNAME`, `DB_PASSWORD` y, si corresponde, `DB_HOSTNAME`, `DB_DBNAME`, `DB_PORT`.
+Editar las variables `DB_USERNAME`, `DB_PASSWORD` y, si corresponde, `DB_HOSTNAME`, `DB_DBNAME`, `DB_PORT`  , `TMDB_READ_ACCESS_TOKEN`.
 
 3. Instalar las dependencias de Composer:
 
 ```bash
-composer install
-```
-
-4. Ejecutar las migraciones de la base de datos:
-
-```bash
-vendor/bin/phinx migrate
+composer update
 ```
 
 5. Iniciar el servidor de desarrollo:
 
 ```bash
-php -S localhost:8000 -t public
+ docker compose up --build
+```
+La aplicación estará disponible en `http://localhost:8000`.
+
+6. (Opcional) poblar DB desde tmdb:
+```bash
+docker compose exec app php bin/sync_catalog.php --section=popular --pages=3
 ```
 
-La aplicación estará disponible en `http://localhost:8000`.
 
 ## Para desarrolladores
 

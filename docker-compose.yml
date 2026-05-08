@@ -23,9 +23,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:80"
-    volumes:
+    # volumes:
       # Se monta el código en tiempo real, elimina necesidad de rebuild por cambio en el código
-      - .:/var/www/html:rw
+      # - .:/var/www/html:rw
     environment:
       - APP_ENV=development
     depends_on:
