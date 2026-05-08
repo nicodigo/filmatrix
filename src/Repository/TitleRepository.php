@@ -1,4 +1,48 @@
 <?php
+/**
+ * TitleRepository
+ * Acceso a datos de la tabla titles y sus relaciones con géneros (title_genres)
+ * y elenco (title_cast).
+ *
+ * MÉTODOS:
+ *   findByTmdbId(tmdbId): ?Title
+ *     Busca un título por su ID de TMDB. Retorna null si no existe.
+ *
+ *   findByTmdbIdWithScore(tmdbId): ?Title
+ *     Busca un título por su ID de TMDB incluyendo el promedio de score
+ *     de sus reseñas visibles. Retorna null si no existe.
+ *
+ *   upsert(title): int
+ *     Inserta un título o actualiza todos sus campos si ya existe el tmdb_id.
+ *     Actualiza el timestamp de caché. Retorna el id interno del registro.
+ *
+ * RELACIONES:
+ *   clearGenres(titleId)
+ *     Elimina todos los géneros asociados a un título. Usado antes de
+ *     resincronizar géneros.
+ *
+ *   attachGenre(titleId, genreId)
+ *     Asocia un género a un título. Ignora si la relación ya existe.
+ *
+ *   findGenresByTitleId(titleId): array
+ *     Retorna todos los géneros de un título ordenados alfabéticamente.
+ *
+ *   clearCast(titleId)
+ *     Elimina todo el elenco asociado a un título. Usado antes de
+ *     resincronizar el cast.
+ *
+ *   attachCastMember(titleId, personId, role, characterName, billingOrder)
+ *     Asocia una persona al elenco de un título con su rol, nombre de
+ *     personaje y orden de crédito. Ignora si la relación ya existe.
+ *
+ *   findCastByTitleId(titleId): array
+ *     Retorna el elenco completo de un título incluyendo nombre, foto,
+ *     rol, personaje y orden de crédito, ordenado por billing_order ascendente.
+ *
+ * DEPENDENCIAS:
+ *   PDO   — conexión a la base de datos.
+ *   Title — modelo mapeado desde los resultados de la consulta.
+ */
 
 namespace App\Repository;
 

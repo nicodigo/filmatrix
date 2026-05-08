@@ -1,4 +1,31 @@
 <?php
+/**
+ * PeopleRepository
+ * Acceso a datos de la tabla people y su relación con títulos (title_cast).
+ *
+ * MÉTODOS:
+ *   findByTmdbId(tmdbPersonId): ?People
+ *     Busca una persona por su ID de TMDB. Retorna null si no existe.
+ *
+ *   findById(id): ?People
+ *     Busca una persona por su id interno. Retorna null si no existe.
+ *
+ *   findAll(): People[]
+ *     Retorna todas las personas ordenadas alfabéticamente por nombre.
+ *
+ *   upsert(tmdbPersonId, name, profileUrl): int
+ *     Inserta una persona o actualiza sus datos si ya existe el tmdb_person_id.
+ *     Actualiza nombre, foto y timestamp de caché. Retorna el id interno del registro.
+ *
+ *   findCastByTitleId(titleId): array
+ *     Retorna el elenco completo de un título via la tabla title_cast,
+ *     incluyendo rol, nombre del personaje y orden de crédito, ordenado
+ *     por billing_order ascendente.
+ *
+ * DEPENDENCIAS:
+ *   PDO    — conexión a la base de datos.
+ *   People — modelo mapeado desde los resultados de la consulta.
+ */
 
 namespace App\Repository;
 

@@ -1,4 +1,34 @@
 <?php
+/**
+ * ReviewRepository
+ * Acceso a datos de la tabla reviews.
+ *
+ * MÉTODOS:
+ *   findVisibleByTitleId(titleId): Review[]
+ *     Retorna todas las reseñas visibles de un título, ordenadas por fecha
+ *     de creación descendente.
+ *
+ *   findById(id): ?Review
+ *     Busca una reseña por su id interno. Retorna null si no existe.
+ *
+ *   findByUserAndTitle(userId, titleId): ?Review
+ *     Busca la reseña de un usuario para un título específico.
+ *     Retorna null si no existe.
+ *
+ *   save(review): int
+ *     Inserta una nueva reseña y retorna el id generado.
+ *
+ *   update(review): bool
+ *     Actualiza score, body, flags y timestamp de una reseña existente.
+ *     Retorna true si la operación fue exitosa.
+ *
+ *   delete(id): bool
+ *     Elimina una reseña por su id. Retorna true si la operación fue exitosa.
+ *
+ * DEPENDENCIAS:
+ *   PDO    — conexión a la base de datos.
+ *   Review — modelo mapeado desde los resultados de la consulta.
+ */
 
 namespace App\Repository;
 

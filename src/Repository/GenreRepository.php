@@ -1,4 +1,29 @@
 <?php
+/**
+ * GenreRepository
+ * Acceso a datos de la tabla genres y su relación con títulos (title_genres).
+ *
+ * MÉTODOS:
+ *   findByTmdbId(tmdbGenreId): ?Genre
+ *     Busca un género por su ID de TMDB. Retorna null si no existe.
+ *
+ *   findAll(): Genre[]
+ *     Retorna todos los géneros ordenados alfabéticamente por nombre.
+ *
+ *   upsert(tmdbGenreId, name): int
+ *     Inserta un género o actualiza su nombre si ya existe el tmdb_genre_id.
+ *     Retorna el id interno del registro.
+ *
+ *   findById(id): ?Genre
+ *     Busca un género por su id interno. Retorna null si no existe.
+ *
+ *   findByTitleId(titleId): Genre[]
+ *     Retorna todos los géneros asociados a un título via la tabla title_genres.
+ *
+ * DEPENDENCIAS:
+ *   PDO   — conexión a la base de datos.
+ *   Genre — modelo mapeado desde los resultados de la consulta.
+ */
 
 namespace App\Repository;
 

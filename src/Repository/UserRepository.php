@@ -1,4 +1,29 @@
 <?php
+/**
+ * UserRepository
+ * Acceso a datos de la tabla users.
+ *
+ * MÉTODOS:
+ *   findByEmail(email): ?User
+ *     Busca un usuario por su email. Retorna null si no existe.
+ *
+ *   findById(id): ?User
+ *     Busca un usuario por su id interno. Retorna null si no existe.
+ *
+ *   findByUsername(username): ?User
+ *     Busca un usuario por su username. Retorna null si no existe.
+ *
+ *   save(user): int
+ *     Inserta un nuevo usuario y retorna el id generado.
+ *
+ *   update(user): bool
+ *     Actualiza username, email, password_hash y timestamp de un usuario
+ *     existente. Retorna true si la operación fue exitosa.
+ *
+ * DEPENDENCIAS:
+ *   PDO  — conexión a la base de datos.
+ *   User — modelo mapeado desde los resultados de la consulta.
+ */
 
 namespace App\Repository;
 

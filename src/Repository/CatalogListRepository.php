@@ -1,4 +1,34 @@
 <?php
+/**
+ * CatalogListRepository
+ * Acceso a datos de la tabla catalog_lists, que almacena títulos
+ * organizados por sección y posición (ej: 'popular').
+ *
+ * MÉTODOS:
+ *   clearSection(section)
+ *     Elimina todos los registros de una sección dada.
+ *     Usado para limpiar antes de una resincronización.
+ *
+ *   insert(section, titleId, position)
+ *     Inserta un título en una sección con su posición y timestamp de sincronización.
+ *
+ *   findBySection(section, limit)
+ *     Retorna hasta $limit títulos de una sección, ordenados por posición.
+ *     Incluye datos del título (tmdb_id, poster, año) y el promedio de score
+ *     de reseñas visibles.
+ *
+ *   findSuggested(excludeTitleId, limit)
+ *     Retorna hasta $limit títulos de la sección 'popular', excluyendo
+ *     un título específico. Usado para mostrar sugerencias en el detalle
+ *     de una película.
+ *
+ *   findAllByPopularity(limit)
+ *     Retorna hasta $limit títulos de la sección 'popular', ordenados
+ *     por posición. Incluye promedio de score de reseñas visibles.
+ *
+ * DEPENDENCIAS:
+ *   PDO — conexión a la base de datos.
+ */
 
 namespace App\Repository;
 

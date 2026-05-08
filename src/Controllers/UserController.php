@@ -1,4 +1,33 @@
 <?php
+/**
+ * UserController
+ * Maneja la autenticación y gestión de perfil de los usuarios.
+ *
+ * MÉTODOS:
+ *   profile(): Renderiza el perfil del usuario autenticado.
+ *
+ *   login(): Renderiza el formulario de login. Redirige a /profile si ya hay sesión activa.
+ * 
+ *   handleLogin(): Procesa el formulario de login. Valida los campos, autentica al usuario
+ *                  y redirige al destino guardado en sesión (o a /profile por defecto).
+ *
+ *   logout(): Cierra la sesión del usuario y redirige a /login.
+ *
+ *   register(): Renderiza el formulario de registro. Redirige a /profile si ya hay sesión activa.
+ *
+ *   handleRegister(): Procesa el formulario de registro. Valida los campos con verifyRegisterFields(),
+ *     registra al usuario y redirige al login. En caso de error muestra el formulario.
+ *
+ *   editProfile(): Renderiza el formulario de edición de perfil con los datos actuales del usuario.
+ *
+ *   updateProfile(): Procesa el formulario de edición. Valida campos, actualiza nombre y email,
+ *                    y opcionalmente la contraseña si se provee una nueva.
+ *
+ *
+ * DEPENDENCIAS:
+ *   AuthService  — autenticación, registro, sesión.
+ *   UserService  — consulta y actualización de datos del usuario.
+ */
 
 namespace App\Controllers;
 

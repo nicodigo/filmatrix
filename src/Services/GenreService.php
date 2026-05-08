@@ -39,4 +39,9 @@ class GenreService
     {
         return $this->genreRepository->findByTitleId($titleId);
     }
+
+    public function sync(int $tmdbGenreId, string $name): int
+    {
+        return $this->genreRepository->upsert($tmdbGenreId, $name);
+    }
 }

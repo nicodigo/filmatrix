@@ -1,4 +1,18 @@
 <?php
+/**
+ * CatalogController
+ * Maneja la visualización del catálogo general de películas.
+ *
+ * MÉTODOS:
+ *   index()
+ *     Renderiza el catálogo completo ordenado por popularidad.
+ *     Obtiene hasta 40 títulos a través del CatalogSyncService.
+ *     Vista: views/pages/catalogo.php
+ *     Ruta: GET /catalog
+ *
+ * DEPENDENCIAS:
+ *   CatalogSyncService — obtiene y sincroniza los títulos ordenados por popularidad.
+ */
 
 namespace App\Controllers;
 
@@ -18,8 +32,8 @@ class CatalogController
 
     public function index(): void
     {
-        $titles = $this->catalogService
-            ->findAllByPopularity(40);
+        $recent = $this->catalogService->findBySection('now_playing', 8);
+        $popular = $this->catalogService->findBySection('popular', 8);
 
         require $this->viewsDir . 'pages/catalogo.php';
     }

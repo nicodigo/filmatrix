@@ -1,4 +1,30 @@
 <?php
+/**
+ * MovieController
+ * Maneja la visualización del detalle de una película.
+ *
+ * MÉTODOS:
+ *   show(): Renderiza la página de detalle de una película a partir de su tmdb_id
+ *           recibido por query string. Si el ID es inválido o la película no existe,
+ *           redirige a /catalog.
+ *
+ *     Datos que resuelve antes de renderizar:
+ *       - Géneros del título (formateados como string para la vista).
+ *       - Elenco principal.
+ *       - Reseñas visibles.
+ *       - 4 películas sugeridas relacionadas.
+ *       - Duración formateada en horas y minutos (ej: "2h 15m").
+ *
+ *     Vista: views/pages/detalle_pelicula.php
+ *     Ruta: GET /movie?tmdb_id={id}
+ *
+ * DEPENDENCIAS:
+ *   TitleService       — obtiene los datos principales del título.
+ *   GenreService       — obtiene los géneros asociados al título.
+ *   PeopleService      — obtiene el elenco del título.
+ *   ReviewService      — obtiene las reseñas visibles del título.
+ *   CatalogSyncService — obtiene películas sugeridas relacionadas.
+ */
 
 namespace App\Controllers;
 

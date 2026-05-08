@@ -178,4 +178,13 @@ class TitleService
 
         return $this->titleRepository->findByTmdbIdWithScore($tmdbId);
     }
+
+    public function syncGenres(): void
+    {
+        $genres = $this->tmdbClient->getGenres();
+
+        foreach ($genres['genres'] ?? [] as $genre) {
+            $this->genreService->sync($genre['id'], $genre['name']);
+        }
+    }
 }

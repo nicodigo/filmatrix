@@ -1,5 +1,20 @@
 <?php
-
+/**
+ * ReviewController
+ * Maneja el envío de reseñas de películas.
+ *
+ * MÉTODOS:
+ *   postReview()
+ *     Procesa el formulario de reseña. Verifica que el usuario esté
+ *     autenticado, crea la reseña y redirige al detalle de la película.
+ *     Si el usuario ya tiene una reseña para ese título, guarda un mensaje
+ *     de error en sesión (flash) y redirige igualmente.
+ *     Excepción manejada: ReviewAlreadyExistException
+ *     Ruta: POST /review
+ *
+ * DEPENDENCIAS:
+ *   ReviewService — lógica de creación de reseñas.
+ */
 namespace App\Controllers;
 
 use App\Core\Exceptions\ReviewAlreadyExistException;

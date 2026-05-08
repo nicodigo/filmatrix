@@ -1,5 +1,56 @@
 <?php
 
+/**
+ * TmdbClient — Cliente HTTP para la API de The Movie Database (TMDB)
+ * ─────────────────────────────────────────────────────────────────────
+ * Centraliza todas las llamadas a la API de TMDB. El resto de la aplicación
+ * (services, scripts de sync) nunca habla directo con TMDB — siempre pasan
+ * por esta clase.
+ *
+ * AUTENTICACIÓN:
+ *   Usa Bearer Token (TMDB_READ_ACCESS_TOKEN en el .env).
+ *   Todas las respuestas vienen en español argentino (language=es-AR).
+ *
+ * MANEJO DE ERRORES:
+ *   Lanza TmdbApiException si hay error de red (cURL) o si TMDB devuelve
+ *   un código HTTP distinto de 200.
+ *
+ * MÉTODOS DISPONIBLES:
+ *
+ *   getMovie(tmdbId)
+ *     Datos completos de una película: título, sinopsis, póster, duración,
+ *     géneros, rating, etc.
+ *     Endpoint: GET /movie/{tmdbId}
+ *
+ *   getCredits(tmdbId)
+ *     Reparto (cast) y equipo técnico (crew) de una película.
+ *     Usado para extraer actores y directores.
+ *     Endpoint: GET /movie/{tmdbId}/credits
+ *
+ *   getVideos(tmdbId)
+ *     Videos asociados a una película (trailers, teasers, etc.).
+ *     Usado para obtener el trailer de YouTube.
+ *     Endpoint: GET /movie/{tmdbId}/videos
+ *
+ *   getGenres()
+ *     Lista completa de géneros cinematográficos de TMDB.
+ *     Usado por syncGenres() para pre-cargar la tabla `genres`.
+ *     Endpoint: GET /genre/movie/list
+ *
+ *   searchMovies(query, page)
+ *     Búsqueda de películas por texto libre.
+ *     Endpoint: GET /search/movie
+ *
+ *   getNowPlaying(page)
+ *     Películas estrenadas en los últimos 30 días, ordenadas por fecha de
+ *     estreno descendente. Filtra por tipo de estreno theatrical (2|3).
+ *     Endpoint: GET /discover/movie (con filtros de fecha)
+ *
+ *   getPopular(page)
+ *     Películas ordenadas por popularidad descendente, con al menos 500
+ *     votos para filtrar títulos sin relevancia.
+ *     Endpoint: GET /discover/movie (con sort_by=popularity.desc)
+ */
 namespace App\Infrastructure\Tmdb;
 
 use App\Core\Config;
