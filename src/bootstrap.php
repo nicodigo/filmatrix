@@ -55,13 +55,13 @@ $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
 
 // twig
-/* $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views'); */
-/**/
-/* $twig = new \Twig\Environment($loader, [ */
-/*     'cache' => __DIR__ . '/../cache/twig', */
-/*     'auto_reload' => true,  // recompila si la vista cambió */
-/*     'debug' => true,        // false en producción */
-/* ]); */
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
+
+$twig = new \Twig\Environment($loader, [
+    'cache' => __DIR__ . '/../cache/twig',
+    'auto_reload' => true,  // recompila si la vista cambió
+    'debug' => true,        // false en producción
+]);
 
 // Repositories
 $userRepository        = new UserRepository($connection);
@@ -105,15 +105,17 @@ $authMiddleware = new AuthMiddleware();
 $request = new Request();
 
 // Controllers factories
-$makeUserCtrl = fn() => new UserController($authService, $userService);
+$makeUserCtrl = fn() => new UserController($twig, $authService, $userService);
 
-$makePageCtrl = fn() => new PageController($catalogListRepository);
+$makePageCtrl = fn() => new PageController($twig, $catalogListRepository);
 
 $makeCatalogCtrl = fn() => new CatalogController(
+    $twig,
     $catalogSyncService
 );
 
 $makeMovieCtrl = fn() => new MovieController(
+    $twig,
     $titleService,
     $reviewService,
     $catalogSyncService,
@@ -121,10 +123,10 @@ $makeMovieCtrl = fn() => new MovieController(
     $peopleService
 );
 
-$makeReviewCtrl = fn() => new ReviewController($reviewService);
+$makeReviewCtrl = fn() => new ReviewController($twig, $reviewService);
 
 // Protected helper
-$protegida = fn(callable $action) => function() use ($authMiddleware, $action) {
+$protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
     return $action();
 };
@@ -136,7 +138,7 @@ $router->setLogger($log_app);
 // Routes
 $router->get('/', fn() => $makePageCtrl()->home());
 $router->get('/catalog', fn() => $makeCatalogCtrl()->index());
-$router->get('/movie', fn() => $makeMovieCtrl()->show());
+$router->get('/movie', fn() => $makeMovieCtrl()->showMovie());
 
 
 $router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));

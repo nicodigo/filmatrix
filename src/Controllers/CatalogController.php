@@ -3,17 +3,19 @@
 namespace App\Controllers;
 
 use App\Services\CatalogSyncService;
+use Twig\Environment;
 
 class CatalogController
 {
     private CatalogSyncService $catalogService;
-    private string $viewsDir;
+    private Environment $twig;
 
     public function __construct(
+        Environment $twig,
         CatalogSyncService $catalogService
     ) {
         $this->catalogService = $catalogService;
-        $this->viewsDir = __DIR__ . '/../../views/';
+        $this->twig = $twig;
     }
 
     public function index(): void
@@ -21,6 +23,9 @@ class CatalogController
         $titles = $this->catalogService
             ->findAllByPopularity(40);
 
-        require $this->viewsDir . 'pages/catalogo.php';
+        echo $this->twig->render('pages/catalog.html.twig', [
+            'titles' => $titles,
+        ]);
+
     }
 }

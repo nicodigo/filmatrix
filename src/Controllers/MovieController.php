@@ -7,32 +7,34 @@ use App\Services\ReviewService;
 use App\Services\TitleService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
+use Twig\Environment;
 
 class MovieController
 {
+    private Environment $twig;
     private TitleService $titleService;
     private ReviewService $reviewService;
     private CatalogSyncService $catalogSyncService;
     private GenreService $genreService;
     private PeopleService $peopleService;
-    private string $viewsDir;
 
     public function __construct(
+        Environment $twig,
         TitleService $titleService,
         ReviewService $reviewService,
         CatalogSyncService $catalogSyncService,
         GenreService $genreService,
         PeopleService $peopleService
     ) {
+        $this->twig = $twig;
         $this->titleService = $titleService;
         $this->reviewService = $reviewService;
         $this->catalogSyncService = $catalogSyncService;
         $this->genreService = $genreService;
         $this->peopleService = $peopleService;
-        $this->viewsDir = __DIR__ . '/../../views/';
     }
 
-    public function show(): void
+    public function showMovie(): void
     {
         $tmdbId = (int) ($_GET['tmdb_id'] ?? 0);
 
@@ -85,6 +87,14 @@ class MovieController
         /*
         | Render
         */
-        require $this->viewsDir . 'pages/detalle_pelicula.php';
+        echo $this->twig->render('pages/movieDetails.html.twig', [
+            'title' => $title,
+            'genres' => $genres,
+            'genreLabel' => $genreLabel,
+            'cast' => $cast,
+            'reviews' => $reviews,
+            'suggested' => $suggested,
+            'duration' => $duration,
+        ]);
     }
 }

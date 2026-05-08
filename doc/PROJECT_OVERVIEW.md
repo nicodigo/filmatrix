@@ -50,7 +50,7 @@ Filmatrix lets users browse a catalog of movies, create an account, authenticate
 
 - **Separation of concerns**: Controllers only handle input/response; Services contain business logic; Repositories handle data access.
 - **PDO + prepared statements**: All database queries use parameterised queries to prevent SQL injection.
-- **Native session authentication**: login/register sets `$_SESSION['user_id']`, `user_role`, and `user_nombre`. Middleware checks existence for protected routes.
+- **Native session authentication**: login/register sets `$_SESSION['user_id']`, `user_role`, and `username`. Middleware checks existence for protected routes.
 - **No external auth library**: passwords hashed with `password_hash(PASSWORD_DEFAULT)` and verified with `password_verify`.
 - **Convention**: Public assets in `public/assets/`, views in `views/`, autoloading via Composer PSR‑4 (namespace `App\` points to `src/`).
 

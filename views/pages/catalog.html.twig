@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/assets/css/catalogo.css">
 </head>
 
-<?php require __DIR__ . '/../partials/header.php'; ?>
+{% include 'partials/header.html.twig' %}
 
 <main>
 
@@ -67,9 +67,9 @@
         <label class="filter-label" for="filterYear">Año</label>
         <select class="filter-select" id="filterYear" name="year">
           <option value="">Todos</option>
-          <?php for ($y = date('Y'); $y >= 1970; $y--): ?>
-            <option value="<?= $y ?>"><?= $y ?></option>
-          <?php endfor; ?>
+          {% for y in range("now"|date("Y"), 1970) %}
+            <option value="{{ y }}">{{ y }}</option>
+          {% endfor %}
         </select>
       </div>
 
@@ -89,14 +89,19 @@
 
   <section class="catalogo-section">
     <div class="catalogo-grid">
-      <?php if (empty($titles)): ?>
+    {% if titles is empty %}
         <p class="catalogo-empty">Sin títulos disponibles.</p>
-      <?php else: ?>
-        <?php foreach ($titles as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
-      <?php endif; ?>
+    {% endif %}
+
+    {% import 'macros/movie-cards.html.twig' as cards %}
+
+    {% for movie in titles %}
+      {{ cards.movieCard(movie) }}
+    {% endfor %}
+
     </div>
   </section>
 
 </main>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+{% include 'partials/footer.html.twig' %}

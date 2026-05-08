@@ -95,18 +95,18 @@ class UserController
 
     public function handleRegister()
     {
-        $nombre   = mb_strtolower(trim($_POST['nombre'] ?? ''), 'UTF8');
+        $username = mb_strtolower(trim($_POST['username'] ?? ''), 'UTF8');
         $email    = mb_strtolower(trim($_POST['email'] ?? ''), 'UTF-8');
         $password = $_POST['password'] ?? '';
         $confirm  = $_POST['confirm'] ?? '';
 
 
         $campos = [
-            'nombre' => $nombre,
+            'nombre' => $username,
             'email'  => $email
         ];
 
-        $error = $this->verifyRegisterFields($nombre, $email, $password, $confirm);
+        $error = $this->verifyRegisterFields($username, $email, $password, $confirm);
         if ($error) {
             require $this->viewsDir . 'pages/registro.php';
             exit;
@@ -202,7 +202,7 @@ class UserController
                     $this->userService->updateProfile($userId, $nombre, $email);
                 }
 
-                $_SESSION['user_nombre'] = $nombre;
+                $_SESSION['username'] = $nombre;
                 $success = 'Perfil actualizado correctamente.';
                 $usuario = $this->userService->getUserById($userId);
             } catch (EmailAlreadyTakenException $e) {

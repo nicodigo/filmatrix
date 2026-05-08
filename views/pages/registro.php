@@ -1,6 +1,6 @@
 <?php
 $error = $error ?? '';
-$campos = $campos ?? ['nombre' => '', 'email' => ''];
+$campos = $campos ?? ['username' => '', 'email' => ''];
 ?>
 
 <!DOCTYPE html>
@@ -42,9 +42,9 @@ $campos = $campos ?? ['nombre' => '', 'email' => ''];
     <form class="auth-form" method="POST" action="/register" novalidate>
 
       <div class="auth-field">
-        <label class="auth-label" for="nombre">Nombre</label>
-        <input class="auth-input" type="text" id="nombre" name="nombre"
-               value="<?= htmlspecialchars($campos['nombre']) ?>"
+        <label class="auth-label" for="username">Nombre</label>
+        <input class="auth-input" type="text" id="username" name="username"
+               value="<?= htmlspecialchars($campos['username']) ?>"
                placeholder="Tu nombre" required>
       </div>
 

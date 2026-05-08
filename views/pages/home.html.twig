@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/assets/css/footer.css">
 </head>
 
-<?php require __DIR__ . '/../partials/header.php'; ?>
+{% include 'partials/header.html.twig' %}
 
 <main>
   <section class="hero">
@@ -34,47 +34,39 @@
 
   <section class="popular-movies">
     <div class="movie-flex">
-      <?php if (empty($popular)): ?>
+      {% if (popular is empty) %}
         <p class="catalogo-empty">Sin títulos disponibles.</p>
-      <?php else: ?>
-        <?php foreach ($popular as $movie): require __DIR__ . '/includes/movie-card.php'; endforeach; ?>
-      <?php endif; ?>
+      {% endif %}
+
+      {% import 'macros/movie-cards.html.twig' as cards %}
+
+      {% for movie in popular %}
+        {{ cards.movieCard(movie) }}
+      {% endfor %}
     </div>
   </section>
 
-  <?php
-    // Datos hardcodeados para la reseña del día
-    $dailyReview = [
-      'title'       => 'Dune: Part Two',
-      'year'        => '2024',
-      'author'      => 'María López',
-      'avatar'      => '/assets/img/user_avatar.png',
-      'texto_reseña'=> 'Una obra maestra visual que expande el universo de Frank Herbert con una narrativa épica y actuaciones memorables.',
-      'likes'       => 128,
-      'url_banner'  => '/assets/img/hero-bg.webp',
-    ];
-  ?>
 
   <section class="daily-review">
     <h2>Reseña del día</h2>
     <article>
       <a href="#">
         <figure>
-          <img src="<?= htmlspecialchars($dailyReview['url_banner']) ?>" alt="<?= htmlspecialchars($dailyReview['title']) ?>">
+          <img src="{{ dailyReview.url_banner }}" alt="{{ dailyReview.title }}">
         </figure>
       </a>
       <div class="daily-review__content">
-        <h3 class="daily-review__title"><?= htmlspecialchars($dailyReview['title']) ?></h3>
-        <span class="daily-review__year"><?= htmlspecialchars($dailyReview['year']) ?></span>
+        <h3 class="daily-review__title">{{ dailyReview.title }}</h3>
+        <span class="daily-review__year">{{ dailyReview.year }}</span>
         <div class="daily-review__author">
-          <img src="<?= htmlspecialchars($dailyReview['avatar']) ?>" alt="Avatar de <?= htmlspecialchars($dailyReview['author']) ?>">
-          <span><?= htmlspecialchars($dailyReview['author']) ?></span>
+          <img src="{{ dailyReview.avatar }}" alt="Avatar de {{ dailyReview.author }}">
+          <span> {{ dailyReview.author }}</span>
         </div>
-        <p class="daily-review__text"><?= htmlspecialchars($dailyReview['texto_reseña']) ?></p>
-        <span class="daily-review__likes">&hearts; <?= (int)$dailyReview['likes'] ?></span>
+        <p class="daily-review__text"> {{dailyReview.body }}</p>
+        <span class="daily-review__likes">&hearts; {{ dailyReview.likes }}</span>
       </div>
     </article>
   </section>
 </main>
 
-<?php require __DIR__ . '/../partials/footer.php'; ?>
+{% include 'partials/footer.html.twig' %}
