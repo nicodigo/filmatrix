@@ -38,7 +38,7 @@ class CatalogController
         $popular = $this->catalogService->findBySection('popular', 8);
 
         echo $this->twig->render('pages/catalog.html.twig', [
-            'titles' => $titles,
+            'titles' => $popular,
         ]);
 
     }
