@@ -15,9 +15,9 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 - Monolog (logging)
 - HTML / CSS / JavaScript vanilla
 
-## Sitemap
+## Diagrama Entidad-Relacion
 
-![Sitemap](doc/imgs/sitemap.png)
+![DER](doc/imgs/Tp_integrador-DERsvg.svg)
 
 ## Estructura del proyecto
 
@@ -87,7 +87,6 @@ cp .env.example .env
 
 **Editar las variables `DB_USERNAME`, `DB_PASSWORD` y, si corresponde, `DB_HOSTNAME`, `DB_DBNAME`, `DB_PORT`  , `TMDB_READ_ACCESS_TOKEN`.**
 
-
 3. Iniciar el servidor de desarrollo:
 
 ```bash
@@ -99,6 +98,7 @@ La aplicación estará disponible en `http://localhost:8000`.
 ```bash
 docker compose exec app php bin/sync_catalog.php --section=popular --pages=3
 ```
+
 
 ## Para desarrolladores
 
