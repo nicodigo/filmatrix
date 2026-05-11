@@ -1,4 +1,10 @@
 #!/bin/bash
+# Railway inyecta PORT; localmente se usa 8080
+export APP_PORT=${PORT:-8080}
+
+# Hacer que Apache escuche en ese puerto
+sed -i "s/^Listen 80$/Listen ${APP_PORT}/" /etc/apache2/ports.conf
+
 mkdir -p /var/www/html/cache
 chown -R www-data:www-data /var/www/html/cache
 
@@ -6,7 +12,5 @@ echo "Esperando a la base de datos..."
 until php -r "new PDO('pgsql:host=${DB_HOSTNAME};port=${DB_PORT};dbname=${DB_DBNAME}', '${DB_USERNAME}', '${DB_PASSWORD}');" 2>/dev/null; do
   sleep 2
 done
-
-vendor/bin/phinx migrate
 
 exec apache2-foreground
