@@ -1,4 +1,11 @@
 #!/bin/bash
+set -e
+
+# Fix Railway MPM bug (re-enables mpm_event at runtime)
+a2dismod mpm_event mpm_worker 2>/dev/null || true
+rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
+a2enmod mpm_prefork 2>/dev/null || true
+
 # Railway inyecta PORT; localmente se usa 8080
 export APP_PORT=${PORT:-8080}
 
