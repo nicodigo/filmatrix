@@ -6,7 +6,7 @@ on:
       - "v*"
 
 jobs:
-  build-and-push:
+  build-push-and-deploy:
     runs-on: ubuntu-latest
 
     strategy:
@@ -46,7 +46,7 @@ jobs:
       - name: Redeploy en Railway
         run: |
           npm install -g @railway/cli
-          railway redeploy --service ${{ vars.RAILWAY_SERVICE_ID }} --yes
+          railway redeploy --service ${{ vars.RAILWAY_SERVICE_ID }} --environment production --yes
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
