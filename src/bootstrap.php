@@ -39,7 +39,7 @@ use App\Controllers\ReviewController;
 use App\Controllers\UserController;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $config = new Config();
 

@@ -3,6 +3,7 @@ FROM php:8.5-apache
 # Habilita mod_rewrite, necesario para que apache no devuelva error 404 en cualquier ruta
 # que no sea un archivo físico (front controller).
 RUN a2enmod rewrite
+RUN a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork
 
 # Reemplaza el virtual host por defecto de apache con el definido en vhost.conf. Cambia 
 # de /var/www/html/ a /var/www/html/public, necesario para no exponer toda la raíz del proyecto
