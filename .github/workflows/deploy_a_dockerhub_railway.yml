@@ -49,3 +49,8 @@ jobs:
           railway redeploy --service ${{ vars.RAILWAY_SERVICE_ID }} --yes
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Crear Release en GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
