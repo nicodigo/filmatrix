@@ -45,7 +45,7 @@ $config = new Config();
 
 // Logger
 $log_app = new Logger('log-app');
-$handler = new StreamHandler($config->get('LOG_PATH'));
+$handler = new StreamHandler('php://stderr');
 $handler->setLevel($config->get('LOG_LEVEL'));
 $log_app->pushHandler($handler);
 
