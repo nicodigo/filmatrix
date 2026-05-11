@@ -45,13 +45,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Instalar Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Redeploy en Railway
-        run: railway up --service=${{ vars.RAILWAY_SERVICE_NAME }} --environment=${{ vars.RAILWAY_ENVIRONMENT_NAME }}
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Redeploy Railway
+        run: |
+          curl -s -X POST https://backboard.railway.app/graphql/v2 \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ vars.RAILWAY_SERVICE_ID }}\", environmentId: \"${{ vars.RAILWAY_ENVIRONMENT_ID }}\") }"
+            }'
 
       - name: Crear Release en GitHub
         uses: softprops/action-gh-release@v2
