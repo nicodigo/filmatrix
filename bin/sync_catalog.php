@@ -63,14 +63,14 @@ use App\Services\TitleService;
 use App\Services\CatalogSyncService;
 
 // 1. Load environment
-Dotenv::createUnsafeImmutable(__DIR__ . '/../')->load();
+Dotenv::createUnsafeImmutable(__DIR__ . '/../')->safeLoad();
 
 // 2. Config
 $config = new Config();
 
 // 3. Logger
 $logger  = new Logger('sync-catalog');
-$handler = new StreamHandler($config->get('LOG_PATH'));
+$handler = new StreamHandler('php://stderr');
 $handler->setLevel($config->get('LOG_LEVEL'));
 $logger->pushHandler($handler);
 

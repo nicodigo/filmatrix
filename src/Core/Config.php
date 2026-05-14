@@ -10,8 +10,7 @@ class Config
     public function __construct()
     {
         $this->configs['LOG_LEVEL'] = getenv('LOG_LEVEL') ?: 'INFO';
-        $path = getenv('LOG_PATH', '/logs/app.log');
-        $this->configs['LOG_PATH'] = $this->joinPaths('..', $path);
+        $this->configs['LOG_PATH'] = 'php://stderr'; 
 
         $this->configs['DB_ADAPTER'] = getenv('DB_ADAPTER') ?: 'pgsql';
         $this->configs['DB_HOSTNAME'] = getenv('DB_HOSTNAME') ?: 'localhost';
