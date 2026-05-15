@@ -1,4 +1,4 @@
-export class Header {
+export class NavMenu{
   /** @type {HTMLElement} */
   hamburger;
   /** @type {HTMLElement} */
@@ -20,7 +20,7 @@ export class Header {
   toggle() {
     const isActive = this.menu.classList.toggle("is-active");
     this.hamburger.classList.toggle("is-active");
-    this.hamburger.setAttribute("aria-expanded", isActive);
+    this.hamburger.setAttribute("aria-expanded", String(isActive));
   }
 
   close() {

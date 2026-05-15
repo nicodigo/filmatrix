@@ -1,8 +1,10 @@
-import { Header } from "./modules/header.js";
+import { NavMenu } from "./modules/NavMenu.js";
+import { SearchToggle } from "./modules/SearchToggle.js"
 
 const App = {
   init() {
-    const header = new Header();
+    const navMenu = new NavMenu();
+    const searchToggle = new SearchToggle();
   },
 };
 
