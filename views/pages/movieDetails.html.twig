@@ -1,27 +1,17 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends 'layout/main.html.twig' %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}Detalle — Filmatrix{% endblock %}
 
-  <title>Detalle — Filmatrix</title>
-  <meta name="description" content="Información, reparto y reseñas de la película en Filmatrix.">
+{% block description %}Información, reparto y reseñas de la película en Filmatrix.{% endblock %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/header.css">
+{% block styles %}
   <link rel="stylesheet" href="/assets/css/movie-card.css">
-  <link rel="stylesheet" href="/assets/css/footer.css">
   <link rel="stylesheet" href="/assets/css/detalle_pelicula.css">
-</head>
+{% endblock %}
 
-{% include 'partials/header.html.twig' %}
+{% block main_class %}detalle-main{% endblock %}
 
-<main class="detalle-main">
+{% block content %}
   <!-- ══════════════════════════════════
        PORTADA + TÍTULO
   ══════════════════════════════════════ -->
@@ -196,7 +186,4 @@
       </div>
     </aside>
   </section>
-
-</main>
-
-{% include 'partials/footer.html.twig' %}
+{% endblock %}

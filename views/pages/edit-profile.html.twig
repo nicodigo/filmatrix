@@ -1,26 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editar perfil — Filmatrix</title>
+{% extends 'layout/main.html.twig' %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{% block title %}Editar perfil — Filmatrix{% endblock %}
 
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/header.css">
-  <link rel="stylesheet" href="/assets/css/footer.css">
+{% block styles %}
   <link rel="stylesheet" href="/assets/css/editar_perfil.css">
-</head>
+{% endblock %}
 
-<body>
+{% block main_class %}ep-main{% endblock %}
 
-{% include 'partials/header.html.twig' %}
-
-<main class="ep-main">
-
+{% block content %}
   <div class="ep-header">
     <a href="/profile" class="ep-back">Volver al perfil</a>
     <h1 class="ep-title">Editar perfil</h1>
@@ -109,10 +97,4 @@
     </div>
 
   </form>
-
-</main>
-
-{% include 'partials/footer.html.twig' %}
-
-</body>
-</html>
+{% endblock %}

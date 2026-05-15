@@ -1,38 +1,26 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'layout/main.html.twig' %}
 
-  <title>Catálogo — Filmatrix</title>
-  <meta name="description" content="Explorá el catálogo completo de películas en Filmatrix. Filtrá por género, año y más.">
+{% block title %}Catálogo — Filmatrix{% endblock %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{% block description %}Explorá el catálogo completo de películas en Filmatrix. Filtrá por género, año y más.{% endblock %}
 
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/header.css">
+{% block styles %}
   <link rel="stylesheet" href="/assets/css/movie-card.css">
-  <link rel="stylesheet" href="/assets/css/footer.css">
   <link rel="stylesheet" href="/assets/css/catalogo.css">
-</head>
+{% endblock %}
 
-{% include 'partials/header.html.twig' %}
-
-<main>
-
+{% block content %}
   <!-- ── Encabezado del catálogo ── -->
   <input type="checkbox" id="filterToggle" class="filter-toggle-input">
   <section class="catalogo-header">
     <h1 class="catalogo-title">Catálogo</h1>
 
-    <!--
+    {#
       Toggle de filtros sin JS:
       checkbox oculto + label actúa como botón.
       El panel se muestra con el selector CSS:
       .filter-toggle-input:checked ~ .filter-panel
-    -->
+    #}
     <label for="filterToggle" class="catalogo-filter-btn">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="2"
@@ -101,7 +89,4 @@
 
     </div>
   </section>
-
-</main>
-
-{% include 'partials/footer.html.twig' %}
+{% endblock %}

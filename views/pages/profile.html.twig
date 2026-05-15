@@ -1,26 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi perfil — Filmatrix</title>
+{% extends 'layout/main.html.twig' %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{% block title %}Mi perfil — Filmatrix{% endblock %}
 
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/header.css">
-  <link rel="stylesheet" href="/assets/css/footer.css">
+{% block styles %}
   <link rel="stylesheet" href="/assets/css/miPerfil.css">
-</head>
+{% endblock %}
 
-<body>
+{% block main_class %}perfil-main{% endblock %}
 
-{% include 'partials/header.html.twig' %}
-
-<main class="perfil-main">
-
+{% block content %}
   <section class="perfil-hero">
     <div class="perfil-avatar-wrap">
       <img class="perfil-avatar" src="/assets/img/user_avatar.png" alt="Avatar de {{ user.username }}">
@@ -52,10 +40,4 @@
       <button type="submit" class="perfil-btn perfil-btn--danger">Cerrar sesión</button>
     </form>
   </section>
-
-</main>
-
-{% include 'partials/footer.html.twig' %}
-
-</body>
-</html>
+{% endblock %}

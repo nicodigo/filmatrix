@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Crear cuenta — Filmatrix</title>
-  <meta name="description" content="Creá tu cuenta en Filmatrix y empezá a reseñar películas.">
+{% extends 'layout/main.html.twig' %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+{% block title %}Crear cuenta — Filmatrix{% endblock %}
 
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/header.css">
-  <link rel="stylesheet" href="/assets/css/footer.css">
+{% block description %}Creá tu cuenta en Filmatrix y empezá a reseñar películas.{% endblock %}
+
+{% block styles %}
   <link rel="stylesheet" href="/assets/css/auth.css">
-</head>
+{% endblock %}
 
-<body>
+{% block main_class %}auth-main{% endblock %}
 
-{% include 'partials/header.html.twig' %}
-
-<main class="auth-main">
+{% block content %}
   <div class="auth-card">
 
     <div class="auth-card__header">
@@ -71,9 +61,4 @@
     </p>
 
   </div>
-</main>
-
-{% include 'partials/footer.html.twig' %}
-
-</body>
-</html>
+{% endblock %}
