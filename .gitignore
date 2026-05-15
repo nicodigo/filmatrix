@@ -1,10 +1,7 @@
 vendor/**
 **.log
+/cache/twig
 
 .env
+
 .git
-
-filmatrix-design-system.html
-.aider*
-
-/cache/twig

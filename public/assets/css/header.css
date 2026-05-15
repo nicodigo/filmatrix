@@ -108,50 +108,40 @@
 }
 
 /* ── Search form ── */
-.search-form {
+.search-container {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--bg-base);
+  position: relative;
   overflow: hidden;
-  transition: border-color 0.2s ease;
-}
-
-.search-form:focus-within {
-  border-color: var(--accent);
 }
 
 .search-input {
-  flex-shrink: 1;
-  min-width: 0;
+  width: 0;
+  padding: 0;
   border: none;
   outline: none;
   background: transparent;
-  padding: 6px 10px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--text-primary);
+  color: #fff;
+  transition: width 0.3s ease, padding 0.3s ease;
+  border-bottom: 1px solid transparent;
 }
 
-.search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.search-submit {
+.search-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background: transparent;
-  padding: 6px 10px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.2s ease;
 }
 
-.search-submit:hover {
-  color: var(--accent);
+/* Estado activo gestionado por JavaScript */
+.search-container.is-active .search-input {
+  width: 180px;
+  padding: 0.2rem 0.5rem;
+  border-bottom: 1px solid #fff;
 }
 
 /* ── Avatar ── */
@@ -178,24 +168,25 @@
 }
 
 /* ── Menu button ── */
-.header-menu {
+.menu-toggle {
+  width: 40px;
+  height: 40px;
+
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
+  gap: 5px;
+
   background: transparent;
-  padding: 6px;
+  border: none;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
 }
 
-.header-menu:hover {
-  background: var(--surface-el);
-  color: var(--text-primary);
+.menu-toggle span {
+  width: 100%;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
 }
 
 /* ── Responsive (tablet+) ── */
@@ -207,6 +198,11 @@
   .search-form {
     min-width: 240px;
   }
+
+  .menu-toggle{
+    display: none;
+  }
+
 }
 
 @media (min-width: 1024px) {

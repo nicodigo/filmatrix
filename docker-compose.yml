@@ -25,9 +25,10 @@ services:
       - .env
     ports:
       - "8080:8080"
-    # volumes:
+    volumes:
       # Se monta el código en tiempo real, elimina necesidad de rebuild por cambio en el código
-      # - .:/var/www/html:rw
+      - ./public:/var/www/html/public:ro
+      - ./views:/var/www/html/views:ro
     environment:
       - APP_ENV=development
     depends_on:

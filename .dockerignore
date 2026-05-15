@@ -1,0 +1,8 @@
+vendor/**
+**.log
+.git/**
+filmatrix-design-system.html
+.aider*
+doc/**
+.github/**
+tests/**
