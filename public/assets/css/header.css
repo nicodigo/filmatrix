@@ -56,29 +56,70 @@
   border-radius: 2px;
 }
 
-/* ── Main navigation (hidden on mobile) ── */
+/* ── Main navigation (mobile sidebar) ── */
+/* Hidden off-canvas by default; slides in via .is-active */
 .nav-menu {
-  display: none;
+  position: fixed;
+  top: 64px;
+  right: 0;
+  z-index: 2000;
+  width: 240px;
+  height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0 24px;
+  background: var(--surface-el);
+  border-left: 1px solid var(--border);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Backdrop overlay (behind sidebar, above page content) */
+.nav-menu::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Active — slide sidebar in, show backdrop */
+.nav-menu.is-active {
+  transform: translateX(0);
+}
+
+.nav-menu.is-active::before {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .nav-menu-item {
   display: flex;
   align-items: center;
-  height: 44px;
-  padding: 0 14px;
+  height: 48px;
+  padding: 0 24px;
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary);
   text-decoration: none;
   white-space: nowrap;
-  border-radius: var(--r-sm);
-  transition: color 0.2s ease, background 0.2s ease;
+  border-left: 3px solid transparent;
+  border-radius: 0;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-menu-item:hover {
   color: var(--text-primary);
   background: var(--surface-el);
+  border-left-color: var(--accent);
 }
 
 /* ── Search toggle button (mobile only) ── */
@@ -195,10 +236,35 @@
   }
 
   .nav-menu {
+    position: static;
+    transform: none;
+    width: auto;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    border-left: none;
+    overflow: visible;
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 4px;
+  }
+
+  .nav-menu::before {
+    display: none;
+  }
+
+  .nav-menu-item {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-left: none;
+    border-radius: var(--r-sm);
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .nav-menu-item:hover {
+    border-left-color: transparent;
   }
 
   /* Hide search toggle button, show form inline */

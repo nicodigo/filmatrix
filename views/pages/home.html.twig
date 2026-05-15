@@ -24,49 +24,54 @@
   <link rel="stylesheet" href="/assets/css/footer.css">
 </head>
 
-{% include 'partials/header.html.twig' %}
+<script src="/assets/js/app.js" type="module"></script>
 
-<main>
-  <section class="hero">
-    <h1>Filmatrix</h1>
-    <h2>Donde brillan tus reseñas</h2>
-  </section>
+<body>
 
-  <section class="popular-movies">
-    <div class="movie-flex">
-      {% if (popular is empty) %}
-        <p class="catalogo-empty">Sin títulos disponibles.</p>
-      {% endif %}
+  {% include 'partials/header.html.twig' %}
 
-      {% import 'macros/movie-cards.html.twig' as cards %}
+  <main>
+    <section class="hero">
+      <h1>Filmatrix</h1>
+      <h2>Donde brillan tus reseñas</h2>
+    </section>
 
-      {% for movie in popular %}
-        {{ cards.movieCard(movie) }}
-      {% endfor %}
-    </div>
-  </section>
+    <section class="popular-movies">
+      <div class="movie-flex">
+        {% if (popular is empty) %}
+          <p class="catalogo-empty">Sin títulos disponibles.</p>
+        {% endif %}
 
+        {% import 'macros/movie-cards.html.twig' as cards %}
 
-  <section class="daily-review">
-    <h2>Reseña del día</h2>
-    <article>
-      <a href="#">
-        <figure>
-          <img src="{{ dailyReview.url_banner }}" alt="{{ dailyReview.title }}">
-        </figure>
-      </a>
-      <div class="daily-review__content">
-        <h3 class="daily-review__title">{{ dailyReview.title }}</h3>
-        <span class="daily-review__year">{{ dailyReview.year }}</span>
-        <div class="daily-review__author">
-          <img src="{{ dailyReview.avatar }}" alt="Avatar de {{ dailyReview.author }}">
-          <span> {{ dailyReview.author }}</span>
-        </div>
-        <p class="daily-review__text"> {{dailyReview.body }}</p>
-        <span class="daily-review__likes">&hearts; {{ dailyReview.likes }}</span>
+        {% for movie in popular %}
+          {{ cards.movieCard(movie) }}
+        {% endfor %}
       </div>
-    </article>
-  </section>
-</main>
+    </section>
 
-{% include 'partials/footer.html.twig' %}
+
+    <section class="daily-review">
+      <h2>Reseña del día</h2>
+      <article>
+        <a href="#">
+          <figure>
+            <img src="{{ dailyReview.url_banner }}" alt="{{ dailyReview.title }}">
+          </figure>
+        </a>
+        <div class="daily-review__content">
+          <h3 class="daily-review__title">{{ dailyReview.title }}</h3>
+          <span class="daily-review__year">{{ dailyReview.year }}</span>
+          <div class="daily-review__author">
+            <img src="{{ dailyReview.avatar }}" alt="Avatar de {{ dailyReview.author }}">
+            <span> {{ dailyReview.author }}</span>
+          </div>
+          <p class="daily-review__text"> {{dailyReview.body }}</p>
+          <span class="daily-review__likes">&hearts; {{ dailyReview.likes }}</span>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  {% include 'partials/footer.html.twig' %}
+</body>
