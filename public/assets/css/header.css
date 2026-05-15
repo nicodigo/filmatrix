@@ -1,5 +1,3 @@
-@import 'base.css';
-
 /* ── Header container ── */
 .site-header {
   position: sticky;
@@ -9,204 +7,244 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* ── Inner wrapper ── */
+/* ── Inner wrapper (flex container) ── */
 .header-inner {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 80px;
+  justify-content: flex-start;
+  gap: 8px;
+  height: 64px;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 0 12px;
 }
 
-/* ── Lado izquierdo: logo + catálogo ── */
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-}
-
-/* ── Logo ── */
+/* ── Logo (always visible) ── */
 .header-logo {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-
+  margin-right: auto;  /* pushes toggles to the right on mobile */
 }
 
 .header-logo img {
   display: block;
-  height: 48px;
+  height: 36px;
   width: auto;
 }
 
-/* ── Botón Catálogo ── */
-.header-catalogo-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border-radius: var(--r-sm);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-decoration: none;
-  color: var(--text-secondary);
-  border: 1px solid transparent;
-  position: relative;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
-}
-
-/* Línea inferior animada */
-.header-catalogo-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 999px;
-  transform: scaleX(0);
-  transition: transform 0.2s ease;
-  transform-origin: left;
-}
-
-.header-catalogo-btn:hover {
-  color: var(--text-primary);
-  background: var(--surface-el);
-  border-color: var(--border);
-}
-
-.header-catalogo-btn:hover::after {
-  transform: scaleX(1);
-}
-
-/* Estado activo: cuando la ruta actual es /catalogo
-   Añadir class="active" desde PHP cuando corresponda */
-.header-catalogo-btn.active {
-  color: var(--accent);
-  background: var(--accent-muted);
-  border-color: var(--accent);
-}
-
-.header-catalogo-btn.active::after {
-  transform: scaleX(1);
-}
-
-/* ── Actions container ── */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ── Search form ── */
-.search-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.search-input {
-  width: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #fff;
-  transition: width 0.3s ease, padding 0.3s ease;
-  border-bottom: 1px solid transparent;
-}
-
-.search-toggle {
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Estado activo gestionado por JavaScript */
-.search-container.is-active .search-input {
-  width: 180px;
-  padding: 0.2rem 0.5rem;
-  border-bottom: 1px solid #fff;
-}
-
-/* ── Avatar ── */
-.header-avatar {
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  overflow: hidden;
-  transition: border-color 0.2s ease;
-  flex-shrink: 0;
-}
-
-.header-avatar:hover {
-  border-color: var(--accent);
-}
-
-.header-avatar img {
-  display: block;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-}
-
-/* ── Menu button ── */
+/* ── Hamburger menu toggle (mobile only) ── */
 .menu-toggle {
-  width: 40px;
-  height: 40px;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background: transparent;
   border: none;
   cursor: pointer;
 }
 
 .menu-toggle span {
+  display: block;
   width: 100%;
   height: 3px;
-  background: white;
+  background: var(--text-primary);
   border-radius: 2px;
 }
 
-/* ── Responsive (tablet+) ── */
+/* ── Main navigation (hidden on mobile) ── */
+.nav-menu {
+  display: none;
+}
+
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 14px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-menu-item:hover {
+  color: var(--text-primary);
+  background: var(--surface-el);
+}
+
+/* ── Search toggle button (mobile only) ── */
+.search-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.search-toggle:hover {
+  color: var(--accent);
+}
+
+/* ── Search form ── */
+/* Hidden/collapsed by default on mobile; slides down via JS */
+.search-form {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Active state — applied by JS toggling .is-active */
+.search-form.is-active {
+  max-height: 64px;
+}
+
+/* Input group — flex row keeps both elements side by side */
+.search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 12px;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-right: none;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+  background: var(--surface-el);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration {
+  display: none;
+}
+
+.search-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  padding: 0;
+  background: var(--accent);
+  border: none;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.search-submit:hover {
+  background: var(--accent-hover);
+}
+
+/* ── Desktop (768px+) ── */
 @media (min-width: 768px) {
   .header-inner {
+    height: 80px;
     padding: 0 24px;
+    gap: 16px;
+    justify-content: space-between;
   }
 
-  .search-form {
-    min-width: 240px;
+  .header-logo {
+    margin-right: 0;
   }
 
-  .menu-toggle{
+  .header-logo img {
+    height: 44px;
+  }
+
+  /* Hide hamburger, show nav */
+  .menu-toggle {
     display: none;
   }
 
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Hide search toggle button, show form inline */
+  .search-toggle {
+    display: none;
+  }
+
+  .search-form {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    width: 240px;
+    background: transparent;
+    border-bottom: none;
+  }
+
+  .search-form.is-active {
+    max-height: none;
+  }
+
+  .search-input-group {
+    padding: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .search-input-group:focus-within {
+    border-color: var(--accent);
+  }
+
+  .search-input {
+    border: none;
+    background: transparent;
+    height: 40px;
+  }
 }
 
+/* ── Large desktop (1024px+) ── */
 @media (min-width: 1024px) {
   .header-inner {
     padding: 0 32px;
+  }
+
+  .nav-menu {
+    gap: 8px;
   }
 }

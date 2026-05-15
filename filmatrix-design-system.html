@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filmatrix — Sistema de Diseño</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-base:        #0D1117;
+    --surface:        #161B22;
+    --surface-el:     #1C2230;
+    --border:         #2D3748;
+
+    --accent:         #7C3AED;
+    --accent-hover:   #6D28D9;
+    --accent-muted:   rgba(124,58,237,0.10);
+
+    --text-primary:   #F0F6FC;
+    --text-secondary: #8B949E;
+    --text-muted:     #484F58;
+
+    --rating:         #F59E0B;
+
+    --r-sm: 4px;
+    --r-md: 8px;
+    --r-lg: 12px;
+
+    --font-display: 'DM Serif Display', serif;
+    --font-ui:      'Inter', sans-serif;
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 48px 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── Structure ── */
+  header { margin-bottom: 64px; border-bottom: 1px solid var(--border); padding-bottom: 32px; }
+  header h1 { font-family: var(--font-display); font-size: 48px; font-weight: 400; letter-spacing: -0.5px; }
+  header p { color: var(--text-secondary); margin-top: 8px; font-size: 14px; }
+
+  section { margin-bottom: 56px; }
+  h2 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Color Swatches ── */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .swatch {
+    border-radius: var(--r-md);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .swatch-color { height: 72px; }
+  .swatch-info { background: var(--surface); padding: 10px 12px; }
+  .swatch-name { font-weight: 500; font-size: 12px; color: var(--text-primary); }
+  .swatch-hex  { font-size: 11px; color: var(--text-secondary); margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .swatch-role { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Typography ── */
+  .type-row { padding: 20px 0; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 24px; }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { width: 180px; flex-shrink: 0; }
+  .type-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .type-spec  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .type-sample { flex: 1; }
+
+  /* ── Spacing ── */
+  .spacing-grid { display: flex; flex-direction: column; gap: 12px; }
+  .spacing-row { display: flex; align-items: center; gap: 16px; }
+  .spacing-bar { background: var(--accent); height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .spacing-label { font-size: 12px; color: var(--text-secondary); min-width: 100px; }
+  .spacing-value { font-size: 11px; color: var(--text-muted); }
+
+  /* ── Radii ── */
+  .radii-grid { display: flex; gap: 24px; flex-wrap: wrap; }
+  .radius-item { text-align: center; }
+  .radius-box {
+    background: var(--surface-el);
+    border: 1px solid var(--border);
+    width: 80px; height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .radius-label { font-size: 11px; color: var(--text-secondary); }
+  .radius-value { font-size: 11px; color: var(--text-muted); }
+
+  /* ── Components preview ── */
+  .components-grid { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+
+  .btn {
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: var(--r-sm);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--surface-el); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+
+  .badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--r-sm);
+    display: inline-block;
+  }
+  .badge-accent   { background: var(--accent-muted); color: var(--accent); }
+  .badge-muted    { background: var(--surface-el); color: var(--text-secondary); border: 1px solid var(--border); }
+
+  .star-rating { display: flex; gap: 2px; font-size: 20px; color: var(--rating); }
+  .star-empty  { color: var(--border); }
+
+  .movie-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    width: 120px;
+  }
+  .movie-poster {
+    height: 160px;
+    background: linear-gradient(135deg, var(--surface-el) 0%, var(--border) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+  .movie-meta { padding: 8px; }
+  .movie-title { font-size: 11px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .movie-year  { font-size: 10px; color: var(--text-muted); }
+
+  .input-sample {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    width: 200px;
+    outline: none;
+  }
+
+  /* ── CSS Vars reference ── */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 2;
+    overflow-x: auto;
+  }
+  .code-block .comment { color: var(--text-muted); }
+  .code-block .var-name { color: var(--accent); }
+  .code-block .var-val  { color: #7DD3FC; }
+
+  /* ── Principles ── */
+  .principles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .principle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 20px;
+  }
+  .principle h3 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .principle p  { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Filmatrix</h1>
+  <p>Sistema de Diseño — v1.0 &nbsp;·&nbsp; Dark mode &nbsp;·&nbsp; Abril 2026</p>
+</header>
+
+<!-- PRINCIPIOS -->
+<section>
+  <h2>Principios</h2>
+  <div class="principles">
+    <div class="principle">
+      <h3>Cinematográfico</h3>
+      <p>El contenido visual lidera. El poster es el protagonista; la UI es el marco que desaparece.</p>
+    </div>
+    <div class="principle">
+      <h3>Denso y legible</h3>
+      <p>Alta densidad de información sin sacrificar jerarquía. Cada nivel de texto tiene un rol único.</p>
+    </div>
+    <div class="principle">
+      <h3>Dark-first</h3>
+      <p>El fondo oscuro no es un tema, es la base del sistema. Todo contraste se mide sobre él.</p>
+    </div>
+    <div class="principle">
+      <h3>Acento con propósito</h3>
+      <p>El púrpura aparece solo en elementos accionables o de énfasis real. No como decoración.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COLORES -->
+<section>
+  <h2>Colores</h2>
+  <div class="swatch-grid">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0D1117;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Background base</div>
+        <div class="swatch-hex">#0D1117</div>
+        <div class="swatch-role">Fondo de toda la app</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#161B22;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Surface</div>
+        <div class="swatch-hex">#161B22</div>
+        <div class="swatch-role">Cards, paneles</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1C2230;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Surface elevated</div>
+        <div class="swatch-hex">#1C2230</div>
+        <div class="swatch-role">Modales, dropdowns</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#2D3748;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Border</div>
+        <div class="swatch-hex">#2D3748</div>
+        <div class="swatch-role">Divisores, bordes</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#7C3AED;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Acento</div>
+        <div class="swatch-hex">#7C3AED</div>
+        <div class="swatch-role">Botones, links, selección</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#6D28D9;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Acento hover</div>
+        <div class="swatch-hex">#6D28D9</div>
+        <div class="swatch-role">Estado :hover del acento</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:rgba(124,58,237,0.10); border: 1px solid #2D3748;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Acento muted</div>
+        <div class="swatch-hex">#7C3AED · 10%</div>
+        <div class="swatch-role">Badges, states activos</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F0F6FC;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Texto primario</div>
+        <div class="swatch-hex">#F0F6FC</div>
+        <div class="swatch-role">Títulos, cuerpo principal</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#8B949E;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Texto secundario</div>
+        <div class="swatch-hex">#8B949E</div>
+        <div class="swatch-role">Metadata, subtítulos</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#484F58;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Texto muted</div>
+        <div class="swatch-hex">#484F58</div>
+        <div class="swatch-role">Placeholders, labels</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#F59E0B;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Rating</div>
+        <div class="swatch-hex">#F59E0B</div>
+        <div class="swatch-role">Estrellas, puntuación</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIPOGRAFÍA -->
+<section>
+  <h2>Tipografía</h2>
+  <div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">Display</div>
+        <div class="type-spec">DM Serif Display · Regular · 48px</div>
+      </div>
+      <div class="type-sample" style="font-family: var(--font-display); font-size:48px; font-weight:400; color:var(--text-primary);">Filmatrix</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">H1 — Título página</div>
+        <div class="type-spec">DM Serif Display · Regular · 32px</div>
+      </div>
+      <div class="type-sample" style="font-family:var(--font-display); font-size:32px; font-weight:400;">Título de película</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">H2 — Sección</div>
+        <div class="type-spec">Inter · SemiBold · 20px</div>
+      </div>
+      <div class="type-sample" style="font-size:20px; font-weight:600;">Películas recientes</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">Body</div>
+        <div class="type-spec">Inter · Regular · 16px</div>
+      </div>
+      <div class="type-sample" style="font-size:16px; color:var(--text-secondary);">Una película de ciencia ficción sobre el colapso de la memoria colectiva.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">UI / Metadata</div>
+        <div class="type-spec">Inter · Medium · 14px</div>
+      </div>
+      <div class="type-sample" style="font-size:14px; font-weight:500; color:var(--text-secondary);">2024 · Drama · 132 min · Dir. Denis Villeneuve</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="type-label">Label / Caption</div>
+        <div class="type-spec">Inter · SemiBold · 11px · UPPERCASE</div>
+      </div>
+      <div class="type-sample" style="font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted);">Reseñas recientes</div>
+    </div>
+  </div>
+</section>
+
+<!-- ESPACIADO -->
+<section>
+  <h2>Espaciado — Base 4px</h2>
+  <div class="spacing-grid">
+    <div class="spacing-row"><div class="spacing-bar" style="width:4px;"></div><div class="spacing-label">Espacio 1</div><div class="spacing-value">4px — Gaps internos mínimos</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:8px;"></div><div class="spacing-label">Espacio 2</div><div class="spacing-value">8px — Padding sm, gap entre ítems</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:12px;"></div><div class="spacing-label">Espacio 3</div><div class="spacing-value">12px — Padding interno cards</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:16px;"></div><div class="spacing-label">Espacio 4</div><div class="spacing-value">16px — Gap entre cards, padding base</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:24px;"></div><div class="spacing-label">Espacio 6</div><div class="spacing-value">24px — Separación de secciones internas</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:32px;"></div><div class="spacing-label">Espacio 8</div><div class="spacing-value">32px — Márgenes de layout</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:48px;"></div><div class="spacing-label">Espacio 12</div><div class="spacing-value">48px — Separación entre secciones</div></div>
+    <div class="spacing-row"><div class="spacing-bar" style="width:64px;"></div><div class="spacing-label">Espacio 16</div><div class="spacing-value">64px — Separación hero / secciones mayores</div></div>
+  </div>
+</section>
+
+<!-- RADIOS -->
+<section>
+  <h2>Border Radius</h2>
+  <div class="radii-grid">
+    <div class="radius-item">
+      <div class="radius-box" style="border-radius:4px;">4px</div>
+      <div class="radius-label">sm — 4px</div>
+      <div class="radius-value">Inputs, badges, botones</div>
+    </div>
+    <div class="radius-item">
+      <div class="radius-box" style="border-radius:8px;">8px</div>
+      <div class="radius-label">md — 8px</div>
+      <div class="radius-value">Cards, modales, dropdowns</div>
+    </div>
+    <div class="radius-item">
+      <div class="radius-box" style="border-radius:12px;">12px</div>
+      <div class="radius-label">lg — 12px</div>
+      <div class="radius-value">Contenedores hero, sheets</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENTES -->
+<section>
+  <h2>Componentes base</h2>
+  <div style="display:flex; flex-direction:column; gap:32px;">
+
+    <div>
+      <div class="type-label" style="margin-bottom:12px;">Botones</div>
+      <div class="components-grid">
+        <button class="btn btn-primary">Reseñar película</button>
+        <button class="btn btn-secondary">Ver más</button>
+        <button class="btn btn-ghost">Cancelar</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="type-label" style="margin-bottom:12px;">Badges</div>
+      <div class="components-grid">
+        <span class="badge badge-accent">En tu lista</span>
+        <span class="badge badge-muted">Drama</span>
+        <span class="badge badge-muted">2024</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="type-label" style="margin-bottom:12px;">Rating (estrellas · sobre 5 · medias estrellas)</div>
+      <div class="star-rating">★★★★<span style="background: linear-gradient(90deg, var(--rating) 50%, var(--border) 50%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">★</span>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">4.5 / 5 — soporte de medias estrellas</div>
+    </div>
+
+    <div>
+      <div class="type-label" style="margin-bottom:12px;">Input</div>
+      <input class="input-sample" type="text" placeholder="Buscar película...">
+    </div>
+
+    <div>
+      <div class="type-label" style="margin-bottom:12px;">Movie card (poster · metadata en hover vía CSS)</div>
+      <div class="movie-card">
+        <div class="movie-poster">Poster</div>
+        <div class="movie-meta">
+          <div class="movie-title">Dune: Part Two</div>
+          <div class="movie-year">2024</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CSS VARIABLES REFERENCE -->
+<section>
+  <h2>CSS Variables — referencia rápida</h2>
+  <div class="code-block">
+<span class="comment">/* Pegar en :root de tu hoja de estilos base */</span><br>
+:root {<br>
+&nbsp;&nbsp;<span class="var-name">--bg-base</span>:        <span class="var-val">#0D1117</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--surface</span>:        <span class="var-val">#161B22</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--surface-el</span>:     <span class="var-val">#1C2230</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--border</span>:         <span class="var-val">#2D3748</span>;<br>
+<br>
+&nbsp;&nbsp;<span class="var-name">--accent</span>:         <span class="var-val">#7C3AED</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--accent-hover</span>:   <span class="var-val">#6D28D9</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--accent-muted</span>:   <span class="var-val">rgba(124,58,237,0.10)</span>;<br>
+<br>
+&nbsp;&nbsp;<span class="var-name">--text-primary</span>:   <span class="var-val">#F0F6FC</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--text-secondary</span>: <span class="var-val">#8B949E</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--text-muted</span>:     <span class="var-val">#484F58</span>;<br>
+<br>
+&nbsp;&nbsp;<span class="var-name">--rating</span>:         <span class="var-val">#F59E0B</span>;<br>
+<br>
+&nbsp;&nbsp;<span class="var-name">--r-sm</span>:           <span class="var-val">4px</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--r-md</span>:           <span class="var-val">8px</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--r-lg</span>:           <span class="var-val">12px</span>;<br>
+<br>
+&nbsp;&nbsp;<span class="var-name">--font-display</span>:   <span class="var-val">'DM Serif Display', serif</span>;<br>
+&nbsp;&nbsp;<span class="var-name">--font-ui</span>:        <span class="var-val">'Inter', sans-serif</span>;<br>
+}
+  </div>
+</section>
+
+</body>
+</html>

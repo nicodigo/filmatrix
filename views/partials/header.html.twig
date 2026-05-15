@@ -1,48 +1,46 @@
 <header class="site-header">
   <div class="header-inner">
- 
-    <div class="header-left">
-      <a href="/" class="header-logo">
-        <img src="/assets/img/filmatrix_isotipo.webp" alt="Filmatrix">
-      </a>
-      <a href="/catalog" class="header-catalogo-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="3" width="7" height="7"/>
-          <rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/>
-        </svg>
-        Catálogo
-      </a>
-    </div>
- 
-    <div class="header-actions">
-      <div class="search-container">
-        <input type="text" class="search-input" placeholder="Buscar..." aria-label="Buscar">
-        <button class="search-toggle" aria-label="Abrir barra de búsqueda">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+    {# ── Logo (always visible) ── #}
+    <a href="/" class="header-logo" aria-label="Filmatrix - Inicio">
+      <img src="/assets/img/filmatrix_isotipo.webp" alt="Filmatrix">
+    </a>
+
+    {# ── Hamburger menu toggle (mobile only) ── #}
+    <button class="menu-toggle" type="button" id="menu-toggle"
+            aria-label="Abrir menú" aria-expanded="false" aria-controls="main-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    {# ── Main navigation (hidden on mobile, visible on desktop) ── #}
+    <nav class="nav-menu" id="main-menu" aria-label="Navegación principal">
+      <a href="/catalog" class="nav-menu-item">Películas</a>
+      <a href="/login" class="nav-menu-item">Iniciar Sesión</a>
+      <a href="/register" class="nav-menu-item">Registrarme</a>
+    </nav>
+
+    {# ── Search toggle button (mobile only) ── #}
+    <button type="button" class="search-toggle" aria-label="Mostrar barra de búsqueda" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+
+    {# ── Search form (slide-down on mobile, inline on desktop) ── #}
+    <form class="search-form" role="search">
+      <div class="search-input-group">
+        <input type="search" class="search-input" placeholder="Buscar..." aria-label="Buscar en el sitio">
+        <button type="submit" class="search-submit" aria-label="Ejecutar búsqueda">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
       </div>
-      <a href="/profile" class="header-avatar">
-        <img src="/assets/img/user_avatar.png" alt="Avatar" width="32" height="32">
-      </a>
-      <button
-        class="menu-toggle"
-        id="menu-toggle"
-        aria-label="Abrir menú"
-        aria-expanded="false"
-        aria-controls="main-menu"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
+    </form>
 
   </div>
 </header>
