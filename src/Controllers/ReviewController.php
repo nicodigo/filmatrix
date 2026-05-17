@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ReviewController
  * Maneja el envío de reseñas de películas.
@@ -15,6 +16,7 @@
  * DEPENDENCIAS:
  *   ReviewService — lógica de creación de reseñas.
  */
+
 namespace App\Controllers;
 
 use App\Core\Exceptions\InvalidValueFormatException;
@@ -60,7 +62,7 @@ class ReviewController
         }
 
         if ($error) {
-            $this->request->setSession('flash_error', $error);
+            $this->request->setFlash('error', $error);
             header("Location: /movie?tmdb_id={$tmdbId}");
             exit;
         }
@@ -73,12 +75,12 @@ class ReviewController
                 $body
             );
         } catch (ReviewAlreadyExistException) {
-            $this->request->setSession(
-                'flash_error',
+            $this->request->setFlash(
+                'error',
                 'Ya escribiste una reseña para esta película.'
             );
         } catch (InvalidValueFormatException $e) {
-            $this->request->setSession('flash_error', $e->getMessage());
+            $this->request->setFlash('error', $e->getMessage());
         } finally {
             header("Location: /movie?tmdb_id={$tmdbId}");
             exit;

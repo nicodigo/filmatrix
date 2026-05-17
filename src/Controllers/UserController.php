@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UserController
  * Maneja la autenticación y gestión de perfil de los usuarios.
@@ -176,10 +177,8 @@ class UserController
                     'fields' => $fields,
                 ]);
             } else {
-                echo $this->twig->render('pages/login.html.twig', [
-                    'error' => '',
-                    'emailValue' => '',
-                ]);
+                header('Location: /login');
+                exit;
             }
         }
     }

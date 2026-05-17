@@ -85,6 +85,7 @@ class Router
 
             if (isset($http_method) && ($http_method === 'POST')) {
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                $this->logger->debug('nuevo token csrf generado');
             }
         }
     }

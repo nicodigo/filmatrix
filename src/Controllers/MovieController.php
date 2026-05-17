@@ -114,6 +114,8 @@ class MovieController
             $genres
         ));
 
+        $flashError = $this->request->getFlash('error');
+
         /*
         | Render
         */
@@ -126,6 +128,7 @@ class MovieController
             'suggested' => $suggested,
             'duration' => $duration,
             'tmdbId' => $tmdbId,
+            'flashError' => $flashError,
         ]);
     }
 }
