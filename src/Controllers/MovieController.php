@@ -6,7 +6,7 @@
  * MÉTODOS:
  *   show(): Renderiza la página de detalle de una película a partir de su tmdb_id
  *           recibido por query string. Si el ID es inválido o la película no existe,
- *           redirige a /catalog.
+ *           redirige a /films.
  *
  *     Datos que resuelve antes de renderizar:
  *       - Géneros del título (formateados como string para la vista).
@@ -23,12 +23,12 @@
  *   GenreService       — obtiene los géneros asociados al título.
  *   PeopleService      — obtiene el elenco del título.
  *   ReviewService      — obtiene las reseñas visibles del título.
- *   CatalogSyncService — obtiene películas sugeridas relacionadas.
+ *   FilmSyncService — obtiene películas sugeridas relacionadas.
  */
 
 namespace App\Controllers;
 
-use App\Services\CatalogSyncService;
+use App\Services\FilmSyncService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
 use App\Services\GenreService;
@@ -40,7 +40,7 @@ class MovieController
     private Environment $twig;
     private TitleService $titleService;
     private ReviewService $reviewService;
-    private CatalogSyncService $catalogSyncService;
+    private FilmSyncService $filmSyncService;
     private GenreService $genreService;
     private PeopleService $peopleService;
 
@@ -48,14 +48,14 @@ class MovieController
         Environment $twig,
         TitleService $titleService,
         ReviewService $reviewService,
-        CatalogSyncService $catalogSyncService,
+        FilmSyncService $filmSyncService,
         GenreService $genreService,
         PeopleService $peopleService
     ) {
         $this->twig = $twig;
         $this->titleService = $titleService;
         $this->reviewService = $reviewService;
-        $this->catalogSyncService = $catalogSyncService;
+        $this->filmSyncService = $filmSyncService;
         $this->genreService = $genreService;
         $this->peopleService = $peopleService;
     }
@@ -65,14 +65,14 @@ class MovieController
         $tmdbId = (int) ($_GET['tmdb_id'] ?? 0);
 
         if ($tmdbId === 0) {
-            header('Location: /catalog');
+            header('Location: /films');
             exit;
         }
 
         $title = $this->titleService->getTitle($tmdbId);
 
         if ($title === null) {
-            header('Location: /catalog');
+            header('Location: /films');
             exit;
         }
 
@@ -85,7 +85,7 @@ class MovieController
         $reviews = $this->reviewService
             ->getByTitleIdWithAuthor($title->getId());
 
-        $suggested = $this->catalogSyncService
+        $suggested = $this->filmSyncService
             ->findSuggested($title->getId(), 4);
 
         /*

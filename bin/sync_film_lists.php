@@ -1,12 +1,12 @@
 <?php
 
 /**
- * sync_film.php — Script CLI de sincronización de catálogo
+ * sync_film_lists.php — Script CLI de sincronización de catálogo
  * ─────────────────────────────────────────────────────────────
  * Sincroniza películas desde la API de TMDB hacia la base de datos local.
  *
  * USO:
- *   php sync_film.php [--section=<sección>] [--pages=<n>]
+ *   php sync_film_lists.php [--section=<sección>] [--pages=<n>]
  *
  * OPCIONES:
  *   --section   Sección a sincronizar. Valores: all | now_playing | popular
@@ -15,9 +15,9 @@
  *               Default: 1
  *
  * EJEMPLOS:
- *   php sync_film.php                          # sincroniza todo, 1 página
- *   php sync_film.php --section=popular        # solo popular, 1 página
- *   php sync_film.php --section=all --pages=3  # todo, 3 páginas (60 películas)
+ *   php sync_film_lists.php                          # sincroniza todo, 1 página
+ *   php sync_film_lists.php --section=popular        # solo popular, 1 página
+ *   php sync_film_lists.php --section=all --pages=3  # todo, 3 páginas (60 películas)
  *
  * SECCIONES:
  *   now_playing  Películas estrenadas en los últimos 30 días, ordenadas por

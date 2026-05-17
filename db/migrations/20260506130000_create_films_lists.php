@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class CreateCatalogLists extends AbstractMigration
+final class CreateFilmsLists extends AbstractMigration
 {
       public function up(): void
       {
-            $table = $this->table('catalog_lists');
+            $table = $this->table('films_lists');
             $table->addColumn('section', 'string', ['limit' => 20, 'null' => false])
                   ->addColumn('title_id', 'integer', ['null' => false])
                   ->addColumn('position', 'smallinteger', ['null' => false])
@@ -21,6 +21,6 @@ final class CreateCatalogLists extends AbstractMigration
 
       public function down(): void
       {
-            $this->table('catalog_lists')->drop()->save();
+            $this->table('films_lists')->drop()->save();
       }
 }

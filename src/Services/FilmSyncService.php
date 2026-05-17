@@ -1,25 +1,26 @@
 <?php
+
 namespace App\Services;
 
-use App\Repository\CatalogListRepository;
+use App\Repository\FilmListRepository;
 use App\Infrastructure\Tmdb\TmdbClient;
 use Psr\Log\LoggerInterface;
 
-class CatalogSyncService
+class FilmSyncService
 {
     private TitleService $titleService;
-    private CatalogListRepository $catalogListRepository;
+    private FilmListRepository $filmListRepository;
     private TmdbClient $tmdbClient;
     private LoggerInterface $logger;
 
     public function __construct(
         TitleService $titleService,
-        CatalogListRepository $catalogListRepository,
+        FilmListRepository $filmListRepository,
         TmdbClient $tmdbClient,
         LoggerInterface $logger
     ) {
         $this->titleService          = $titleService;
-        $this->catalogListRepository = $catalogListRepository;
+        $this->filmListRepository = $filmListRepository;
         $this->tmdbClient            = $tmdbClient;
         $this->logger                = $logger;
     }
@@ -34,7 +35,7 @@ class CatalogSyncService
                     continue;
                 }
 
-                $this->catalogListRepository->insert($section, $title->getId(), $pageOffset + $i);
+                $this->filmListRepository->insert($section, $title->getId(), $pageOffset + $i);
             } catch (\Throwable $e) {
                 $this->logger->warning('Failed to sync movie in section', [
                     'tmdb_id'   => $movie['id'] ?? null,
@@ -46,7 +47,7 @@ class CatalogSyncService
 
     public function syncNowPlaying(int $pages = 1): void
     {
-        $this->catalogListRepository->clearSection('now_playing');
+        $this->filmListRepository->clearSection('now_playing');
 
         for ($page = 1; $page <= $pages; $page++) {
             $response = $this->tmdbClient->getNowPlaying($page);
@@ -58,7 +59,7 @@ class CatalogSyncService
 
     public function syncPopular(int $pages = 1): void
     {
-        $this->catalogListRepository->clearSection('popular');
+        $this->filmListRepository->clearSection('popular');
 
         for ($page = 1; $page <= $pages; $page++) {
             $response = $this->tmdbClient->getPopular($page);
@@ -70,16 +71,17 @@ class CatalogSyncService
 
     public function findSuggested(int $excludeTitleId, int $limit): array
     {
-        return $this->catalogListRepository->findSuggested($excludeTitleId, $limit);
+        return $this->filmListRepository->findSuggested($excludeTitleId, $limit);
     }
 
     public function findAllByPopularity(int $limit): array
     {
-        return $this->catalogListRepository->findAllByPopularity($limit);
+        return $this->filmListRepository->findAllByPopularity($limit);
     }
 
     public function findBySection(string $section, int $limit): array
     {
-        return $this->catalogListRepository->findBySection($section, $limit);
+        return $this->filmListRepository->findBySection($section, $limit);
     }
 }
+

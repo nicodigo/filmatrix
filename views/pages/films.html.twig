@@ -6,14 +6,14 @@
 
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/movie-card.css">
-  <link rel="stylesheet" href="/assets/css/catalogo.css">
+  <link rel="stylesheet" href="/assets/css/films.css">
 {% endblock %}
 
 {% block content %}
   <!-- ── Encabezado del catálogo ── -->
   <input type="checkbox" id="filterToggle" class="filter-toggle-input">
-  <section class="catalogo-header">
-    <h1 class="catalogo-title">Catálogo</h1>
+  <section class="films-header">
+    <h1 class="films-title">Catálogo</h1>
 
     {#
       Toggle de filtros sin JS:
@@ -21,7 +21,7 @@
       El panel se muestra con el selector CSS:
       .filter-toggle-input:checked ~ .filter-panel
     #}
-    <label for="filterToggle" class="catalogo-filter-btn">
+    <label for="filterToggle" class="films-filter-btn">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -75,10 +75,10 @@
   </aside>
 
 
-  <section class="catalogo-section">
-    <div class="catalogo-grid">
+  <section class="films-section">
+    <div class="films-grid">
     {% if titles is empty %}
-        <p class="catalogo-empty">Sin títulos disponibles.</p>
+        <p class="films-empty">Sin títulos disponibles.</p>
     {% endif %}
 
     {% import 'macros/movie-cards.html.twig' as cards %}

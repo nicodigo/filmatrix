@@ -7,7 +7,7 @@ body {
 /* ══════════════════════════════════════
    Encabezado del catálogo
 ══════════════════════════════════════ */
-.catalogo-header {
+.films-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -15,7 +15,7 @@ body {
   gap: 1rem;
 }
 
-.catalogo-title {
+.films-title {
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 400;
@@ -33,7 +33,7 @@ body {
 }
 
 /* ── Label que actúa como botón ── */
-.catalogo-filter-btn {
+.films-filter-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -54,15 +54,15 @@ body {
   flex-shrink: 0;
 }
 
-.catalogo-filter-btn:hover {
+.films-filter-btn:hover {
   background: var(--accent-muted);
   border-color: var(--accent);
   color: var(--accent);
 }
 
 /* Estado activo cuando el checkbox está marcado */
-.filter-toggle-input:checked ~ .catalogo-header .catalogo-filter-btn,
-.filter-toggle-input:checked + .catalogo-filter-btn {
+.filter-toggle-input:checked ~ .films-header .films-filter-btn,
+.filter-toggle-input:checked + .films-filter-btn {
   background: var(--accent-muted);
   border-color: var(--accent);
   color: var(--accent);
@@ -85,7 +85,7 @@ body {
 /*
   Estructura en el HTML:
     <input#filterToggle>   ← checkbox
-    <label>                ← botón (dentro de .catalogo-header)
+    <label>                ← botón (dentro de .films-header)
     ...
     <aside.filter-panel>   ← panel
 
@@ -153,11 +153,11 @@ body {
 /* ══════════════════════════════════════
    Secciones del catálogo
 ══════════════════════════════════════ */
-.catalogo-section {
+.films-section {
   padding: 1.5rem 0;
 }
 
-.catalogo-section__label {
+.films-section__label {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 600;
@@ -197,19 +197,19 @@ body {
 
 @media (min-width: 768px) {
   .carousel .movie-card { flex-basis: 180px; }
-  .catalogo-title { font-size: 2.5rem; }
-  .catalogo-header { padding: 2rem 1.5rem 1rem; }
+  .films-title { font-size: 2.5rem; }
+  .films-header { padding: 2rem 1.5rem 1rem; }
 }
 
 @media (min-width: 1024px) {
   .carousel .movie-card { flex-basis: 200px; }
-  .catalogo-header { padding: 2rem 2rem 1rem; }
+  .films-header { padding: 2rem 2rem 1rem; }
 }
 
 /* ══════════════════════════════════════
    Grilla de catálogo
 ══════════════════════════════════════ */
-.catalogo-grid {
+.films-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 12px;
@@ -217,13 +217,13 @@ body {
 }
 
 @media (min-width: 480px) {
-  .catalogo-grid {
+  .films-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 }
 
 @media (min-width: 768px) {
-  .catalogo-grid {
+  .films-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
     padding: 0 1.5rem;
@@ -231,7 +231,7 @@ body {
 }
 
 @media (min-width: 1024px) {
-  .catalogo-grid {
+  .films-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     padding: 0 2rem;
   }

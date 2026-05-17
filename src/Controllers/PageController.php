@@ -12,33 +12,33 @@
  *     Ruta: GET /
  *
  * DEPENDENCIAS:
- *   CatalogListRepository — para obtener películas destacadas del catálogo.
+ *   FilmListRepository — para obtener películas destacadas del catálogo.
  *
  * NOTA: Este controller usa el repository directamente ya que es una
  * consulta de solo lectura simple que no requiere lógica de negocio.
  * 
- * (PROXIMA ACTUALIZACION: REEMPLAZAR REPOSITORY POR CatalogSyncService y que no depende del repositorio)
+ * (PROXIMA ACTUALIZACION: REEMPLAZAR REPOSITORY POR FilmSyncService y que no depende del repositorio)
  */
 
 namespace App\Controllers;
 
-use App\Repository\CatalogListRepository;
+use App\Repository\FilmListRepository;
 use Twig\Environment;
 
 class PageController
 {
-    private CatalogListRepository $catalogListRepository;
+    private FilmListRepository $filmListRepository;
     private Environment $twig;
 
-    public function __construct(Environment $twig, CatalogListRepository $catalogListRepository)
+    public function __construct(Environment $twig, FilmListRepository $filmListRepository)
     {
         $this->twig = $twig;
-        $this->catalogListRepository = $catalogListRepository;
+        $this->filmListRepository = $filmListRepository;
     }
 
     public function home(): void
     {
-        $popular = $this->catalogListRepository->findBySection('popular', 4);
+        $popular = $this->filmListRepository->findBySection('popular', 4);
         $dailyReview = [
             'title'       => 'Dune: Part Two',
             'year'        => '2024',

@@ -185,7 +185,7 @@
 - **FK**: list_id → lists(id) ON DELETE CASCADE
 - **FK**: title_id → titles(id) ON DELETE CASCADE
 
-## catalog_lists
+## films_lists
 
 | Column | Type | Nullable | Default | Constraints |
 |--------|------|----------|---------|-------------|
@@ -218,4 +218,4 @@
 - lists.user_id → users.id
 - list_items.list_id → lists.id
 - list_items.title_id → titles.id
-- catalog_lists.title_id → titles.id
+- films_lists.title_id → titles.id

@@ -47,7 +47,7 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 │   │   ├── Title.php            # Modelo de título (película/serie)
 │   │   └── User.php             # Modelo de usuario
 │   ├── Repository/
-│   │   ├── CatalogListRepository.php  # Repositorio de listas de catálogo
+│   │   ├── FilmListRepository.php  # Repositorio de listas de catálogo
 │   │   ├── ReviewRepository.php       # Repositorio de reseñas
 │   │   └── UserRepository.php         # Repositorio de usuarios
 │   └── Services/
@@ -96,7 +96,7 @@ La aplicación estará disponible en `http://localhost:8000`.
 
 4. (Opcional) poblar DB desde tmdb:
 ```bash
-docker compose exec app php bin/sync_catalog.php --section=popular --pages=3
+docker compose exec app php bin/sync_film_lists.php --section=popular --pages=3
 ```
 
 

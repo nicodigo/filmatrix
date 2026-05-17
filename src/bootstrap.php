@@ -17,7 +17,7 @@ use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
-use App\Repository\CatalogListRepository;
+use App\Repository\FilmListRepository;
 use App\Repository\ReviewRepository;
 
 use App\Services\AuthService;
@@ -26,14 +26,14 @@ use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
-use App\Services\CatalogSyncService;
+use App\Services\FilmSyncService;
 
 use App\Middleware\AuthMiddleware;
 
 use App\Infrastructure\Tmdb\TmdbClient;
 
 use App\Controllers\PageController;
-use App\Controllers\CatalogController;
+use App\Controllers\FilmController;
 use App\Controllers\MovieController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
@@ -81,7 +81,7 @@ $userRepository        = new UserRepository($connection);
 $titleRepository       = new TitleRepository($connection);
 $genreRepository       = new GenreRepository($connection);
 $peopleRepository      = new PeopleRepository($connection);
-$catalogListRepository = new CatalogListRepository($connection);
+$filmListRepository = new FilmListRepository($connection);
 $reviewRepository      = new ReviewRepository($connection);
 
 // External clients
@@ -101,12 +101,12 @@ $titleService = new TitleService(
     $tmdbClient,
     $config,
     $log_app,
-    $catalogListRepository
+    $filmListRepository
 );
 
-$catalogSyncService = new CatalogSyncService(
+$filmSyncService = new FilmSyncService(
     $titleService,
-    $catalogListRepository,
+    $filmListRepository,
     $tmdbClient,
     $log_app
 );
@@ -120,18 +120,18 @@ $request = new Request();
 // Controllers factories
 $makeUserCtrl = fn() => new UserController($twig, $authService, $userService);
 
-$makePageCtrl = fn() => new PageController($twig, $catalogListRepository);
+$makePageCtrl = fn() => new PageController($twig, $filmListRepository);
 
-$makeCatalogCtrl = fn() => new CatalogController(
+$makeFilmCtrl = fn() => new FilmController(
     $twig,
-    $catalogSyncService
+    $filmSyncService
 );
 
 $makeMovieCtrl = fn() => new MovieController(
     $twig,
     $titleService,
     $reviewService,
-    $catalogSyncService,
+    $filmSyncService,
     $genreService,
     $peopleService
 );
@@ -150,7 +150,7 @@ $router->setLogger($log_app);
 
 // Routes
 $router->get('/', fn() => $makePageCtrl()->home());
-$router->get('/catalog', fn() => $makeCatalogCtrl()->index());
+$router->get('/films', fn() => $makeFilmCtrl()->index());
 $router->get('/movie', fn() => $makeMovieCtrl()->showMovie());
 
 
