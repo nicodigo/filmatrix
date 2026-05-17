@@ -22,6 +22,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Repository\FilmListRepository;
 use Twig\Environment;
 
@@ -29,11 +30,13 @@ class PageController
 {
     private FilmListRepository $filmListRepository;
     private Environment $twig;
+    private Request $request;
 
-    public function __construct(Environment $twig, FilmListRepository $filmListRepository)
+    public function __construct(Environment $twig, FilmListRepository $filmListRepository, Request $request)
     {
         $this->twig = $twig;
         $this->filmListRepository = $filmListRepository;
+        $this->request = $request;
     }
 
     public function home(): void

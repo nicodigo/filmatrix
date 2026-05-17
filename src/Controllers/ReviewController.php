@@ -18,6 +18,7 @@
 namespace App\Controllers;
 
 use App\Core\Exceptions\ReviewAlreadyExistException;
+use App\Core\Request;
 use App\Services\ReviewService;
 use Twig\Environment;
 
@@ -25,32 +26,34 @@ class ReviewController
 {
     private Environment $twig;
     private ReviewService $reviewService;
+    private Request $request;
 
-    public function __construct(Environment $twig, ReviewService $reviewService)
+    public function __construct(Environment $twig, ReviewService $reviewService, Request $request)
     {
         $this->twig = $twig;
         $this->reviewService = $reviewService;
+        $this->request = $request;
     }
 
     public function postReview()
     {
-        $userId = $_SESSION['user_id'] ?? null;
+        $userId = $this->request->session('user_id');
 
         if (!$userId) {
             header('Location: /login');
             exit;
         }
 
-        $titleId = $_POST['title_id'] ?? null;
-        $score = $_POST['score'] ?? null;
-        $body = $_POST['review_body'];
-        $tmdbId = $_POST['tmdb_id'] ?? null;
+        $titleId = $this->request->post('title_id');
+        $score = $this->request->post('score');
+        $body = $this->request->post('review_body', '');
+        $tmdbId = $this->request->post('tmdb_id');
 
 
         try {
             $this->reviewService->createReview($userId, $titleId, $score, $body);
         } catch (ReviewAlreadyExistException) {
-            $_SESSION['flash_error'] = 'Ya escribiste una reseña para esta película';
+            $this->request->setSession('flash_error', 'Ya escribiste una reseña para esta película');
         } finally {
             header("Location: /movie?tmdb_id={$tmdbId}");
             exit;

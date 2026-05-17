@@ -9,6 +9,7 @@ use Exception;
 use App\Core\Exceptions\RouteNotFoundException;
 use App\Core\Request;
 use App\Core\Traits\Loggable;
+use Twig\Environment;
 
 class Router
 {
@@ -22,14 +23,18 @@ class Router
     public string $notFound = 'not_found';
     public string $internalError = 'internal_error';
 
-    public function __construct()
+    private ?Environment $twig;
+
+    public function __construct(?Environment $twig = null)
     {
+        $this->twig = $twig;
+
         $this->get($this->notFound, function() {
-            $controller = new \App\Controllers\ErrorController();
+            $controller = new \App\Controllers\ErrorController($this->twig);
             $controller->notFound();
         });
         $this->get($this->internalError, function() {
-            $controller = new \App\Controllers\ErrorController();
+            $controller = new \App\Controllers\ErrorController($this->twig);
             $controller->internalError();
         });
     }

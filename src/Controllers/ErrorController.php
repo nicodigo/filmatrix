@@ -2,24 +2,38 @@
 
 namespace App\Controllers;
 
+use Twig\Environment;
+
 class ErrorController
 {
+    private ?Environment $twig;
 
-    public string $viewsDir = __DIR__ . '/../../views';
-
-    public function notFound()
+    public function __construct(?Environment $twig = null)
     {
-        http_response_code(404);
-        echo 'pagina no encontrada';
-        //TODO crear vista
-        /* require $this->viewsDir . '/pages/not_found.php'; */
+        $this->twig = $twig;
     }
 
-    public function internalError()
+    public function notFound(): void
+    {
+        http_response_code(404);
+
+        if ($this->twig !== null) {
+            echo $this->twig->render('pages/error-404.html.twig');
+            return;
+        }
+
+        echo 'Página no encontrada';
+    }
+
+    public function internalError(): void
     {
         http_response_code(500);
-        echo 'Error interno';
-        //TODO crear vista
-        /* require $this->viewsDir . '/pages/internal_error.php'; */
+
+        if ($this->twig !== null) {
+            echo $this->twig->render('pages/error-500.html.twig');
+            return;
+        }
+
+        echo 'Error interno del servidor';
     }
 }

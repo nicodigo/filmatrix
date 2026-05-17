@@ -35,6 +35,7 @@ use App\Core\Exceptions\EmailAlreadyTakenException;
 use App\Core\Exceptions\InvalidPasswordException;
 use App\Core\Exceptions\UserNotFoundException;
 use App\Core\Exceptions\UsernameAlreadyExistsException;
+use App\Core\Request;
 use App\Services\AuthService;
 use App\Services\UserService;
 use Twig\Environment;
@@ -44,12 +45,14 @@ class UserController
     private Environment $twig;
     private AuthService $authService;
     private UserService $userService;
+    private Request $request;
 
-    public function __construct(Environment $twig, AuthService $authService, UserService $userService)
+    public function __construct(Environment $twig, AuthService $authService, UserService $userService, Request $request)
     {
         $this->twig = $twig;
         $this->authService = $authService;
         $this->userService = $userService;
+        $this->request = $request;
     }
 
     public function profile()
@@ -79,8 +82,8 @@ class UserController
 
     public function handleLogin()
     {
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $email = trim($this->request->post('email', ''));
+        $password = $this->request->post('password', '');
         $error = '';
 
         if (empty($email) || empty($password)) {
@@ -90,8 +93,8 @@ class UserController
         } else {
             try {
                 $this->authService->login($email, $password);
-                $destination = $_SESSION['redirect_after_login'] ?? '/profile';
-                unset($_SESSION['redirect_after_login']);
+                $destination = $this->request->session('redirect_after_login', '/profile');
+                $this->request->unsetSession('redirect_after_login');
 
                 header('Location: ' . $destination);
                 exit;
@@ -136,10 +139,10 @@ class UserController
 
     public function handleRegister()
     {
-        $username = mb_strtolower(trim($_POST['username'] ?? ''), 'UTF-8');
-        $email    = mb_strtolower(trim($_POST['email'] ?? ''), 'UTF-8');
-        $password = $_POST['password'] ?? '';
-        $confirm  = $_POST['confirm_password'] ?? '';
+        $username = mb_strtolower(trim($this->request->post('username', '')), 'UTF-8');
+        $email    = mb_strtolower(trim($this->request->post('email', '')), 'UTF-8');
+        $password = $this->request->post('password', '');
+        $confirm  = $this->request->post('confirm_password', '');
 
 
         $fields = [
@@ -224,11 +227,11 @@ class UserController
         $userId = $this->authService->getCurrentUserId();
         $user = $this->userService->getUserById($userId);
 
-        $username           = trim($_POST['username'] ?? '');
-        $email            = trim($_POST['email'] ?? '');
-        $currentPassword  = $_POST['current_password'] ?? '';
-        $newPassword   = $_POST['new_password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
+        $username           = trim($this->request->post('username', ''));
+        $email            = trim($this->request->post('email', ''));
+        $currentPassword  = $this->request->post('current_password', '');
+        $newPassword   = $this->request->post('new_password', '');
+        $confirmPassword = $this->request->post('confirm_password', '');
 
         $error = '';
         $success = '';
@@ -256,7 +259,7 @@ class UserController
                     $this->userService->updateProfile($userId, $username, $email);
                 }
 
-                $_SESSION['username'] = $username;
+                $this->request->setSession('username', $username);
                 $success = 'Perfil actualizado correctamente.';
                 $user = $this->userService->getUserById($userId);
             } catch (EmailAlreadyTakenException $e) {

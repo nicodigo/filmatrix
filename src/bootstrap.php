@@ -101,7 +101,6 @@ $titleService = new TitleService(
     $tmdbClient,
     $config,
     $log_app,
-    $filmListRepository
 );
 
 $filmSyncService = new FilmSyncService(
@@ -118,13 +117,14 @@ $authMiddleware = new AuthMiddleware();
 $request = new Request();
 
 // Controllers factories
-$makeUserCtrl = fn() => new UserController($twig, $authService, $userService);
+$makeUserCtrl = fn() => new UserController($twig, $authService, $userService, $request);
 
-$makePageCtrl = fn() => new PageController($twig, $filmListRepository);
+$makePageCtrl = fn() => new PageController($twig, $filmListRepository, $request);
 
 $makeFilmCtrl = fn() => new FilmController(
     $twig,
-    $filmSyncService
+    $filmSyncService,
+    $request
 );
 
 $makeMovieCtrl = fn() => new MovieController(
@@ -133,10 +133,11 @@ $makeMovieCtrl = fn() => new MovieController(
     $reviewService,
     $filmSyncService,
     $genreService,
-    $peopleService
+    $peopleService,
+    $request
 );
 
-$makeReviewCtrl = fn() => new ReviewController($twig, $reviewService);
+$makeReviewCtrl = fn() => new ReviewController($twig, $reviewService, $request);
 
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
@@ -145,7 +146,7 @@ $protegida = fn(callable $action) => function () use ($authMiddleware, $action) 
 };
 
 // Router
-$router = new Router();
+$router = new Router($twig);
 $router->setLogger($log_app);
 
 // Routes
@@ -161,6 +162,5 @@ $router->post('/logout', fn() => $makeUserCtrl()->logout());
 $router->get('/register', fn() => $makeUserCtrl()->register());
 $router->post('/register', fn() => $makeUserCtrl()->handleRegister());
 $router->get('/profile/edit', $protegida(fn() => $makeUserCtrl()->editProfile()));
-$router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));
 $router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));
 $router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()));

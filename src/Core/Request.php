@@ -22,4 +22,34 @@ class Request
             $this->method(),
         ];
     }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        return $_GET[$key] ?? $default;
+    }
+
+    public function post(string $key, mixed $default = null): mixed
+    {
+        return $_POST[$key] ?? $default;
+    }
+
+    public function session(string $key, mixed $default = null): mixed
+    {
+        return $_SESSION[$key] ?? $default;
+    }
+
+    public function setSession(string $key, mixed $value): void
+    {
+        $_SESSION[$key] = $value;
+    }
+
+    public function unsetSession(string $key): void
+    {
+        unset($_SESSION[$key]);
+    }
+
+    public function server(string $key, mixed $default = null): mixed
+    {
+        return $_SERVER[$key] ?? $default;
+    }
 }

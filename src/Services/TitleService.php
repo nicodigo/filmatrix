@@ -7,6 +7,7 @@ use App\Infrastructure\Tmdb\TmdbClient;
 use App\Models\Title;
 use App\Repository\TitleRepository;
 use DateTime;
+use Psr\Log\LoggerInterface;
 
 class TitleService
 {
@@ -15,6 +16,7 @@ class TitleService
     private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
     private Config $config;
+    private LoggerInterface $logger;
 
     public function __construct(
         TitleRepository $titleRepository,
@@ -22,12 +24,14 @@ class TitleService
         PeopleService $peopleService,
         TmdbClient $tmdbClient,
         Config $config,
+        LoggerInterface $logger,
     ) {
         $this->titleRepository       = $titleRepository;
         $this->genreService          = $genreService;
         $this->peopleService         = $peopleService;
         $this->tmdbClient            = $tmdbClient;
         $this->config                = $config;
+        $this->logger                = $logger;
     }
 
     /* =========================

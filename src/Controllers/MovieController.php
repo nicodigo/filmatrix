@@ -28,6 +28,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Services\FilmSyncService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
@@ -43,6 +44,7 @@ class MovieController
     private FilmSyncService $filmSyncService;
     private GenreService $genreService;
     private PeopleService $peopleService;
+    private Request $request;
 
     public function __construct(
         Environment $twig,
@@ -50,7 +52,8 @@ class MovieController
         ReviewService $reviewService,
         FilmSyncService $filmSyncService,
         GenreService $genreService,
-        PeopleService $peopleService
+        PeopleService $peopleService,
+        Request $request
     ) {
         $this->twig = $twig;
         $this->titleService = $titleService;
@@ -58,11 +61,12 @@ class MovieController
         $this->filmSyncService = $filmSyncService;
         $this->genreService = $genreService;
         $this->peopleService = $peopleService;
+        $this->request = $request;
     }
 
     public function showMovie(): void
     {
-        $tmdbId = (int) ($_GET['tmdb_id'] ?? 0);
+        $tmdbId = (int) ($this->request->get('tmdb_id', 0));
 
         if ($tmdbId === 0) {
             header('Location: /films');

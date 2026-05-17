@@ -99,7 +99,6 @@ $titleService = new TitleService(
     $tmdbClient,
     $config,
     $logger,
-    $filmListRepository
 );
 
 $filmSyncService = new FilmSyncService(
