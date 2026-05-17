@@ -17,7 +17,6 @@
  *     Ruta: GET /titles?tmdb_id={id}
  *
  * DEPENDENCIAS:
- *   TitleSyncService  — sincronización de catálogo, listas y sugerencias.
  *   TitleService      — datos principales del título.
  *   ReviewService     — reseñas del título.
  *   GenreService      — géneros asociados al título.
@@ -28,7 +27,7 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Services\TitleService;
-use App\Services\TitleSyncService;
+use App\Services\TitleListService;
 use App\Services\ReviewService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
@@ -37,7 +36,7 @@ use Twig\Environment;
 class TitleController
 {
     private Environment $twig;
-    private TitleSyncService $titleSyncService;
+    private TitleListService $titleListService;
     private TitleService $titleService;
     private ReviewService $reviewService;
     private GenreService $genreService;
@@ -46,7 +45,7 @@ class TitleController
 
     public function __construct(
         Environment $twig,
-        TitleSyncService $titleSyncService,
+        TitleListService $titleListService,
         TitleService $titleService,
         ReviewService $reviewService,
         GenreService $genreService,
@@ -54,7 +53,7 @@ class TitleController
         Request $request
     ) {
         $this->twig = $twig;
-        $this->titleSyncService = $titleSyncService;
+        $this->titleListService = $titleListService;
         $this->titleService = $titleService;
         $this->reviewService = $reviewService;
         $this->genreService = $genreService;
@@ -64,7 +63,7 @@ class TitleController
 
     public function index(): void
     {
-        $popular = $this->titleSyncService->findBySection('popular', 8);
+        $popular = $this->titleListService->findBySection('popular', 8);
 
         echo $this->twig->render('pages/titles.html.twig', [
             'titles' => $popular,
@@ -93,7 +92,7 @@ class TitleController
         $reviews = $this->reviewService
             ->getByTitleIdWithAuthor($title->getId());
 
-        $suggested = $this->titleSyncService
+        $suggested = $this->titleListService
             ->findSuggested($title->getId(), 4);
 
         $duration = null;

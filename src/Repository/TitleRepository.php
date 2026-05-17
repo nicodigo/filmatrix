@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TitleRepository
  * Acceso a datos de la tabla titles y sus relaciones con géneros (title_genres)
@@ -58,34 +59,24 @@ class TitleRepository
         $this->pdo = $pdo;
     }
 
-    public function findByTmdbId(int $tmdbId): ?Title
+    public function findByTmdbId(int $tmdbId, string $ttl): ?Title
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM titles WHERE tmdb_id = :tmdb_id LIMIT 1'
-        );
-
-        $stmt->execute([':tmdb_id' => $tmdbId]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? Title::fromArray($row) : null;
-    }
-
-    public function findByTmdbIdWithScore(int $tmdbId): ?Title
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT
+            "SELECT
                 t.*,
                 COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
              FROM titles t
              LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
              WHERE t.tmdb_id = :tmdb_id
+             AND t.cached_at > NOW() - INTERVAL '{$ttl}'
              GROUP BY t.id
-             LIMIT 1'
+             LIMIT 1"
         );
 
-        $stmt->execute([':tmdb_id' => $tmdbId]);
+        $stmt->execute([
+            ':tmdb_id' => $tmdbId,
+        ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -228,3 +219,4 @@ class TitleRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
+

@@ -35,7 +35,7 @@ use App\Repository\TitleListRepository;
 use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\TitleService;
-use App\Services\TitleSyncService;
+use App\Services\TitleListService;
 
 // 1. Load environment
 Dotenv::createUnsafeImmutable(__DIR__ . '/../')->safeLoad();
@@ -72,11 +72,10 @@ $titleService = new TitleService(
     $genreService,
     $peopleService,
     $tmdbClient,
-    $config,
     $logger,
 );
 
-$titleSyncService = new TitleSyncService(
+$titleListService = new TitleListService(
     $titleService,
     $titleListRepository,
     $tmdbClient,
@@ -111,13 +110,13 @@ try {
 
     if ($section === 'all' || $section === 'now_playing') {
         echo "Sincronizando now_playing ({$pages} página/s)...\n";
-        $titleSyncService->syncNowPlaying($pages);
+        $titleListService->syncNowPlaying($pages);
         echo "OK\n\n";
     }
 
     if ($section === 'all' || $section === 'popular') {
         echo "Sincronizando popular ({$pages} página/s)...\n";
-        $titleSyncService->syncPopular($pages);
+        $titleListService->syncPopular($pages);
         echo "OK\n\n";
     }
 

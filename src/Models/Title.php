@@ -14,7 +14,6 @@ class Title
     private ?int $releaseYear;
     private ?string $language;
     private ?int $durationMinutes;
-    private ?float $tmdbRating;
     private ?float $avgScore;
     private ?string $cachedAt;
 
@@ -29,7 +28,6 @@ class Title
         ?int $releaseYear = null,
         ?string $language = null,
         ?int $durationMinutes = null,
-        ?float $tmdbRating = null,
         ?float $avgScore = null,
         ?string $cachedAt = null
     ) {
@@ -46,7 +44,6 @@ class Title
         $this->releaseYear = $releaseYear;
         $this->language = $language;
         $this->durationMinutes = $durationMinutes;
-        $this->tmdbRating = $tmdbRating;
         $this->avgScore = $avgScore;
         $this->cachedAt = $cachedAt;
     }

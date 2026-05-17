@@ -35,9 +35,9 @@ class PeopleService
     /**
      * Upsert desde datos de TMDB y devuelve el ID interno.
      */
-    public function sync(int $tmdbPersonId, string $name, ?string $profileUrl): int
+    public function sync(int $tmdbPersonId, string $name): int
     {
-        return $this->peopleRepository->upsert($tmdbPersonId, $name, $profileUrl);
+        return $this->peopleRepository->upsert($tmdbPersonId, $name);
     }
 
     /**

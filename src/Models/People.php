@@ -7,7 +7,6 @@ class People
     private ?int $id;
     private int $tmdbPersonId;
     private string $name;
-    private ?string $profileUrl;
     private string $cachedAt;
 
     public function __construct(
@@ -20,7 +19,6 @@ class People
         $this->id = $id;
         $this->tmdbPersonId = $tmdbPersonId;
         $this->name = $name;
-        $this->profileUrl = $profileUrl;
         $this->cachedAt = $cachedAt;
     }
 
@@ -41,7 +39,6 @@ class People
             'id' => $this->id,
             'tmdb_person_id' => $this->tmdbPersonId,
             'name' => $this->name,
-            'profile_url' => $this->profileUrl,
             'cached_at' => $this->cachedAt,
         ];
     }
@@ -59,11 +56,6 @@ class People
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getProfileUrl(): ?string
-    {
-        return $this->profileUrl;
     }
 
     public function getCachedAt(): string

@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Core\Config;
 use App\Infrastructure\Tmdb\TmdbClient;
 use App\Models\Title;
 use App\Repository\TitleRepository;
-use DateTime;
 use Psr\Log\LoggerInterface;
 
 class TitleService
@@ -15,49 +13,29 @@ class TitleService
     private GenreService $genreService;
     private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
-    private Config $config;
     private LoggerInterface $logger;
+    private const string TITLE_CACHE_TTL = '30 days';
 
     public function __construct(
         TitleRepository $titleRepository,
         GenreService $genreService,
         PeopleService $peopleService,
         TmdbClient $tmdbClient,
-        Config $config,
         LoggerInterface $logger,
     ) {
         $this->titleRepository       = $titleRepository;
         $this->genreService          = $genreService;
         $this->peopleService         = $peopleService;
         $this->tmdbClient            = $tmdbClient;
-        $this->config                = $config;
         $this->logger                = $logger;
-    }
-
-    /* =========================
-       CACHE / CORE
-    ========================= */
-
-    private function isCacheStale(?Title $title): bool
-    {
-        if ($title === null) {
-            return true;
-        }
-
-        $ttl = (int) ($this->config->get('TMDB_CACHE_TTL_DAYS') ?? 30);
-
-        $cachedAt = new DateTime($title->getCachedAt());
-        $now      = new DateTime();
-
-        return $cachedAt->diff($now)->days > $ttl;
     }
 
     public function getTitle(int $tmdbId): Title
     {
-        $title = $this->titleRepository->findByTmdbIdWithScore($tmdbId);
+        $title = $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
 
-        if ($this->isCacheStale($title)) {
-            return $this->persistTitle($tmdbId);
+        if ($title === null) {
+            $this->syncTitleWithTmdb($tmdbId);
         }
 
         return $title;
@@ -81,7 +59,7 @@ class TitleService
        SYNC TMDB
     ========================= */
 
-    public function persistTitle(int $tmdbId): Title
+    public function syncTitleWithTmdb(int $tmdbId): Title
     {
         $movie  = $this->tmdbClient->getMovie($tmdbId);
         $videos = $this->tmdbClient->getVideos($tmdbId);
@@ -113,7 +91,6 @@ class TitleService
             $releaseYear,
             $movie['original_language'] ?? null,
             $movie['runtime'] ?? null,
-            (float) ($movie['vote_average'] ?? 0)
         );
 
         $titleId = $this->titleRepository->upsert($title);
@@ -135,9 +112,6 @@ class TitleService
             $personId = $this->peopleService->sync(
                 $member['id'],
                 $member['name'],
-                !empty($member['profile_path'])
-                    ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
-                    : null
             );
 
             $this->titleRepository->attachCastMember(
@@ -155,9 +129,6 @@ class TitleService
                 $personId = $this->peopleService->sync(
                     $member['id'],
                     $member['name'],
-                    !empty($member['profile_path'])
-                        ? 'https://image.tmdb.org/t/p/w185' . $member['profile_path']
-                        : null
                 );
 
                 $this->titleRepository->attachCastMember(
@@ -172,7 +143,7 @@ class TitleService
 
         $this->logger->info('Title synced', ['tmdb_id' => $tmdbId]);
 
-        return $this->titleRepository->findByTmdbIdWithScore($tmdbId);
+        return $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
     }
 
     public function syncGenres(): void

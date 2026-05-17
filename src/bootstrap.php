@@ -26,7 +26,6 @@ use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
-use App\Services\TitleSyncService;
 
 use App\Middleware\AuthMiddleware;
 
@@ -36,6 +35,7 @@ use App\Controllers\PageController;
 use App\Controllers\TitleController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
+use App\Services\TitleListService;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
@@ -111,11 +111,10 @@ $titleService = new TitleService(
     $genreService,
     $peopleService,
     $tmdbClient,
-    $config,
     $log_app,
 );
 
-$titleSyncService = new TitleSyncService(
+$titleListService = new TitleListService(
     $titleService,
     $titleListRepository,
     $tmdbClient,
@@ -135,7 +134,7 @@ $makePageCtrl = fn() => new PageController($twig, $titleListRepository, $request
 
 $makeTitleCtrl = fn() => new TitleController(
     $twig,
-    $titleSyncService,
+    $titleListService,
     $titleService,
     $reviewService,
     $genreService,

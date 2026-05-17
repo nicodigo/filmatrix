@@ -6,7 +6,7 @@ use App\Repository\TitleListRepository;
 use App\Infrastructure\Tmdb\TmdbClient;
 use Psr\Log\LoggerInterface;
 
-class TitleSyncService
+class TitleListService
 {
     private TitleService $titleService;
     private TitleListRepository $titleListRepository;
@@ -29,7 +29,7 @@ class TitleSyncService
     {
         foreach ($tmdbResults as $i => $movie) {
             try {
-                $title = $this->titleService->persistTitle($movie['id']);
+                $title = $this->titleService->syncTitleWithTmdb($movie['id']);
 
                 if ($title === null) {
                     continue;

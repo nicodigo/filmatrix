@@ -34,7 +34,6 @@ final class CreateFilmatrixSchema extends AbstractMigration
             $table = $this->table('people');
             $table->addColumn('tmdb_person_id', 'integer', ['null' => false])
                   ->addColumn('name', 'string', ['limit' => 150, 'null' => false])
-                  ->addColumn('profile_url', 'string', ['limit' => 255, 'null' => true])
                   ->addColumn('cached_at', 'datetime', ['null' => false])
                   ->addIndex('tmdb_person_id', ['unique' => true])
                   ->create();

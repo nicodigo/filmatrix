@@ -13,7 +13,7 @@
  *   findAll(): People[]
  *     Retorna todas las personas ordenadas alfabéticamente por nombre.
  *
- *   upsert(tmdbPersonId, name, profileUrl): int
+ *   upsert(tmdbPersonId, name): int
  *     Inserta una persona o actualiza sus datos si ya existe el tmdb_person_id.
  *     Actualiza nombre, foto y timestamp de caché. Retorna el id interno del registro.
  *
@@ -108,15 +108,14 @@ class PeopleRepository
         );
     }
 
-    public function upsert(int $tmdbPersonId, string $name, ?string $profileUrl): int
+    public function upsert(int $tmdbPersonId, string $name): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO people (tmdb_person_id, name, profile_url, cached_at)
-             VALUES (:tmdb_person_id, :name, :profile_url, NOW())
+            'INSERT INTO people (tmdb_person_id, name, cached_at)
+             VALUES (:tmdb_person_id, :name, NOW())
              ON CONFLICT (tmdb_person_id)
              DO UPDATE SET
                 name = EXCLUDED.name,
-                profile_url = EXCLUDED.profile_url,
                 cached_at = NOW()
              RETURNING id'
         );
@@ -124,7 +123,6 @@ class PeopleRepository
         $stmt->execute([
             ':tmdb_person_id' => $tmdbPersonId,
             ':name' => $name,
-            ':profile_url' => $profileUrl,
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
