@@ -81,6 +81,20 @@ class AuthService
     {
         session_unset();
         session_destroy();
+
+        // Eliminar cookie (opcional pero recomendado)
+        if (isset($_COOKIE[session_name()])) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 3600,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
     }
 
     public function isLoggedIn(): bool

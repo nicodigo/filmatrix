@@ -63,6 +63,19 @@ $twig = new \Twig\Environment($loader, [
     'debug' => true,        // false en producción
 ]);
 
+session_name('FILMATRIX_SESSION');
+
+session_set_cookie_params([
+    'lifetime' => (int)$config->get('SESSION_LIFETIME'), // Expira al cerrar navegador
+    'path' => '/',                      // Toda la app
+    'domain' => '',                     // Dominio actual
+    'secure' => $_ENV['APP_ENV'] === 'production', // Solo HTTPS en producción
+    'httponly' => true,                 // No accesible desde JS
+    'samesite' => 'Lax',                // Balance seguridad/usabilidad
+]);
+
+session_start();
+
 // Repositories
 $userRepository        = new UserRepository($connection);
 $titleRepository       = new TitleRepository($connection);

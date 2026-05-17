@@ -73,9 +73,16 @@
   background: var(--surface-el);
   border-left: 1px solid var(--border);
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, top 0.3s ease;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* When search bar is open, drop sidebar below it */
+.header-inner:has(.search-form.is-active) .nav-menu {
+  top: 120px;
+  height: calc(100vh - 120px);
+  height: calc(100dvh - 120px);
 }
 
 /* Backdrop overlay (behind sidebar, above page content) */
