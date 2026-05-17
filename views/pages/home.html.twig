@@ -7,7 +7,7 @@
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/home.css">
   <link rel="stylesheet" href="/assets/css/hero.css">
-  <link rel="stylesheet" href="/assets/css/movie-card.css">
+  <link rel="stylesheet" href="/assets/css/title-card.css">
 {% endblock %}
 
 {% block content %}
@@ -22,10 +22,10 @@
         <p class="catalogo-empty">Sin títulos disponibles.</p>
       {% endif %}
 
-      {% import 'macros/movie-cards.html.twig' as cards %}
+      {% import 'macros/title-cards.html.twig' as cards %}
 
       {% for movie in popular %}
-        {{ cards.movieCard(movie) }}
+        {{ cards.titleCard(movie) }}
       {% endfor %}
     </div>
   </section>

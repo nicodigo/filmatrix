@@ -1,7 +1,7 @@
 <?php
 /**
- * FilmListRepository
- * Acceso a datos de la tabla films_lists, que almacena títulos
+ * TitleListRepository
+ * Acceso a datos de la tabla title_lists, que almacena títulos
  * organizados por sección y posición (ej: 'popular').
  *
  * MÉTODOS:
@@ -34,7 +34,7 @@ namespace App\Repository;
 
 use PDO;
 
-class FilmListRepository
+class TitleListRepository
 {
     private PDO $pdo;
 
@@ -46,7 +46,7 @@ class FilmListRepository
     public function clearSection(string $section): void
     {
         $stmt = $this->pdo->prepare(
-            'DELETE FROM films_lists WHERE section = :section'
+            'DELETE FROM title_lists WHERE section = :section'
         );
 
         $stmt->execute([
@@ -57,7 +57,7 @@ class FilmListRepository
     public function insert(string $section, int $titleId, int $position): void
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO films_lists (section, title_id, position, synced_at)
+            'INSERT INTO title_lists (section, title_id, position, synced_at)
              VALUES (:section, :title_id, :position, NOW())'
         );
 
@@ -79,7 +79,7 @@ class FilmListRepository
                  t.release_year,
                  COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
                  cl.position
-             FROM films_lists cl
+             FROM title_lists cl
              JOIN titles t ON t.id = cl.title_id
              LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
              WHERE cl.section = :section
@@ -105,7 +105,7 @@ class FilmListRepository
                  t.tmdb_id,
                  t.title,
                  t.poster_url
-             FROM films_lists cl
+             FROM title_lists cl
              JOIN titles t ON t.id = cl.title_id
              WHERE cl.section = \'popular\'
                AND cl.title_id != :exclude_title_id
@@ -133,7 +133,7 @@ class FilmListRepository
                  t.release_year,
                  COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
                  cl.position
-             FROM films_lists cl
+             FROM title_lists cl
              JOIN titles t ON t.id = cl.title_id
              LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
              WHERE cl.section = \'popular\'

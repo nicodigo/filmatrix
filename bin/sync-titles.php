@@ -1,48 +1,23 @@
 <?php
 
 /**
- * sync_film_lists.php — Script CLI de sincronización de catálogo
+ * sync-titles.php — Script CLI de sincronización de catálogo
  * ─────────────────────────────────────────────────────────────
- * Sincroniza películas desde la API de TMDB hacia la base de datos local.
+ * Sincroniza títulos desde la API de TMDB hacia la base de datos local.
  *
  * USO:
- *   php sync_film_lists.php [--section=<sección>] [--pages=<n>]
+ *   php bin/sync-titles.php [--section=<sección>] [--pages=<n>]
  *
  * OPCIONES:
  *   --section   Sección a sincronizar. Valores: all | now_playing | popular
  *               Default: all
- *   --pages     Cantidad de páginas de TMDB a traer (1 página = 20 películas).
+ *   --pages     Cantidad de páginas de TMDB a traer (1 página = 20 títulos).
  *               Default: 1
  *
  * EJEMPLOS:
- *   php sync_film_lists.php                          # sincroniza todo, 1 página
- *   php sync_film_lists.php --section=popular        # solo popular, 1 página
- *   php sync_film_lists.php --section=all --pages=3  # todo, 3 páginas (60 películas)
- *
- * SECCIONES:
- *   now_playing  Películas estrenadas en los últimos 30 días, ordenadas por
- *                fecha de estreno descendente.
- *   popular      Películas ordenadas por popularidad descendente, con al
- *                menos 500 votos en TMDB.
- *
- * FLUJO DE INSERCIÓN POR PELÍCULA:
- *   Ambas secciones pasan por el mismo flujo interno (syncSection → persistTitle):
- *
- *   1. `titles`       — upsert de los datos de la película (título, sinopsis,
- *                       póster, trailer, año, duración, rating TMDB, etc.)
- *   2. `genres`       — upsert de cada género de la película
- *   3. `title_genres` — insert en tabla intermedia título ↔ género
- *   4. `people`       — upsert de cada actor (top 10) y director
- *   5. `title_cast`   — insert en tabla intermedia título ↔ persona (con rol,
- *                       nombre del personaje y orden de crédito)
- *   6. `film_lists`— insert de la película en la sección correspondiente
- *                       con su posición de popularidad (0 = más popular)
- *
- * NOTA: Antes de sincronizar cualquier sección, el script pre-carga todos los
- * géneros de TMDB en la tabla `genres` via syncGenres(). Esto asegura que los
- * géneros existan antes de que las películas intenten referenciarlos.
- * Aunque no fuera necesario (persistTitle los inserta igual), es una buena
- * práctica para mantener la tabla genres completa y actualizada.
+ *   php bin/sync-titles.php                          # sincroniza todo, 1 página
+ *   php bin/sync-titles.php --section=popular        # solo popular, 1 página
+ *   php bin/sync-titles.php --section=all --pages=3  # todo, 3 páginas
  */
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -56,11 +31,11 @@ use App\Infrastructure\Tmdb\TmdbClient;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
-use App\Repository\FilmListRepository;
+use App\Repository\TitleListRepository;
 use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\TitleService;
-use App\Services\FilmSyncService;
+use App\Services\TitleSyncService;
 
 // 1. Load environment
 Dotenv::createUnsafeImmutable(__DIR__ . '/../')->safeLoad();
@@ -69,7 +44,7 @@ Dotenv::createUnsafeImmutable(__DIR__ . '/../')->safeLoad();
 $config = new Config();
 
 // 3. Logger
-$logger  = new Logger('sync-film');
+$logger  = new Logger('sync-titles');
 $handler = new StreamHandler('php://stderr');
 $handler->setLevel($config->get('LOG_LEVEL'));
 $logger->pushHandler($handler);
@@ -83,7 +58,7 @@ $connection = $connectionBuilder->make($config);
 $titleRepository       = new TitleRepository($connection);
 $genreRepository       = new GenreRepository($connection);
 $peopleRepository      = new PeopleRepository($connection);
-$filmListRepository = new FilmListRepository($connection);
+$titleListRepository = new TitleListRepository($connection);
 
 // 6. TMDB client
 $tmdbClient = new TmdbClient($config);
@@ -101,9 +76,9 @@ $titleService = new TitleService(
     $logger,
 );
 
-$filmSyncService = new FilmSyncService(
+$titleSyncService = new TitleSyncService(
     $titleService,
-    $filmListRepository,
+    $titleListRepository,
     $tmdbClient,
     $logger
 );
@@ -136,15 +111,13 @@ try {
 
     if ($section === 'all' || $section === 'now_playing') {
         echo "Sincronizando now_playing ({$pages} página/s)...\n";
-        // Aca ocurre la sincronizacion de pelicula recientes
-        $filmSyncService->syncNowPlaying($pages);
+        $titleSyncService->syncNowPlaying($pages);
         echo "OK\n\n";
     }
 
     if ($section === 'all' || $section === 'popular') {
         echo "Sincronizando popular ({$pages} página/s)...\n";
-         // Aca ocurre la sincronizacion de pelicula populares
-        $filmSyncService->syncPopular($pages);
+        $titleSyncService->syncPopular($pages);
         echo "OK\n\n";
     }
 

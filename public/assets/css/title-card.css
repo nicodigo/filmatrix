@@ -1,0 +1,50 @@
+/* Movie card – mobile-first, uses only base.css variables */
+
+
+.movie-card {
+  position: relative;
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.movie-card__link {
+  display: block;
+  text-decoration: none;
+}
+
+.movie-card img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.movie-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--bg-base) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+.movie-card:hover .movie-card__overlay {
+  opacity: 1;
+}
+
+.movie-card__title {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.movie-card__score {
+  font-family: var(--font-ui);
+  color: var(--rating);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0;
+}

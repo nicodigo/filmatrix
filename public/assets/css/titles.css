@@ -1,0 +1,238 @@
+@import 'base.css';
+
+body {
+  background-color: var(--bg-base);
+}
+
+/* ══════════════════════════════════════
+   Encabezado del catálogo
+══════════════════════════════════════ */
+.films-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1rem 1rem;
+  gap: 1rem;
+}
+
+.films-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* ── Checkbox oculto (motor del toggle) ── */
+.filter-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Label que actúa como botón ── */
+.films-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.films-filter-btn:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Estado activo cuando el checkbox está marcado */
+.filter-toggle-input:checked ~ .films-header .films-filter-btn,
+.filter-toggle-input:checked + .films-filter-btn {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════
+   Panel de filtros — CSS-only toggle
+   El checkbox está ANTES del aside en el DOM,
+   usamos el selector general ~ para alcanzarlo.
+══════════════════════════════════════ */
+.filter-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: var(--surface);
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+/*
+  Estructura en el HTML:
+    <input#filterToggle>   ← checkbox
+    <label>                ← botón (dentro de .films-header)
+    ...
+    <aside.filter-panel>   ← panel
+
+  Como el checkbox es hermano anterior del aside,
+  el selector ~ funciona correctamente.
+*/
+.filter-toggle-input:checked ~ .filter-panel {
+  max-height: 400px;
+  border-top-color: var(--border);
+  border-bottom-color: var(--border);
+}
+
+.filter-panel__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .filter-panel__inner {
+    flex-direction: row;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Grupo individual ── */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.filter-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ══════════════════════════════════════
+   Secciones del catálogo
+══════════════════════════════════════ */
+.films-section {
+  padding: 1.5rem 0;
+}
+
+.films-section__label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  padding: 0 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ══════════════════════════════════════
+   Carrusel — scroll horizontal nativo
+══════════════════════════════════════ */
+.carousel {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel .movie-card {
+  flex: 0 0 140px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 480px) {
+  .carousel .movie-card { flex-basis: 160px; }
+}
+
+@media (min-width: 768px) {
+  .carousel .movie-card { flex-basis: 180px; }
+  .films-title { font-size: 2.5rem; }
+  .films-header { padding: 2rem 1.5rem 1rem; }
+}
+
+@media (min-width: 1024px) {
+  .carousel .movie-card { flex-basis: 200px; }
+  .films-header { padding: 2rem 2rem 1rem; }
+}
+
+/* ══════════════════════════════════════
+   Grilla de catálogo
+══════════════════════════════════════ */
+.films-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  padding: 0 1rem;
+}
+
+@media (min-width: 480px) {
+  .films-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .films-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .films-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding: 0 2rem;
+  }
+}

@@ -2,25 +2,17 @@
 
 {% block title %}Catálogo — Filmatrix{% endblock %}
 
-{% block description %}Explorá el catálogo completo de películas en Filmatrix. Filtrá por género, año y más.{% endblock %}
+{% block description %}Explorá el catálogo completo de películas en Filmatrix.{% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="/assets/css/movie-card.css">
-  <link rel="stylesheet" href="/assets/css/films.css">
+  <link rel="stylesheet" href="/assets/css/title-card.css">
+  <link rel="stylesheet" href="/assets/css/titles.css">
 {% endblock %}
 
 {% block content %}
-  <!-- ── Encabezado del catálogo ── -->
   <input type="checkbox" id="filterToggle" class="filter-toggle-input">
   <section class="films-header">
     <h1 class="films-title">Catálogo</h1>
-
-    {#
-      Toggle de filtros sin JS:
-      checkbox oculto + label actúa como botón.
-      El panel se muestra con el selector CSS:
-      .filter-toggle-input:checked ~ .filter-panel
-    #}
     <label for="filterToggle" class="films-filter-btn">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="2"
@@ -33,10 +25,8 @@
     </label>
   </section>
 
-  <!-- ── Panel de filtros (CSS-only) ── -->
   <aside class="filter-panel">
     <div class="filter-panel__inner">
-
       <div class="filter-group">
         <label class="filter-label" for="filterGenre">Género</label>
         <select class="filter-select" id="filterGenre" name="genre">
@@ -50,7 +40,6 @@
           <option value="documental">Documental</option>
         </select>
       </div>
-
       <div class="filter-group">
         <label class="filter-label" for="filterYear">Año</label>
         <select class="filter-select" id="filterYear" name="year">
@@ -60,7 +49,6 @@
           {% endfor %}
         </select>
       </div>
-
       <div class="filter-group">
         <label class="filter-label" for="filterScore">Puntaje mínimo</label>
         <select class="filter-select" id="filterScore" name="score">
@@ -70,10 +58,8 @@
           <option value="3">★ 3.0+</option>
         </select>
       </div>
-
     </div>
   </aside>
-
 
   <section class="films-section">
     <div class="films-grid">
@@ -81,12 +67,11 @@
         <p class="films-empty">Sin títulos disponibles.</p>
     {% endif %}
 
-    {% import 'macros/movie-cards.html.twig' as cards %}
+    {% import 'macros/title-cards.html.twig' as cards %}
 
     {% for movie in titles %}
-      {{ cards.movieCard(movie) }}
+      {{ cards.titleCard(movie) }}
     {% endfor %}
-
     </div>
   </section>
 {% endblock %}

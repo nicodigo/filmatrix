@@ -2,25 +2,25 @@
 
 namespace App\Services;
 
-use App\Repository\FilmListRepository;
+use App\Repository\TitleListRepository;
 use App\Infrastructure\Tmdb\TmdbClient;
 use Psr\Log\LoggerInterface;
 
-class FilmSyncService
+class TitleSyncService
 {
     private TitleService $titleService;
-    private FilmListRepository $filmListRepository;
+    private TitleListRepository $titleListRepository;
     private TmdbClient $tmdbClient;
     private LoggerInterface $logger;
 
     public function __construct(
         TitleService $titleService,
-        FilmListRepository $filmListRepository,
+        TitleListRepository $titleListRepository,
         TmdbClient $tmdbClient,
         LoggerInterface $logger
     ) {
         $this->titleService          = $titleService;
-        $this->filmListRepository = $filmListRepository;
+        $this->titleListRepository = $titleListRepository;
         $this->tmdbClient            = $tmdbClient;
         $this->logger                = $logger;
     }
@@ -35,7 +35,7 @@ class FilmSyncService
                     continue;
                 }
 
-                $this->filmListRepository->insert($section, $title->getId(), $pageOffset + $i);
+                $this->titleListRepository->insert($section, $title->getId(), $pageOffset + $i);
             } catch (\Throwable $e) {
                 $this->logger->warning('Failed to sync movie in section', [
                     'tmdb_id'   => $movie['id'] ?? null,
@@ -47,7 +47,7 @@ class FilmSyncService
 
     public function syncNowPlaying(int $pages = 1): void
     {
-        $this->filmListRepository->clearSection('now_playing');
+        $this->titleListRepository->clearSection('now_playing');
 
         for ($page = 1; $page <= $pages; $page++) {
             $response = $this->tmdbClient->getNowPlaying($page);
@@ -59,7 +59,7 @@ class FilmSyncService
 
     public function syncPopular(int $pages = 1): void
     {
-        $this->filmListRepository->clearSection('popular');
+        $this->titleListRepository->clearSection('popular');
 
         for ($page = 1; $page <= $pages; $page++) {
             $response = $this->tmdbClient->getPopular($page);
@@ -71,17 +71,16 @@ class FilmSyncService
 
     public function findSuggested(int $excludeTitleId, int $limit): array
     {
-        return $this->filmListRepository->findSuggested($excludeTitleId, $limit);
+        return $this->titleListRepository->findSuggested($excludeTitleId, $limit);
     }
 
     public function findAllByPopularity(int $limit): array
     {
-        return $this->filmListRepository->findAllByPopularity($limit);
+        return $this->titleListRepository->findAllByPopularity($limit);
     }
 
     public function findBySection(string $section, int $limit): array
     {
-        return $this->filmListRepository->findBySection($section, $limit);
+        return $this->titleListRepository->findBySection($section, $limit);
     }
 }
-

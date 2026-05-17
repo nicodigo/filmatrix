@@ -17,7 +17,7 @@ use App\Repository\UserRepository;
 use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
-use App\Repository\FilmListRepository;
+use App\Repository\TitleListRepository;
 use App\Repository\ReviewRepository;
 
 use App\Services\AuthService;
@@ -26,15 +26,14 @@ use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
-use App\Services\FilmSyncService;
+use App\Services\TitleSyncService;
 
 use App\Middleware\AuthMiddleware;
 
 use App\Infrastructure\Tmdb\TmdbClient;
 
 use App\Controllers\PageController;
-use App\Controllers\FilmController;
-use App\Controllers\MovieController;
+use App\Controllers\TitleController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
 
@@ -58,12 +57,12 @@ $connection = $connectionBuilder->make($config);
 session_name('FILMATRIX_SESSION');
 
 session_set_cookie_params([
-    'lifetime' => (int)$config->get('SESSION_LIFETIME'), // Expira al cerrar navegador
-    'path' => '/',                      // Toda la app
-    'domain' => '',                     // Dominio actual
-    'secure' => $_ENV['APP_ENV'] === 'production', // Solo HTTPS en producción
-    'httponly' => true,                 // No accesible desde JS
-    'samesite' => 'Lax',                // Balance seguridad/usabilidad
+    'lifetime' => (int)$config->get('SESSION_LIFETIME'),
+    'path' => '/',
+    'domain' => '',
+    'secure' => $_ENV['APP_ENV'] === 'production',
+    'httponly' => true,
+    'samesite' => 'Lax',
 ]);
 
 session_start();
@@ -77,8 +76,8 @@ $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
 
 $twig = new \Twig\Environment($loader, [
     'cache' => __DIR__ . '/../cache/twig',
-    'auto_reload' => true,  // recompila si la vista cambió
-    'debug' => true,        // false en producción
+    'auto_reload' => true,
+    'debug' => true,
 ]);
 
 $twig->addGlobal('csrf_token', $_SESSION['csrf_token']);
@@ -89,24 +88,23 @@ $twig->addGlobal('app', [
     'user_role' => $_SESSION['user_role'] ?? null,
 ]);
 
-
 // Repositories
-$userRepository        = new UserRepository($connection);
-$titleRepository       = new TitleRepository($connection);
-$genreRepository       = new GenreRepository($connection);
-$peopleRepository      = new PeopleRepository($connection);
-$filmListRepository = new FilmListRepository($connection);
-$reviewRepository      = new ReviewRepository($connection);
+$userRepository         = new UserRepository($connection);
+$titleRepository        = new TitleRepository($connection);
+$genreRepository        = new GenreRepository($connection);
+$peopleRepository       = new PeopleRepository($connection);
+$titleListRepository    = new TitleListRepository($connection);
+$reviewRepository       = new ReviewRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
 
 // Services
-$authService   = new AuthService($userRepository, $log_app);
-$userService   = new UserService($userRepository);
-$genreService  = new GenreService($genreRepository);
-$peopleService = new PeopleService($peopleRepository);
-$reviewService = new ReviewService($reviewRepository);
+$authService    = new AuthService($userRepository, $log_app);
+$userService    = new UserService($userRepository);
+$genreService   = new GenreService($genreRepository);
+$peopleService  = new PeopleService($peopleRepository);
+$reviewService  = new ReviewService($reviewRepository);
 
 $titleService = new TitleService(
     $titleRepository,
@@ -117,9 +115,9 @@ $titleService = new TitleService(
     $log_app,
 );
 
-$filmSyncService = new FilmSyncService(
+$titleSyncService = new TitleSyncService(
     $titleService,
-    $filmListRepository,
+    $titleListRepository,
     $tmdbClient,
     $log_app
 );
@@ -133,19 +131,13 @@ $request = new Request();
 // Controllers factories
 $makeUserCtrl = fn() => new UserController($twig, $authService, $userService, $request);
 
-$makePageCtrl = fn() => new PageController($twig, $filmListRepository, $request);
+$makePageCtrl = fn() => new PageController($twig, $titleListRepository, $request);
 
-$makeFilmCtrl = fn() => new FilmController(
+$makeTitleCtrl = fn() => new TitleController(
     $twig,
-    $filmSyncService,
-    $request
-);
-
-$makeMovieCtrl = fn() => new MovieController(
-    $twig,
+    $titleSyncService,
     $titleService,
     $reviewService,
-    $filmSyncService,
     $genreService,
     $peopleService,
     $request
@@ -165,9 +157,8 @@ $router->setLogger($log_app);
 
 // Routes
 $router->get('/', fn() => $makePageCtrl()->home());
-$router->get('/films', fn() => $makeFilmCtrl()->index());
-$router->get('/movie', fn() => $makeMovieCtrl()->showMovie());
-
+$router->get('/titles', fn() => $makeTitleCtrl()->index());
+$router->get('/titles/detail', fn() => $makeTitleCtrl()->show());
 
 $router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));
 $router->get('/login', fn() => $makeUserCtrl()->login());

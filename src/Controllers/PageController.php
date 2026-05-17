@@ -23,25 +23,25 @@
 namespace App\Controllers;
 
 use App\Core\Request;
-use App\Repository\FilmListRepository;
+use App\Repository\TitleListRepository;
 use Twig\Environment;
 
 class PageController
 {
-    private FilmListRepository $filmListRepository;
+    private TitleListRepository $titleListRepository;
     private Environment $twig;
     private Request $request;
 
-    public function __construct(Environment $twig, FilmListRepository $filmListRepository, Request $request)
+    public function __construct(Environment $twig, TitleListRepository $titleListRepository, Request $request)
     {
         $this->twig = $twig;
-        $this->filmListRepository = $filmListRepository;
+        $this->titleListRepository = $titleListRepository;
         $this->request = $request;
     }
 
     public function home(): void
     {
-        $popular = $this->filmListRepository->findBySection('popular', 4);
+        $popular = $this->titleListRepository->findBySection('popular', 4);
         $dailyReview = [
             'title'       => 'Dune: Part Two',
             'year'        => '2024',

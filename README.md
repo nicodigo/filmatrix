@@ -96,7 +96,7 @@ La aplicación estará disponible en `http://localhost:8000`.
 
 4. (Opcional) poblar DB desde tmdb:
 ```bash
-docker compose exec app php bin/sync_film_lists.php --section=popular --pages=3
+docker compose exec app php bin/sync-titles.php --section=popular --pages=3
 ```
 
 

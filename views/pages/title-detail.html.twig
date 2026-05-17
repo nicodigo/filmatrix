@@ -5,16 +5,13 @@
 {% block description %}Información, reparto y reseñas de la película en Filmatrix.{% endblock %}
 
 {% block styles %}
-  <link rel="stylesheet" href="/assets/css/movie-card.css">
-  <link rel="stylesheet" href="/assets/css/detalle_pelicula.css">
+  <link rel="stylesheet" href="/assets/css/title-card.css">
+  <link rel="stylesheet" href="/assets/css/title-detail.css">
 {% endblock %}
 
 {% block main_class %}detalle-main{% endblock %}
 
 {% block content %}
-  <!-- ══════════════════════════════════
-       PORTADA + TÍTULO
-  ══════════════════════════════════════ -->
   <section class="detalle-hero">
     <div class="detalle-hero__poster-wrap">
       <img
@@ -34,9 +31,6 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════
-       SINOPSIS / VALORACIÓN / GÉNERO
-  ══════════════════════════════════════ -->
   <section class="detalle-info-section">
     <div class="detalle-info-grid">
       <div class="detalle-sinopsis">
@@ -79,6 +73,7 @@
       </div>
     </div>
   </section>
+
   <section class="detalle-reparto-section">
     <h2 class="detalle-section-label">Reparto</h2>
     <div class="reparto-grid">
@@ -176,7 +171,7 @@
       <h2 class="detalle-section-label">Tal vez te interese</h2>
       <div class="sugeridas-lista">
         {% for sug in suggested %}
-          <a href="/movie?tmdb_id={{ sug.tmdb_id }}" class="sugerida-item">
+          <a href="/titles?tmdb_id={{ sug.tmdb_id }}" class="sugerida-item">
             <img
               class="sugerida-item__poster"
               src="{{ sug.poster_url|default('/assets/img/hero-bg.webp') }}"
