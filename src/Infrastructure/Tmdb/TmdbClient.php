@@ -119,14 +119,6 @@ class TmdbClient
         return $this->request('/genre/movie/list');
     }
 
-    public function searchMovies(string $query, int $page = 1): array
-    {
-        return $this->request('/search/movie', [
-            'query' => $query,
-            'page' => $page,
-        ]);
-    }
-
     public function getNowPlaying(int $page = 1): array
     {
         $startDate = date('Y-m-d', strtotime('-30 days'));
