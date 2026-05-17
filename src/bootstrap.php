@@ -54,14 +54,6 @@ $connectionBuilder = new ConnectionBuilder();
 $connectionBuilder->setLogger($log_app);
 $connection = $connectionBuilder->make($config);
 
-// twig
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
-
-$twig = new \Twig\Environment($loader, [
-    'cache' => __DIR__ . '/../cache/twig',
-    'auto_reload' => true,  // recompila si la vista cambió
-    'debug' => true,        // false en producción
-]);
 
 session_name('FILMATRIX_SESSION');
 
@@ -75,6 +67,28 @@ session_set_cookie_params([
 ]);
 
 session_start();
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// twig
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
+
+$twig = new \Twig\Environment($loader, [
+    'cache' => __DIR__ . '/../cache/twig',
+    'auto_reload' => true,  // recompila si la vista cambió
+    'debug' => true,        // false en producción
+]);
+
+$twig->addGlobal('csrf_token', $_SESSION['csrf_token']);
+
+$twig->addGlobal('app', [
+    'user_logged_in' => !empty($_SESSION['user_id']),
+    'username' => $_SESSION['username'] ?? null,
+    'user_role' => $_SESSION['user_role'] ?? null,
+]);
+
 
 // Repositories
 $userRepository        = new UserRepository($connection);

@@ -129,6 +129,19 @@
   border-left-color: var(--accent);
 }
 
+.nav-menu-form{
+  display: contents;
+}
+
+.nav-menu-item--logout{
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+}
+
 /* ── Search toggle button (mobile only) ── */
 .search-toggle {
   display: flex;

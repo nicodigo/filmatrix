@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Core\Exceptions\InvalidValueFormatException;
 use App\Core\Exceptions\ReviewAlreadyExistException;
 use App\Models\Review;
 use App\Repository\ReviewRepository;
@@ -39,11 +40,23 @@ class ReviewService
         float $score,
         ?string $body = null
     ): int {
+        if ($titleId <= 0) {
+            throw new InvalidValueFormatException('El ID del título no es válido.');
+        }
+
+        if ($score < 1 || $score > 5) {
+            throw new InvalidValueFormatException(
+                'La puntuación debe estar entre 1 y 5.'
+            );
+        }
+
         $existing = $this->reviewRepository
             ->findByUserAndTitle($userId, $titleId);
 
         if ($existing !== null) {
-            throw new ReviewAlreadyExistException('El usuario ya escribió una reseña para esta película');
+            throw new ReviewAlreadyExistException(
+                'El usuario ya escribió una reseña para esta película.'
+            );
         }
 
         $body = trim($body) ?: null;
@@ -86,4 +99,3 @@ class ReviewService
         return $this->reviewRepository->findByTitleIdWithAuthorUsername($titleId);
     }
 }
-

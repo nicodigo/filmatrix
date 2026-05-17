@@ -17,8 +17,17 @@
     {# ── Main navigation (hidden on mobile, visible on desktop) ── #}
     <nav class="nav-menu" id="main-menu" aria-label="Navegación principal">
       <a href="/films" class="nav-menu-item">Películas</a>
-      <a href="/login" class="nav-menu-item">Iniciar Sesión</a>
-      <a href="/register" class="nav-menu-item">Registrarme</a>
+
+      {% if app.user_logged_in %}
+        <a href="/profile" class="nav-menu-item">Mi Perfil</a>
+        <form action="/logout" method="POST" class="nav-menu-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="nav-menu-item nav-menu-item--logout">Cerrar Sesión</button>
+        </form>
+      {% else %}
+        <a href="/login" class="nav-menu-item">Iniciar Sesión</a>
+        <a href="/register" class="nav-menu-item">Registrarme</a>
+      {% endif %}
     </nav>
 
     {# ── Search toggle button (mobile only) ── #}

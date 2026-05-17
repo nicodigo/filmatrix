@@ -29,11 +29,11 @@ class Router
     {
         $this->twig = $twig;
 
-        $this->get($this->notFound, function() {
+        $this->get($this->notFound, function () {
             $controller = new \App\Controllers\ErrorController($this->twig);
             $controller->notFound();
         });
-        $this->get($this->internalError, function() {
+        $this->get($this->internalError, function () {
             $controller = new \App\Controllers\ErrorController($this->twig);
             $controller->internalError();
         });
@@ -54,6 +54,11 @@ class Router
                 );
 
             $action = $this->getAction($path, $http_method);
+
+            if (isset($http_method) && ($http_method === 'POST')) {
+                $this->verifyCsrfToken($request);
+            }
+
             $this->logger
                 ->info(
                     'Status Code: 200 OK',
@@ -75,7 +80,12 @@ class Router
                 ['ERROR' => $e],
             );
         } finally {
+
             $this->call($action);
+
+            if (isset($http_method) && ($http_method === 'POST')) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            }
         }
     }
 
@@ -110,5 +120,18 @@ class Router
     public function routeExists($path, $http_method): bool
     {
         return (array_key_exists($path, $this->routes[$http_method]));
+    }
+
+    private function verifyCsrfToken(Request $request): void
+    {
+        $submitted = $request->post('csrf_token');
+        $stored = $request->session('csrf_token') ?? '';
+
+        if ($submitted !== $stored) {
+            http_response_code(419);
+            echo 'sesión expirada, recarga la página e intenta nuevamente';
+            $this->logger->error('Status Code: 419 - Page Expired');
+            exit;
+        }
     }
 }

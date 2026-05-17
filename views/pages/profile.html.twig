@@ -37,6 +37,7 @@
     <a href="/profile/edit" class="perfil-btn perfil-btn--primary">Editar perfil</a>
 
     <form action="/logout" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <button type="submit" class="perfil-btn perfil-btn--danger">Cerrar sesión</button>
     </form>
   </section>

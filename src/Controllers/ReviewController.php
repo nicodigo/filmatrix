@@ -17,6 +17,7 @@
  */
 namespace App\Controllers;
 
+use App\Core\Exceptions\InvalidValueFormatException;
 use App\Core\Exceptions\ReviewAlreadyExistException;
 use App\Core\Request;
 use App\Services\ReviewService;
@@ -49,11 +50,35 @@ class ReviewController
         $body = $this->request->post('review_body', '');
         $tmdbId = $this->request->post('tmdb_id');
 
+        // Controller-level input validation
+        $error = null;
+
+        if (!$titleId || !is_numeric($titleId) || (int) $titleId <= 0) {
+            $error = 'El título seleccionado no es válido.';
+        } elseif (!$score || !is_numeric($score) || (float) $score < 1 || (float) $score > 5) {
+            $error = 'La puntuación debe ser un número entre 1 y 5.';
+        }
+
+        if ($error) {
+            $this->request->setSession('flash_error', $error);
+            header("Location: /movie?tmdb_id={$tmdbId}");
+            exit;
+        }
 
         try {
-            $this->reviewService->createReview($userId, $titleId, $score, $body);
+            $this->reviewService->createReview(
+                (int) $userId,
+                (int) $titleId,
+                (float) $score,
+                $body
+            );
         } catch (ReviewAlreadyExistException) {
-            $this->request->setSession('flash_error', 'Ya escribiste una reseña para esta película');
+            $this->request->setSession(
+                'flash_error',
+                'Ya escribiste una reseña para esta película.'
+            );
+        } catch (InvalidValueFormatException $e) {
+            $this->request->setSession('flash_error', $e->getMessage());
         } finally {
             header("Location: /movie?tmdb_id={$tmdbId}");
             exit;

@@ -120,6 +120,7 @@
     </label>
     <div class="resena-form-wrap">
       <form class="resena-form" action="/review/post" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <input type="hidden" name="title_id" value="{{ title.id }}">
         <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
         <div class="resena-form__stars" role="group" aria-label="Puntuación">
