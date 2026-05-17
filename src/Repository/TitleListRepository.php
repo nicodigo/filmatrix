@@ -22,9 +22,6 @@
  *     un título específico. Usado para mostrar sugerencias en el detalle
  *     de una película.
  *
- *   findAllByPopularity(limit)
- *     Retorna hasta $limit títulos de la sección 'popular', ordenados
- *     por posición. Incluye promedio de score de reseñas visibles.
  *
  * DEPENDENCIAS:
  *   PDO — conexión a la base de datos.
@@ -122,31 +119,4 @@ class TitleListRepository
         return $rows ?: [];
     }
 
-    public function findAllByPopularity(int $limit): array
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT
-                 t.id,
-                 t.tmdb_id,
-                 t.title,
-                 t.poster_url,
-                 t.release_year,
-                 COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
-                 cl.position
-             FROM title_lists cl
-             JOIN titles t ON t.id = cl.title_id
-             LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
-             WHERE cl.section = \'popular\'
-             GROUP BY t.id, t.tmdb_id, t.title, t.poster_url, t.release_year, cl.position
-             ORDER BY cl.position ASC
-             LIMIT :limit'
-        );
-
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $rows ?: [];
-    }
 }

@@ -14,7 +14,7 @@ class TitleService
     private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
     private LoggerInterface $logger;
-    private const string TITLE_CACHE_TTL = '30 days';
+    private const int TITLE_CACHE_TTL = 30; //days
 
     public function __construct(
         TitleRepository $titleRepository,
@@ -35,24 +35,10 @@ class TitleService
         $title = $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
 
         if ($title === null) {
-            $this->syncTitleWithTmdb($tmdbId);
+            $title = $this->syncTitleWithTmdb($tmdbId);
         }
 
         return $title;
-    }
-
-    /* =========================
-       DETAIL HELPERS
-    ========================= */
-
-    public function getTitleGenres(int $titleId): array
-    {
-        return $this->titleRepository->findGenresByTitleId($titleId);
-    }
-
-    public function getTitleCast(int $titleId): array
-    {
-        return $this->titleRepository->findCastByTitleId($titleId);
     }
 
     /* =========================
@@ -143,7 +129,13 @@ class TitleService
 
         $this->logger->info('Title synced', ['tmdb_id' => $tmdbId]);
 
-        return $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
+        $title = $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
+
+        if ($title === null) {
+            throw new \RuntimeException("Título sincronizado, pero no encontrado en la db: {$tmdbId}");
+        }
+
+        return $title;
     }
 
     public function syncGenres(): void

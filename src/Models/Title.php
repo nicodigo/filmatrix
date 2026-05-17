@@ -98,11 +98,6 @@ class Title
         return $this->durationMinutes;
     }
 
-    public function getTmdbRating(): ?float
-    {
-        return $this->tmdbRating;
-    }
-
     public function getAvgScore(): ?float
     {
         return $this->avgScore;
@@ -165,11 +160,6 @@ class Title
         $this->durationMinutes = $durationMinutes;
     }
 
-    public function setTmdbRating(?float $tmdbRating): void
-    {
-        $this->tmdbRating = $tmdbRating;
-    }
-
     public function setAvgScore(?float $avgScore): void
     {
         $this->avgScore = $avgScore;
@@ -207,9 +197,6 @@ class Title
             isset($data['duration_minutes'])
                 ? (int) $data['duration_minutes']
                 : null,
-            isset($data['tmdb_rating'])
-                ? (float) $data['tmdb_rating']
-                : null,
             isset($data['avg_score'])
                 ? (float) $data['avg_score']
                 : null,
@@ -230,7 +217,6 @@ class Title
             'release_year' => $this->releaseYear,
             'language' => $this->language,
             'duration_minutes' => $this->durationMinutes,
-            'tmdb_rating' => $this->tmdbRating,
             'avg_score' => $this->avgScore,
             'cached_at' => $this->cachedAt,
         ];

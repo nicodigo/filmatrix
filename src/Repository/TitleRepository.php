@@ -59,7 +59,7 @@ class TitleRepository
         $this->pdo = $pdo;
     }
 
-    public function findByTmdbId(int $tmdbId, string $ttl): ?Title
+    public function findByTmdbId(int $tmdbId, int $ttl_days): ?Title
     {
         $stmt = $this->pdo->prepare(
             "SELECT
@@ -69,13 +69,14 @@ class TitleRepository
              LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
              WHERE t.tmdb_id = :tmdb_id
-             AND t.cached_at > NOW() - INTERVAL '{$ttl}'
+             AND t.cached_at > NOW() - MAKE_INTERVAL(days := :ttl_days)
              GROUP BY t.id
              LIMIT 1"
         );
 
         $stmt->execute([
             ':tmdb_id' => $tmdbId,
+            ':ttl_days' => $ttl_days,
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -88,10 +89,10 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             'INSERT INTO titles
                 (tmdb_id, type, title, synopsis, poster_url, trailer_url,
-                 release_year, language, duration_minutes, tmdb_rating, cached_at)
+                 release_year, language, duration_minutes, cached_at)
              VALUES
                 (:tmdb_id, :type, :title, :synopsis, :poster_url, :trailer_url,
-                 :release_year, :language, :duration_minutes, :tmdb_rating, NOW())
+                 :release_year, :language, :duration_minutes, NOW())
              ON CONFLICT (tmdb_id)
              DO UPDATE SET
                 type = EXCLUDED.type,
@@ -102,7 +103,6 @@ class TitleRepository
                 release_year = EXCLUDED.release_year,
                 language = EXCLUDED.language,
                 duration_minutes = EXCLUDED.duration_minutes,
-                tmdb_rating = EXCLUDED.tmdb_rating,
                 cached_at = NOW()
              RETURNING id'
         );
@@ -117,7 +117,6 @@ class TitleRepository
             ':release_year' => $title->getReleaseYear(),
             ':language' => $title->getLanguage(),
             ':duration_minutes' => $title->getDurationMinutes(),
-            ':tmdb_rating' => $title->getTmdbRating(),
         ]);
 
         return (int) $stmt->fetchColumn();
@@ -204,7 +203,6 @@ class TitleRepository
             'SELECT
                 p.id,
                 p.name,
-                p.profile_url,
                 tc.role,
                 tc.character_name,
                 tc.billing_order

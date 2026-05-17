@@ -49,7 +49,6 @@ final class CreateFilmatrixSchema extends AbstractMigration
                   ->addColumn('release_year', 'smallinteger', ['null' => true])
                   ->addColumn('language', 'string', ['limit' => 10, 'null' => true])
                   ->addColumn('duration_minutes', 'smallinteger', ['null' => true])
-                  ->addColumn('tmdb_rating', 'decimal', ['precision' => 3, 'scale' => 1, 'null' => true])
                   ->addColumn('cached_at', 'datetime', ['null' => false])
                   ->addIndex('tmdb_id', ['unique' => true])
                   ->create();

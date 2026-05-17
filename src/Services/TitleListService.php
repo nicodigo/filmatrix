@@ -74,11 +74,6 @@ class TitleListService
         return $this->titleListRepository->findSuggested($excludeTitleId, $limit);
     }
 
-    public function findAllByPopularity(int $limit): array
-    {
-        return $this->titleListRepository->findAllByPopularity($limit);
-    }
-
     public function findBySection(string $section, int $limit): array
     {
         return $this->titleListRepository->findBySection($section, $limit);

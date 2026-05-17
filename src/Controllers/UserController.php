@@ -39,6 +39,7 @@ use App\Core\Exceptions\UsernameAlreadyExistsException;
 use App\Core\Request;
 use App\Services\AuthService;
 use App\Services\UserService;
+use Exception;
 use Twig\Environment;
 
 class UserController
@@ -226,11 +227,8 @@ class UserController
         $userId = $this->authService->getCurrentUserId();
         $user = $this->userService->getUserById($userId);
 
-        $username           = trim($this->request->post('username', ''));
-        $email            = trim($this->request->post('email', ''));
-        $currentPassword  = $this->request->post('current_password', '');
-        $newPassword   = $this->request->post('new_password', '');
-        $confirmPassword = $this->request->post('confirm_password', '');
+        $username = trim($this->request->post('username', ''));
+        $email = trim($this->request->post('email', ''));
 
         $error = '';
         $success = '';
@@ -239,38 +237,68 @@ class UserController
             $error = 'El nombre y el email son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El email no es válido.';
-        } elseif (!empty($newPassword) && strlen($newPassword) < 8) {
-            $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
-        } elseif (!empty($newPassword) && $newPassword !== $confirmPassword) {
-            $error = 'Las contraseñas no coinciden.';
         } else {
             try {
-                $this->userService->assertEmailNotTaken($email, $userId);
-                if (!empty($newPassword)) {
-                    $this->userService->updateProfileWithPassword(
-                        $userId,
-                        $username,
-                        $email,
-                        $currentPassword,
-                        $newPassword
-                    );
-                } else {
-                    $this->userService->updateProfile($userId, $username, $email);
-                }
-
-                $this->request->setSession('username', $username);
+                $this->userService->updateProfile($userId, $username, $email);
                 $success = 'Perfil actualizado correctamente.';
-                $user = $this->userService->getUserById($userId);
-            } catch (EmailAlreadyTakenException $e) {
-                $error = $e->getMessage();
-            } catch (InvalidPasswordException $e) {
-                $error = $e->getMessage();
-            } catch (UserNotFoundException $e) {
+            } catch (Exception $e) {
                 $error = $e->getMessage();
             }
         }
 
         echo $this->twig->render('pages/edit-profile.html.twig', [
+            'user'    => $user,
+            'error'   => $error,
+            'success' => $success,
+        ]);
+    }
+
+    public function updatePassword()
+    {
+
+        $userId = $this->authService->getCurrentUserId();
+        $user = $this->userService->getUserById($userId);
+
+        $currentPassword  = $this->request->post('current_password', '');
+        $newPassword   = $this->request->post('new_password', '');
+        $confirmPassword = $this->request->post('confirm_password', '');
+
+
+        $error = '';
+        $success = '';
+
+        if (empty($newPassword) || empty($currentPassword) || empty($confirmPassword)) {
+            $error = 'Todos los campos son obligatorios.';
+        } elseif (strlen($newPassword) < 8) {
+            $error = 'La nueva contraseña debe tener al menos 8 caracteres.';
+        } elseif ($newPassword !== $confirmPassword) {
+            $error = 'Las contraseñas no coinciden.';
+        } else {
+            try {
+                $this->userService->updatePassword($userId, $currentPassword, $newPassword);
+                $success = 'Contraseña actualizado correctamente.';
+            } catch (Exception $e) {
+                $error = $e->getMessage();
+            }
+        }
+
+        echo $this->twig->render('pages/change-password.html.twig', [
+            'user'    => $user,
+            'error'   => $error,
+            'success' => $success,
+        ]);
+    }
+
+
+    public function getUpdatePassword()
+    {
+        $userId = $this->authService->getCurrentUserId();
+        $user = $this->userService->getUserById($userId);
+
+        $error = '';
+        $success = '';
+
+        echo $this->twig->render('pages/change-password.html.twig', [
             'user'    => $user,
             'error'   => $error,
             'success' => $success,

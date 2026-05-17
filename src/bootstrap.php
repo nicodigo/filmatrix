@@ -98,6 +98,7 @@ $reviewRepository       = new ReviewRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
+$tmdbClient->setLogger($log_app);
 
 // Services
 $authService    = new AuthService($userRepository, $log_app);
@@ -167,4 +168,6 @@ $router->get('/register', fn() => $makeUserCtrl()->register());
 $router->post('/register', fn() => $makeUserCtrl()->handleRegister());
 $router->get('/profile/edit', $protegida(fn() => $makeUserCtrl()->editProfile()));
 $router->post('/profile/edit', $protegida(fn() => $makeUserCtrl()->updateProfile()));
+$router->post('/profile/password', $protegida(fn() => $makeUserCtrl()->updatePassword()));
+$router->get('/profile/password', $protegida(fn() => $makeUserCtrl()->getUpdatePassword()));
 $router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()));

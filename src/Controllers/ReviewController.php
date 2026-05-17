@@ -42,11 +42,6 @@ class ReviewController
     {
         $userId = $this->request->session('user_id');
 
-        if (!$userId) {
-            header('Location: /login');
-            exit;
-        }
-
         $titleId = $this->request->post('title_id');
         $score = $this->request->post('score');
         $body = $this->request->post('review_body', '');
@@ -63,7 +58,7 @@ class ReviewController
 
         if ($error) {
             $this->request->setFlash('error', $error);
-            header("Location: /movie?tmdb_id={$tmdbId}");
+            header("Location: /titles/detail?tmdb_id={$tmdbId}");
             exit;
         }
 
@@ -82,7 +77,7 @@ class ReviewController
         } catch (InvalidValueFormatException $e) {
             $this->request->setFlash('error', $e->getMessage());
         } finally {
-            header("Location: /movie?tmdb_id={$tmdbId}");
+            header("Location: /titles/detail?tmdb_id={$tmdbId}");
             exit;
         }
     }

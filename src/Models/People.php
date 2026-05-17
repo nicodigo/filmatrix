@@ -13,7 +13,6 @@ class People
         ?int $id,
         int $tmdbPersonId,
         string $name,
-        ?string $profileUrl,
         string $cachedAt
     ) {
         $this->id = $id;
@@ -28,7 +27,6 @@ class People
             isset($data['id']) ? (int) $data['id'] : null,
             (int) $data['tmdb_person_id'],
             $data['name'],
-            $data['profile_url'] ?? null,
             $data['cached_at']
         );
     }

@@ -64,12 +64,6 @@
           <span class="detalle-dato__label">Idioma original</span>
           <span class="detalle-dato__val">{{ title.language|upper|default('S/D') }}</span>
         </div>
-        {% if title.tmdbRating %}
-          <div class="detalle-dato">
-            <span class="detalle-dato__label">Rating TMDB</span>
-            <span class="detalle-dato__val">{{ title.tmdbRating|number_format(1) }} / 10</span>
-          </div>
-        {% endif %}
       </div>
     </div>
   </section>
@@ -82,12 +76,6 @@
       {% else %}
         {% for actor in cast %}
           <div class="reparto-card">
-            <div class="reparto-card__foto-wrap">
-              <img
-                class="reparto-card__foto"
-                src="{{ actor.profile_url|default('/assets/img/hero-bg.webp') }}"
-                alt="Foto de {{ actor.name }}">
-            </div>
             <span class="reparto-card__nombre">{{ actor.name }}</span>
             <span class="reparto-card__rol">{{ actor.character_name|default(actor.role) }}</span>
           </div>
@@ -171,7 +159,7 @@
       <h2 class="detalle-section-label">Tal vez te interese</h2>
       <div class="sugeridas-lista">
         {% for sug in suggested %}
-          <a href="/titles?tmdb_id={{ sug.tmdb_id }}" class="sugerida-item">
+          <a href="/titles/detail?tmdb_id={{ sug.tmdb_id }}" class="sugerida-item">
             <img
               class="sugerida-item__poster"
               src="{{ sug.poster_url|default('/assets/img/hero-bg.webp') }}"
