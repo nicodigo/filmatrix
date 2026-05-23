@@ -1,0 +1,179 @@
+
+<style>
+  .bl { font-family: var(--font-mono); font-size: 13px; padding: 1.5rem 0; }
+  .section { margin-bottom: 2rem; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .task { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: start; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .task:last-child { border-bottom: none; }
+  .task-num { font-size: 11px; color: var(--color-text-tertiary); padding-top: 1px; }
+  .task-body { display: flex; flex-direction: column; gap: 2px; }
+  .task-name { font-size: 13px; color: var(--color-text-primary); font-weight: 400; line-height: 1.4; }
+  .task-name.done { color: var(--color-text-tertiary); text-decoration: line-through; }
+  .task-sub { font-size: 11px; color: var(--color-text-tertiary); line-height: 1.5; }
+  .task-sub.done { text-decoration: line-through; }
+  .layer { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 4px; white-space: nowrap; margin-top: 1px; align-self: start; }
+  .be { background: #0C447C; color: #B5D4F4; }
+  .fe { background: #27500A; color: #C0DD97; }
+  .both { background: #3C3489; color: #CECBF6; }
+  .db { background: #633806; color: #FAC775; }
+
+  @media (prefers-color-scheme: light) {
+    .be { background: #E6F1FB; color: #0C447C; }
+    .fe { background: #EAF3DE; color: #27500A; }
+    .both { background: #EEEDFE; color: #3C3489; }
+    .db { background: #FAEEDA; color: #633806; }
+  }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 4px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+  .filter-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); }
+  .count { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 1rem; }
+</style>
+
+<div class="bl">
+  <h2 class="sr-only">Filmatrix — backlog completo ordenado por dependencias</h2>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all')">Todas</button>
+    <button class="filter-btn" onclick="filter('done')">Completadas</button>
+    <button class="filter-btn" onclick="filter('pending')">Pendientes</button>
+    <button class="filter-btn" onclick="filter('BE')">Backend</button>
+    <button class="filter-btn" onclick="filter('FE')">Frontend</button>
+    <button class="filter-btn" onclick="filter('FULL')">Ambas capas</button>
+    <button class="filter-btn" onclick="filter('DB')">DB</button>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="backlog"></div>
+</div>
+
+<script>
+const tasks = [
+  { id:1, group:"Infraestructura", name:"Docker + Apache + PHP 8.4", sub:"Dockerfile, docker-compose, entrypoint.sh, apache.conf", layer:"BE", done:true },
+  { id:2, group:"Infraestructura", name:"Variables de entorno y configuración base", sub:".env.example, Config.php, phpdotenv", layer:"BE", done:true },
+  { id:3, group:"Infraestructura", name:"Router y Front Controller", sub:"Router.php, index.php, .htaccess, Request.php", layer:"BE", done:true },
+  { id:4, group:"Infraestructura", name:"Sistema de logging", sub:"Monolog, Loggable trait", layer:"BE", done:true },
+  { id:5, group:"Infraestructura", name:"Motor de templates Twig", sub:"main.html.twig, layout base, partials header/footer", layer:"BE", done:true },
+  { id:6, group:"Infraestructura", name:"Design system y estilos base", sub:"base.css, header.css, footer.css, design system HTML de referencia", layer:"FE", done:true },
+
+  { id:7, group:"Base de datos", name:"Migración: schema principal", sub:"users, genres, people, titles, title_genres, title_cast, reviews, watchlist_items, discarded_titles, user_genre_preferences, featured_titles", layer:"DB", done:true },
+  { id:8, group:"Base de datos", name:"Migración: listas de títulos por sección TMDB", sub:"films_lists → renombrado a title_lists", layer:"DB", done:true },
+  { id:9, group:"Base de datos", name:"Migración: listas de usuario", sub:"lists, list_items — schema existente, sin capa de aplicación (postergado a entrega final)", layer:"DB", done:true },
+
+  { id:10, group:"Integración TMDB", name:"TmdbClient — proxy y autenticación", sub:"cURL hacia /movie, /genre, /discover. Token Bearer, locale AR", layer:"BE", done:true },
+  { id:11, group:"Integración TMDB", name:"Caché de títulos en BD", sub:"TTL 30 días, sync bajo demanda desde TitleService", layer:"BE", done:true },
+  { id:12, group:"Integración TMDB", name:"Sync de géneros desde TMDB", sub:"GenreService + GenreRepository", layer:"BE", done:true },
+  { id:13, group:"Integración TMDB", name:"Sync de cast y directores (top 10)", sub:"PeopleService + PeopleRepository, title_cast", layer:"BE", done:true },
+  { id:14, group:"Integración TMDB", name:"CLI sync-titles.php", sub:"Sincroniza secciones now_playing y popular desde shell", layer:"BE", done:true },
+
+  { id:15, group:"Autenticación", name:"AuthService: registro y login", sub:"password_hash, verificación, manejo de sesión", layer:"BE", done:true },
+  { id:16, group:"Autenticación", name:"Seguridad de cookies y CSRF", sub:"samesite=Lax, httponly, token CSRF en bootstrap.php", layer:"BE", done:true },
+  { id:17, group:"Autenticación", name:"AuthMiddleware", sub:"Protección de rutas privadas", layer:"BE", done:true },
+  { id:18, group:"Autenticación", name:"Vistas login y register", sub:"login.html.twig, register.html.twig, auth.css", layer:"FE", done:true },
+  { id:19, group:"Autenticación", name:"Rutas GET/POST /login, /register, /logout", sub:"UserController@login/handleLogin/register/handleRegister/logout", layer:"BE", done:true },
+
+  { id:20, group:"Catálogo", name:"TitleRepository y TitleService", sub:"Queries locales, sync on demand", layer:"BE", done:true },
+  { id:21, group:"Catálogo", name:"Vista /titles — grilla de películas", sub:"titles.html.twig, title-card.css, macro title-cards.html.twig", layer:"FE", done:true },
+  { id:22, group:"Catálogo", name:"Filtros de catálogo — UI", sub:"Por género, año, idioma, valoración. Formulario con JS vanilla", layer:"FE", done:false },
+  { id:23, group:"Catálogo", name:"Filtros de catálogo — backend", sub:"TitleController@index recibe parámetros y consulta BD/TMDB según filtros", layer:"BE", done:false },
+  { id:24, group:"Catálogo", name:"Búsqueda de títulos — UI", sub:"SearchToggle.js ya existe. Falta página de resultados /titles?q=...", layer:"FE", done:false },
+  { id:25, group:"Catálogo", name:"Búsqueda de títulos — backend", sub:"TitleController endpoint de búsqueda, proxy a TMDB /search/movie", layer:"BE", done:false },
+
+  { id:26, group:"Detalle de título", name:"TitleController@show — datos completos", sub:"Cast, géneros, trailer, score comunitario, reseñas", layer:"BE", done:true },
+  { id:27, group:"Detalle de título", name:"Vista title-detail.html.twig", sub:"Poster, sinopsis, reparto, trailer embebido, reseñas, form de reseña", layer:"FE", done:true },
+
+  { id:28, group:"Reseñas", name:"Review model + ReviewRepository", sub:"CRUD: save, update, delete, findByTitle, findByUser", layer:"BE", done:true },
+  { id:29, group:"Reseñas", name:"ReviewService — validación y score comunitario", sub:"Rating 1–5, ReviewAlreadyExistException, promedio calculado en servidor", layer:"BE", done:true },
+  { id:30, group:"Reseñas", name:"POST /review/post", sub:"ReviewController@postReview, flash errors, auth guard", layer:"BE", done:true },
+  { id:31, group:"Reseñas", name:"Editar y eliminar reseña propia — backend", sub:"PUT/DELETE rutas, ReviewController@update y @delete", layer:"BE", done:false },
+  { id:32, group:"Reseñas", name:"Editar y eliminar reseña propia — UI", sub:"Botones condicionales en title-detail si el usuario ya reseñó", layer:"FE", done:false },
+
+  { id:33, group:"Perfil de usuario", name:"Rutas /profile — ver, editar, cambiar contraseña", sub:"UserController@profile/editProfile/updateProfile/getUpdatePassword/updatePassword", layer:"BE", done:true },
+  { id:34, group:"Perfil de usuario", name:"Vistas profile, edit-profile, change-password", sub:"Twig templates existentes", layer:"FE", done:true },
+  { id:35, group:"Perfil de usuario", name:"Estadísticas de perfil — backend", sub:"Conteo real de reseñas, géneros más vistos, horas totales, racha de actividad. Queries agregadas en UserService", layer:"BE", done:false },
+  { id:36, group:"Perfil de usuario", name:"Estadísticas de perfil — UI", sub:"Reemplazar valores hardcodeados (0) en profile.html.twig con datos reales del servidor", layer:"FE", done:false },
+  { id:37, group:"Perfil de usuario", name:"Vista pública /user/{username}", sub:"Ruta GET pública. Muestra datos públicos: reseñas, watchlist pública. Distinta de /profile", layer:"FULL", done:false },
+
+  { id:38, group:"Home", name:"PageController@home + vista home.html.twig", sub:"Hero, destacados curados, tendencias de TMDB, reseñas recientes", layer:"FULL", done:true },
+  { id:39, group:"Home", name:"Gestión de featured_titles — backend admin", sub:"TitleController o AdminController para CRUD de destacados. Tabla featured_titles ya existe en BD", layer:"BE", done:false },
+
+  { id:40, group:"Watchlist", name:"WatchlistRepository", sub:"findByUser, add, updateStatus, discard, remove. Tablas watchlist_items y discarded_titles ya existen", layer:"BE", done:false },
+  { id:41, group:"Watchlist", name:"WatchlistService — máquina de estados", sub:"Transiciones válidas: pending→watching→watched. Validación en servidor. Sin saltos de estado inválidos", layer:"BE", done:false },
+  { id:42, group:"Watchlist", name:"Rutas watchlist — CRUD", sub:"POST /watchlist/add, POST /watchlist/status, POST /watchlist/discard, DELETE /watchlist/remove. Auth guard en todas", layer:"BE", done:false },
+  { id:43, group:"Watchlist", name:"Vista /user/{username}/watchlist", sub:"Lista con estado (pending/watching/watched), accesible desde /profile y desde perfil público", layer:"FE", done:false },
+  { id:44, group:"Watchlist", name:"Botón 'Agregar a watchlist' en detalle de título", sub:"Condicional según estado actual del título para el usuario. JS fetch hacia rutas watchlist", layer:"FE", done:false },
+  { id:45, group:"Watchlist", name:"Actualización del perfil de gustos al marcar 'visto'", sub:"WatchlistService dispara actualización de user_genre_preferences al cambiar estado a 'watched'", layer:"BE", done:false },
+
+  { id:46, group:"Recomendaciones", name:"Lógica de peso en user_genre_preferences", sub:"Función que incrementa/decrementa peso por género según watchlist (visto, descartado) y reseñas", layer:"BE", done:false },
+  { id:47, group:"Recomendaciones", name:"Motor de scoring — RecommendationService", sub:"Candidatos desde catálogo local. Score = suma de pesos de géneros del título para el usuario. Excluir ya vistos y descartados", layer:"BE", done:false },
+  { id:48, group:"Recomendaciones", name:"Ruta GET /recommendations", sub:"RecommendationController@index, auth guard, devuelve top N títulos rankeados", layer:"BE", done:false },
+  { id:49, group:"Recomendaciones", name:"Vista /recommendations", sub:"Grilla de sugerencias. Botón 'no me interesa' que descarta y refresca", layer:"FE", done:false },
+  { id:50, group:"Recomendaciones", name:"Descarte desde recomendaciones", sub:"POST /recommendations/discard → escribe en discarded_titles → recalcula lista", layer:"FULL", done:false },
+
+  { id:51, group:"Panel admin", name:"AdminMiddleware — protección por rol", sub:"Verifica user.role === 'admin'. Reutiliza patrón de AuthMiddleware", layer:"BE", done:false },
+  { id:52, group:"Panel admin", name:"Rutas y controlador admin", sub:"GET/POST /admin, /admin/reviews, /admin/stats. AdminController", layer:"BE", done:false },
+  { id:53, group:"Panel admin", name:"Gestión de títulos destacados — admin UI", sub:"Vista para agregar/quitar/reordenar featured_titles", layer:"FE", done:false },
+  { id:54, group:"Panel admin", name:"Moderación de reseñas — admin UI", sub:"Lista de reseñas flagged (is_flagged=true). Aprobar (is_visible=true) o eliminar", layer:"FE", done:false },
+  { id:55, group:"Panel admin", name:"Métricas administrativas", sub:"Usuarios registrados, reseñas totales, títulos en watchlists. Queries agregadas", layer:"FULL", done:false },
+
+  { id:56, group:"Entrega final", name:"Listas de usuario — WatchlistList/ListItemRepository", sub:"CRUD sobre tablas lists y list_items. Servicio + rutas + vistas", layer:"FULL", done:false },
+  { id:57, group:"Entrega final", name:"Vista pública de listas /user/{username}/lists/{id}", sub:"Listas marcadas como is_public visibles sin autenticación", layer:"FE", done:false },
+  { id:58, group:"Entrega final", name:"'Remember me' — token persistente", sub:"TODO marcado en .env.example. Cookie de larga duración con token en BD", layer:"BE", done:false },
+  { id:59, group:"Entrega final", name:"Refactor PageController → FilmSyncService", sub:"TODO marcado en PageController.php. Eliminar dependencia directa del repositorio", layer:"BE", done:false },
+  { id:60, group:"Entrega final", name:"Tests", sub:"Suite mínima sobre AuthService, ReviewService, WatchlistService, RecommendationService", layer:"BE", done:false },
+];
+
+const layerLabel = { BE:"Backend", FE:"Frontend", FULL:"Ambas capas", DB:"Base de datos" };
+const layerClass = { BE:"be", FE:"fe", FULL:"both", DB:"db" };
+
+let currentFilter = "all";
+
+function filter(f) {
+  currentFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  render();
+}
+
+function render() {
+  const f = currentFilter;
+  const filtered = tasks.filter(t => {
+    if(f === "all") return true;
+    if(f === "done") return t.done;
+    if(f === "pending") return !t.done;
+    if(f === "BE") return t.layer === "BE";
+    if(f === "FE") return t.layer === "FE";
+    if(f === "FULL") return t.layer === "FULL";
+    if(f === "DB") return t.layer === "DB";
+    return true;
+  });
+
+  document.getElementById("count").textContent = `${filtered.length} tarea${filtered.length !== 1 ? "s" : ""} · ${filtered.filter(t=>t.done).length} completadas`;
+
+  const groups = {};
+  filtered.forEach(t => {
+    if(!groups[t.group]) groups[t.group] = [];
+    groups[t.group].push(t);
+  });
+
+  let html = "";
+  Object.entries(groups).forEach(([g, ts]) => {
+    html += `<div class="section"><div class="section-title">${g}</div>`;
+    ts.forEach(t => {
+      html += `<div class="task">
+        <span class="task-num">${t.id}</span>
+        <div class="task-body">
+          <span class="task-name${t.done ? " done" : ""}">${t.name}</span>
+          <span class="task-sub${t.done ? " done" : ""}">${t.sub}</span>
+        </div>
+        <span class="layer ${layerClass[t.layer]}">${layerLabel[t.layer]}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById("backlog").innerHTML = html;
+}
+
+render();
+</script>
