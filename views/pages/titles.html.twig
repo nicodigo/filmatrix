@@ -42,13 +42,12 @@
           <label class="filter-label" for="filterGenre">Género</label>
           <select class="filter-select" id="filterGenre" name="genre">
             <option value="">Todos</option>
-            <option value="accion">Acción</option>
-            <option value="drama">Drama</option>
-            <option value="comedia">Comedia</option>
-            <option value="terror">Terror</option>
-            <option value="ciencia-ficcion">Ciencia Ficción</option>
-            <option value="animacion">Animación</option>
-            <option value="documental">Documental</option>
+            {% for genre in genres %}
+              <option value="{{ genre.id }}"
+                {% if active_filters.genre == genre.id %}selected{% endif %}>
+                {{ genre.name }}
+              </option>
+            {% endfor %}
           </select>
         </div>
         <div class="filter-group">
@@ -56,17 +55,31 @@
           <select class="filter-select" id="filterYear" name="year">
             <option value="">Todos</option>
             {% for y in range("now"|date("Y"), 1970) %}
-              <option value="{{ y }}">{{ y }}</option>
+              <option value="{{ y }}"
+                {% if active_filters.year == y %}selected{% endif %}>
+                {{ y }}
+              </option>
             {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="filterLanguage">Idioma</label>
+          <select class="filter-select" id="filterLanguage" name="language">
+            <option value="">Todos</option>
+            <option value="es" {% if active_filters.language == 'es' %}selected{% endif %}>Español</option>
+            <option value="en" {% if active_filters.language == 'en' %}selected{% endif %}>Inglés</option>
+            <option value="fr" {% if active_filters.language == 'fr' %}selected{% endif %}>Francés</option>
+            <option value="ja" {% if active_filters.language == 'ja' %}selected{% endif %}>Japonés</option>
+            <option value="ko" {% if active_filters.language == 'ko' %}selected{% endif %}>Coreano</option>
           </select>
         </div>
         <div class="filter-group">
           <label class="filter-label" for="filterScore">Puntaje mínimo</label>
           <select class="filter-select" id="filterScore" name="score">
             <option value="">Cualquiera</option>
-            <option value="4.5">★ 4.5+</option>
-            <option value="4">★ 4.0+</option>
-            <option value="3">★ 3.0+</option>
+            <option value="4.5" {% if active_filters.score == 4.5 %}selected{% endif %}>★ 4.5+</option>
+            <option value="4"   {% if active_filters.score == 4.0 %}selected{% endif %}>★ 4.0+</option>
+            <option value="3"   {% if active_filters.score == 3.0 %}selected{% endif %}>★ 3.0+</option>
           </select>
         </div>
       </div>

@@ -6,15 +6,33 @@
  * MÉTODOS:
  *   index()
  *     Renderiza el catálogo de títulos.
+ *
  *     FUNCIONAMIENTO:
  *       - Si existe un parámetro de búsqueda `q`, realiza una búsqueda
- *         de títulos mediante TitleService.
- *       - Si no hay búsqueda, obtiene los títulos de la sección
- *         "popular" usando TitleListService.
+ *         textual de títulos mediante TitleService.
+ *
+ *       - Si no hay búsqueda pero existen filtros activos, aplica filtros
+ *         combinables por:
+ *           · género
+ *           · año de estreno
+ *           · idioma
+ *           · score mínimo
+ *
+ *       - Si no hay búsqueda ni filtros, obtiene títulos de la sección
+ *         "popular" mediante TitleListService.
+ *
+ *     PARÁMETROS QUERY SOPORTADOS:
+ *       - q         → texto de búsqueda.
+ *       - genre    → ID de género.
+ *       - year     → año de estreno.
+ *       - language → idioma original.
+ *       - score    → score promedio mínimo.
  *
  *     DATOS ENVIADOS A LA VISTA:
- *       - titles        → listado de títulos a mostrar.
- *       - search_query  → texto buscado por el usuario.
+ *       - titles          → listado de títulos a mostrar.
+ *       - search_query    → texto buscado por el usuario.
+ *       - genres          → listado de géneros disponibles.
+ *       - active_filters  → filtros actualmente seleccionados.
  *
  *     Vista: views/pages/titles.html.twig
  *     Ruta: GET /titles
@@ -73,20 +91,40 @@ class TitleController
 
     public function index(): void
     {
-        $query = trim($this->request->get('q', ''));
+        $query    = trim($this->request->get('q', ''));
+        $genreId  = $this->request->get('genre')    ? (int)   $this->request->get('genre')    : null;
+        $year     = $this->request->get('year')     ? (int)   $this->request->get('year')     : null;
+        $language = $this->request->get('language') ? (string)$this->request->get('language') : null;
+        $minScore = $this->request->get('score')    ? (float) $this->request->get('score')    : null;
+
+        $hasFilters = $genreId || $year || $language || $minScore;
 
         if ($query !== '') {
             $titles = array_map(
                 fn($t) => $t->toArray(),
                 $this->titleService->search($query)
             );
+        } elseif ($hasFilters) {
+            $titles = array_map(
+                fn($t) => $t->toArray(),
+                $this->titleService->filter($genreId, $year, $language, $minScore)
+            );
         } else {
             $titles = $this->titleListService->findBySection('popular', 8);
         }
 
+        $genres = $this->genreService->getAll();
+
         echo $this->twig->render('pages/titles.html.twig', [
             'titles'       => $titles,
             'search_query' => $query,
+            'genres'       => $genres,
+            'active_filters' => [
+                'genre'    => $genreId,
+                'year'     => $year,
+                'language' => $language,
+                'score'    => $minScore,
+            ],
         ]);
     }
 

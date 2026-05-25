@@ -1,10 +1,12 @@
 import { NavMenu } from "./modules/NavMenu.js";
-import { SearchToggle } from "./modules/SearchToggle.js"
+import { SearchToggle } from "./modules/SearchToggle.js";
+import { CatalogFilters } from "./modules/CatalogFilters.js";
 
 const App = {
   init() {
-    const navMenu = new NavMenu();
-    const searchToggle = new SearchToggle();
+    new NavMenu();
+    new SearchToggle();
+    new CatalogFilters();
   },
 };
 

@@ -25,7 +25,7 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  margin-right: auto;  /* pushes toggles to the right on mobile */
+  margin-right: auto;
 }
 
 .header-logo img {
@@ -57,7 +57,6 @@
 }
 
 /* ── Main navigation (mobile sidebar) ── */
-/* Hidden off-canvas by default; slides in via .is-active */
 .nav-menu {
   position: fixed;
   top: 64px;
@@ -78,14 +77,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* When search bar is open, drop sidebar below it */
 .header-inner:has(.search-form.is-active) .nav-menu {
   top: 120px;
   height: calc(100vh - 120px);
   height: calc(100dvh - 120px);
 }
 
-/* Backdrop overlay (behind sidebar, above page content) */
 .nav-menu::before {
   content: '';
   position: fixed;
@@ -97,7 +94,6 @@
   pointer-events: none;
 }
 
-/* Active — slide sidebar in, show backdrop */
 .nav-menu.is-active {
   transform: translateX(0);
 }
@@ -129,17 +125,30 @@
   border-left-color: var(--accent);
 }
 
-.nav-menu-form{
+.nav-menu-form {
   display: contents;
 }
 
-.nav-menu-item--logout{
+.nav-menu-item--logout {
+  width: 100%;
   background: none;
   border: none;
+  border-left: 3px solid transparent;
   cursor: pointer;
-  font: inherit;
-  color: inherit;
-  padding: 0;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: 0 24px;
+  height: 48px;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-menu-item--logout:hover {
+  color: var(--text-primary);
+  background: var(--surface-el);
+  border-left-color: var(--accent);
 }
 
 /* ── Search toggle button (mobile only) ── */
@@ -161,7 +170,6 @@
 }
 
 /* ── Search form ── */
-/* Hidden/collapsed by default on mobile; slides down via JS */
 .search-form {
   position: absolute;
   top: 100%;
@@ -174,12 +182,10 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* Active state — applied by JS toggling .is-active */
 .search-form.is-active {
   max-height: 64px;
 }
 
-/* Input group — flex row keeps both elements side by side */
 .search-input-group {
   display: flex;
   align-items: center;
@@ -250,7 +256,6 @@
     height: 44px;
   }
 
-  /* Hide hamburger, show nav */
   .menu-toggle {
     display: none;
   }
@@ -287,7 +292,19 @@
     border-left-color: transparent;
   }
 
-  /* Hide search toggle button, show form inline */
+  .nav-menu-item--logout {
+    width: auto;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-left: none;
+    border-radius: var(--r-sm);
+  }
+
+  .nav-menu-item--logout:hover {
+    border-left-color: transparent;
+  }
+
   .search-toggle {
     display: none;
   }

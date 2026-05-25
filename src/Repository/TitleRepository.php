@@ -20,6 +20,21 @@
  *
  *     Los resultados se ordenan por año de estreno descendente y se limita
  *     la cantidad de registros retornados.
+ * 
+ *   filter(genreId, year, language, minScore, limit): array
+ *     Filtra títulos utilizando criterios combinables.
+ *
+ *     FILTROS DISPONIBLES:
+ *       - genreId   → género asociado al título.
+ *       - year      → año de estreno.
+ *       - language  → idioma original.
+ *       - minScore  → score promedio mínimo basado en reseñas visibles.
+ *
+ *     El score promedio se calcula usando AVG sobre las reseñas visibles.
+ *     Los resultados se ordenan por año de estreno descendente y se limita
+ *     la cantidad de registros retornados.
+ *
+ *     Permite aplicar cualquier combinación de filtros dinámicamente.
  *
  * RELACIONES:
  *   clearGenres(titleId)
@@ -149,6 +164,60 @@ class TitleRepository
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
+        return array_map(fn($row) => Title::fromArray($row), $rows);
+    }
+
+    public function filter(
+        ?int $genreId,
+        ?int $year,
+        ?string $language,
+        ?float $minScore,
+        int $limit = 20
+    ): array {
+        $conditions = ['1=1'];
+        $params = [];
+    
+        if ($genreId !== null) {
+            $conditions[] = 'EXISTS (
+                SELECT 1 FROM title_genres tg
+                WHERE tg.title_id = t.id AND tg.genre_id = :genre_id
+            )';
+            $params[':genre_id'] = $genreId;
+        }
+    
+        if ($year !== null) {
+            $conditions[] = 't.release_year = :year';
+            $params[':year'] = $year;
+        }
+    
+        if ($language !== null) {
+            $conditions[] = 't.language = :language';
+            $params[':language'] = $language;
+        }
+    
+        $having = '';
+        if ($minScore !== null) {
+            $having = 'HAVING COALESCE(ROUND(AVG(r.score)::numeric, 1), 0) >= :min_score';
+            $params[':min_score'] = $minScore;
+        }
+    
+        $where = implode(' AND ', $conditions);
+    
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.*,
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+             FROM titles t
+             LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+             WHERE {$where}
+             GROUP BY t.id
+             {$having}
+             ORDER BY t.release_year DESC NULLS LAST
+             LIMIT {$limit}"
+        );
+    
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         return array_map(fn($row) => Title::fromArray($row), $rows);
     }
 

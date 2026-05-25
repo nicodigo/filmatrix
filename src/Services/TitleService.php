@@ -151,4 +151,13 @@ class TitleService
     {
         return $this->titleRepository->search($query);
     }
+
+    public function filter(
+        ?int $genreId,
+        ?int $year,
+        ?string $language,
+        ?float $minScore
+    ): array {
+        return $this->titleRepository->filter($genreId, $year, $language, $minScore);
+    }
 }
