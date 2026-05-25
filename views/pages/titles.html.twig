@@ -1,6 +1,8 @@
 {% extends 'layout/main.html.twig' %}
 
-{% block title %}Catálogo — Filmatrix{% endblock %}
+{% block title %}
+  {% if search_query %}Resultados para "{{ search_query }}" — Filmatrix{% else %}Catálogo — Filmatrix{% endif %}
+{% endblock %}
 
 {% block description %}Explorá el catálogo completo de películas en Filmatrix.{% endblock %}
 
@@ -12,66 +14,89 @@
 {% block content %}
   <input type="checkbox" id="filterToggle" class="filter-toggle-input">
   <section class="films-header">
-    <h1 class="films-title">Catálogo</h1>
-    <label for="filterToggle" class="films-filter-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="4" y1="6" x2="20" y2="6"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-        <line x1="11" y1="18" x2="13" y2="18"/>
-      </svg>
-      Filtros
-    </label>
+    <h1 class="films-title">
+      {% if search_query %}
+        Resultados para <em>"{{ search_query }}"</em>
+      {% else %}
+        Catálogo
+      {% endif %}
+    </h1>
+    {% if not search_query %}
+      <label for="filterToggle" class="films-filter-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+        Filtros
+      </label>
+    {% endif %}
   </section>
 
-  <aside class="filter-panel">
-    <div class="filter-panel__inner">
-      <div class="filter-group">
-        <label class="filter-label" for="filterGenre">Género</label>
-        <select class="filter-select" id="filterGenre" name="genre">
-          <option value="">Todos</option>
-          <option value="accion">Acción</option>
-          <option value="drama">Drama</option>
-          <option value="comedia">Comedia</option>
-          <option value="terror">Terror</option>
-          <option value="ciencia-ficcion">Ciencia Ficción</option>
-          <option value="animacion">Animación</option>
-          <option value="documental">Documental</option>
-        </select>
+  {% if not search_query %}
+    <aside class="filter-panel">
+      <div class="filter-panel__inner">
+        <div class="filter-group">
+          <label class="filter-label" for="filterGenre">Género</label>
+          <select class="filter-select" id="filterGenre" name="genre">
+            <option value="">Todos</option>
+            <option value="accion">Acción</option>
+            <option value="drama">Drama</option>
+            <option value="comedia">Comedia</option>
+            <option value="terror">Terror</option>
+            <option value="ciencia-ficcion">Ciencia Ficción</option>
+            <option value="animacion">Animación</option>
+            <option value="documental">Documental</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="filterYear">Año</label>
+          <select class="filter-select" id="filterYear" name="year">
+            <option value="">Todos</option>
+            {% for y in range("now"|date("Y"), 1970) %}
+              <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label" for="filterScore">Puntaje mínimo</label>
+          <select class="filter-select" id="filterScore" name="score">
+            <option value="">Cualquiera</option>
+            <option value="4.5">★ 4.5+</option>
+            <option value="4">★ 4.0+</option>
+            <option value="3">★ 3.0+</option>
+          </select>
+        </div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label" for="filterYear">Año</label>
-        <select class="filter-select" id="filterYear" name="year">
-          <option value="">Todos</option>
-          {% for y in range("now"|date("Y"), 1970) %}
-            <option value="{{ y }}">{{ y }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label" for="filterScore">Puntaje mínimo</label>
-        <select class="filter-select" id="filterScore" name="score">
-          <option value="">Cualquiera</option>
-          <option value="4.5">★ 4.5+</option>
-          <option value="4">★ 4.0+</option>
-          <option value="3">★ 3.0+</option>
-        </select>
-      </div>
-    </div>
-  </aside>
+    </aside>
+  {% endif %}
 
   <section class="films-section">
-    <div class="films-grid">
-    {% if titles is empty %}
-        <p class="films-empty">Sin títulos disponibles.</p>
+    {% if search_query %}
+      <p class="films-search-meta">
+        {{ titles|length }} resultado{% if titles|length != 1 %}s{% endif %}
+      </p>
     {% endif %}
 
-    {% import 'macros/title-cards.html.twig' as cards %}
+    <div class="films-grid">
+      {% if titles is empty %}
+        <p class="films-empty">
+          {% if search_query %}
+            No se encontraron títulos para <strong>"{{ search_query }}"</strong>.
+            <a href="/titles">Ver catálogo completo</a>
+          {% else %}
+            Sin títulos disponibles.
+          {% endif %}
+        </p>
+      {% endif %}
 
-    {% for movie in titles %}
-      {{ cards.titleCard(movie) }}
-    {% endfor %}
+      {% import 'macros/title-cards.html.twig' as cards %}
+
+      {% for movie in titles %}
+        {{ cards.titleCard(movie) }}
+      {% endfor %}
     </div>
   </section>
 {% endblock %}

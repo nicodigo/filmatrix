@@ -37,10 +37,6 @@
  *     Usado por syncGenres() para pre-cargar la tabla `genres`.
  *     Endpoint: GET /genre/movie/list
  *
- *   searchMovies(query, page)
- *     Búsqueda de películas por texto libre.
- *     Endpoint: GET /search/movie
- *
  *   getNowPlaying(page)
  *     Películas estrenadas en los últimos 30 días, ordenadas por fecha de
  *     estreno descendente. Filtra por tipo de estreno theatrical (2|3).

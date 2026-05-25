@@ -29,6 +29,7 @@ services:
       # Se monta el código en tiempo real, elimina necesidad de rebuild por cambio en el código
       - ./public:/var/www/html/public:ro
       - ./views:/var/www/html/views:ro
+      - ./src:/var/www/html/src:ro
     environment:
       - APP_ENV=development
     depends_on:

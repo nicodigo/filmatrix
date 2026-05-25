@@ -5,7 +5,17 @@
  *
  * MÉTODOS:
  *   index()
- *     Renderiza el catálogo completo ordenado por popularidad.
+ *     Renderiza el catálogo de títulos.
+ *     FUNCIONAMIENTO:
+ *       - Si existe un parámetro de búsqueda `q`, realiza una búsqueda
+ *         de títulos mediante TitleService.
+ *       - Si no hay búsqueda, obtiene los títulos de la sección
+ *         "popular" usando TitleListService.
+ *
+ *     DATOS ENVIADOS A LA VISTA:
+ *       - titles        → listado de títulos a mostrar.
+ *       - search_query  → texto buscado por el usuario.
+ *
  *     Vista: views/pages/titles.html.twig
  *     Ruta: GET /titles
  *
@@ -63,10 +73,20 @@ class TitleController
 
     public function index(): void
     {
-        $popular = $this->titleListService->findBySection('popular', 8);
+        $query = trim($this->request->get('q', ''));
+
+        if ($query !== '') {
+            $titles = array_map(
+                fn($t) => $t->toArray(),
+                $this->titleService->search($query)
+            );
+        } else {
+            $titles = $this->titleListService->findBySection('popular', 8);
+        }
 
         echo $this->twig->render('pages/titles.html.twig', [
-            'titles' => $popular,
+            'titles'       => $titles,
+            'search_query' => $query,
         ]);
     }
 

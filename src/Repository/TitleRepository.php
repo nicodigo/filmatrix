@@ -8,14 +8,18 @@
  * MÉTODOS:
  *   findByTmdbId(tmdbId): ?Title
  *     Busca un título por su ID de TMDB. Retorna null si no existe.
- *
- *   findByTmdbIdWithScore(tmdbId): ?Title
- *     Busca un título por su ID de TMDB incluyendo el promedio de score
- *     de sus reseñas visibles. Retorna null si no existe.
- *
+ * 
  *   upsert(title): int
  *     Inserta un título o actualiza todos sus campos si ya existe el tmdb_id.
  *     Actualiza el timestamp de caché. Retorna el id interno del registro.
+ * 
+ *   search(query, limit): array
+ *     Busca títulos cuyo nombre coincida parcialmente con el texto ingresado.
+ *     La búsqueda es case-insensitive usando ILIKE e incluye el promedio
+ *     de score de reseñas visibles.
+ *
+ *     Los resultados se ordenan por año de estreno descendente y se limita
+ *     la cantidad de registros retornados.
  *
  * RELACIONES:
  *   clearGenres(titleId)
@@ -120,6 +124,32 @@ class TitleRepository
         ]);
 
         return (int) $stmt->fetchColumn();
+    }
+
+    
+    public function search(string $query, int $limit = 20): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.*,
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+            FROM titles t
+            LEFT JOIN reviews r
+                ON r.title_id = t.id AND r.is_visible = true
+            WHERE t.title ILIKE :query
+            GROUP BY t.id
+            ORDER BY t.release_year DESC NULLS LAST
+            LIMIT :limit"
+        );
+
+        $stmt->execute([
+            ':query' => '%' . $query . '%',
+            ':limit' => $limit,
+        ]);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        return array_map(fn($row) => Title::fromArray($row), $rows);
     }
 
     /* =========================

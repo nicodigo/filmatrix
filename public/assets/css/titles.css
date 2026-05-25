@@ -70,8 +70,6 @@ body {
 
 /* ══════════════════════════════════════
    Panel de filtros — CSS-only toggle
-   El checkbox está ANTES del aside en el DOM,
-   usamos el selector general ~ para alcanzarlo.
 ══════════════════════════════════════ */
 .filter-panel {
   max-height: 0;
@@ -82,16 +80,6 @@ body {
   border-bottom: 1px solid transparent;
 }
 
-/*
-  Estructura en el HTML:
-    <input#filterToggle>   ← checkbox
-    <label>                ← botón (dentro de .films-header)
-    ...
-    <aside.filter-panel>   ← panel
-
-  Como el checkbox es hermano anterior del aside,
-  el selector ~ funciona correctamente.
-*/
 .filter-toggle-input:checked ~ .filter-panel {
   max-height: 400px;
   border-top-color: var(--border);
@@ -154,7 +142,7 @@ body {
    Secciones del catálogo
 ══════════════════════════════════════ */
 .films-section {
-  padding: 1.5rem 0;
+  padding: 0.75rem 0 1.5rem;
 }
 
 .films-section__label {
@@ -235,4 +223,47 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     padding: 0 2rem;
   }
+}
+
+/* ══════════════════════════════════════
+   Estado de búsqueda
+══════════════════════════════════════ */
+.films-search-meta {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .films-search-meta { padding: 0 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .films-search-meta { padding: 0 2rem; }
+}
+
+.films-empty {
+  grid-column: 1 / -1;
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.films-empty strong {
+  color: var(--text-primary);
+}
+
+.films-empty a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.films-empty a:hover {
+  text-decoration: underline;
 }

@@ -146,4 +146,9 @@ class TitleService
             $this->genreService->sync($genre['id'], $genre['name']);
         }
     }
+    
+    public function search(string $query): array
+    {
+        return $this->titleRepository->search($query);
+    }
 }
