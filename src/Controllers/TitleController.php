@@ -170,6 +170,7 @@ class TitleController
         ));
 
         $flashError = $this->request->getFlash('error');
+        $flashSuccess = $this->request->getFlash('success');
 
         echo $this->twig->render('pages/title-detail.html.twig', [
             'title' => $title,
@@ -181,6 +182,7 @@ class TitleController
             'duration' => $duration,
             'tmdbId' => $tmdbId,
             'flashError' => $flashError,
+            'flashSuccess' => $flashSuccess,
         ]);
     }
 }

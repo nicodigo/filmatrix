@@ -6,8 +6,11 @@ a2dismod mpm_event mpm_worker 2>/dev/null || true
 rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.*
 a2enmod mpm_prefork 2>/dev/null || true
 
+mkdir -p /tmp/php_sessions && chmod 777 /tmp/php_sessions
+
 cat > /usr/local/etc/php/conf.d/session.ini <<EOF
-session.gc_maxlifetime = ${SESSION_GC_MAXLIFETIME}
+session.save_path = /tmp/php_sessions
+session.gc_maxlifetime = ${SESSION_GC_MAXLIFETIME:-1440}
 session.gc_probability = 10
 session.gc_divisor = 100
 EOF
@@ -25,6 +28,5 @@ echo "Esperando a la base de datos..."
 until php -r "new PDO('pgsql:host=${DB_HOSTNAME};port=${DB_PORT};dbname=${DB_DBNAME}', '${DB_USERNAME}', '${DB_PASSWORD}');" 2>/dev/null; do
   sleep 2
 done
-
 
 exec apache2-foreground

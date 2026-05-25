@@ -8,6 +8,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN a2enmod rewrite
 
+RUN mkdir -p /tmp/php_sessions && chmod 777 /tmp/php_sessions
+RUN echo "session.save_path = /tmp/php_sessions" > /usr/local/etc/php/conf.d/session.ini
+
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./

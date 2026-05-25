@@ -69,6 +69,7 @@ class ReviewController
                 (float) $score,
                 $body
             );
+            $this->request->setFlash('success', '¡Reseña publicada con éxito!');
         } catch (ReviewAlreadyExistException) {
             $this->request->setFlash(
                 'error',
