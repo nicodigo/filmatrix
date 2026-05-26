@@ -94,24 +94,17 @@ body {
   border-radius: var(--r-md);
   overflow: hidden;
 }
- 
+
 .perfil-stat {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   padding: 1.25rem 1rem;
   background: var(--surface);
 }
- 
-.perfil-stat__num {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--text-primary);
-  line-height: 1;
-}
- 
+
 .perfil-stat__label {
   font-family: var(--font-ui);
   font-size: 11px;
@@ -119,6 +112,33 @@ body {
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--text-muted);
+  order: -1;
+}
+
+.perfil-stat__num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.perfil-stat__genres {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.perfil-stat__genre-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-muted);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
 }
  
 /* ══════════════════════════════════════

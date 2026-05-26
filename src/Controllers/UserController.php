@@ -61,9 +61,11 @@ class UserController
     {
         $userId = $this->authService->getCurrentUserId();
         $user = $this->userService->getUserById($userId);
-
+        $stats = $this->userService->getStats($userId);
+    
         echo $this->twig->render('pages/profile.html.twig', [
-            'user' => $user,
+            'user'  => $user,
+            'stats' => $stats,
         ]);
     }
 

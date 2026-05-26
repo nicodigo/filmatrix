@@ -82,4 +82,9 @@ class UserService
         if ($excludeId !== null && $found->getId() === $excludeId) return;
         throw new UsernameAlreadyExistsException("El usuario {$username} ya existe");
     }
+
+    public function getStats(int $userId): array
+    {
+        return $this->userRepository->getStatsByUserId($userId);
+    }
 }

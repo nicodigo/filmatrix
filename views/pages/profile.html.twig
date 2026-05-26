@@ -23,14 +23,25 @@
 
   <section class="perfil-stats">
     <div class="perfil-stat">
-      <span class="perfil-stat__num">0</span>
       <span class="perfil-stat__label">Reseñas</span>
+      <span class="perfil-stat__num">{{ stats.total_reviews }}</span>
     </div>
 
     <div class="perfil-stat">
-      <span class="perfil-stat__num">0</span>
-      <span class="perfil-stat__label">Favoritas</span>
+      <span class="perfil-stat__label">Horas vistas</span>
+      <span class="perfil-stat__num">{{ stats.total_hours }}</span>
     </div>
+
+    {% if stats.top_genres is not empty %}
+    <div class="perfil-stat">
+      <span class="perfil-stat__label">Géneros favoritos</span>
+      <div class="perfil-stat__genres">
+        {% for genre in stats.top_genres %}
+          <span class="perfil-stat__genre-badge">{{ genre }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
   </section>
 
   <section class="perfil-acciones">

@@ -19,6 +19,18 @@
  *   update(user): bool
  *     Actualiza username, email, password_hash y timestamp de un usuario
  *     existente. Retorna true si la operación fue exitosa.
+ * 
+ *   getStatsByUserId(userId): array
+ *     Calcula estadísticas generales de actividad de un usuario
+ *     basadas en sus reseñas.
+ *     ESTADÍSTICAS RETORNADAS:
+ *       - total_reviews → cantidad total de reseñas realizadas.
+ *       - total_hours   → horas totales consumidas según duración
+ *                         de títulos reseñados.
+ *       - top_genres    → géneros más frecuentes en títulos reseñados
+ *                         (máximo 3).
+ *     Retorna un array asociativo con estadísticas resumidas
+ *     del perfil del usuario.
  *
  * DEPENDENCIAS:
  *   PDO  — conexión a la base de datos.
@@ -130,5 +142,48 @@ class UserRepository
             ':password_hash' => $user->getPasswordHash(),
             ':id' => $user->getId()
         ]);
+    }
+
+    public function getStatsByUserId(int $userId): array
+    {
+        // Total de reseñas
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) as total_reviews
+            FROM reviews
+            WHERE user_id = :user_id'
+        );
+        $stmt->execute([':user_id' => $userId]);
+        $totalReviews = (int) $stmt->fetchColumn();
+
+        // Horas totales (suma de duration_minutes de títulos reseñados)
+        $stmt = $this->pdo->prepare(
+            'SELECT COALESCE(SUM(t.duration_minutes), 0) as total_minutes
+            FROM reviews r
+            JOIN titles t ON t.id = r.title_id
+            WHERE r.user_id = :user_id
+            AND t.duration_minutes IS NOT NULL'
+        );
+        $stmt->execute([':user_id' => $userId]);
+        $totalMinutes = (int) $stmt->fetchColumn();
+
+        // Géneros más vistos (top 3)
+        $stmt = $this->pdo->prepare(
+            'SELECT g.name, COUNT(*) as cnt
+            FROM reviews r
+            JOIN title_genres tg ON tg.title_id = r.title_id
+            JOIN genres g ON g.id = tg.genre_id
+            WHERE r.user_id = :user_id
+            GROUP BY g.name
+            ORDER BY cnt DESC
+            LIMIT 3'
+        );
+        $stmt->execute([':user_id' => $userId]);
+        $topGenres = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+
+        return [
+            'total_reviews' => $totalReviews,
+            'total_hours'   => (int) floor($totalMinutes / 60),
+            'top_genres'    => $topGenres,
+        ];
     }
 }
