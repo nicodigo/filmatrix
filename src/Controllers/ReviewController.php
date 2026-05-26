@@ -144,19 +144,22 @@ class ReviewController
 
         if (!$review || $review->getUserId() !== $userId) {
             $this->request->setFlash('error', 'No tenés permiso para editar esta reseña.');
-            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
+            header("Location: {$redirect}");
             exit;
         }
 
         if ($score < 1 || $score > 5) {
             $this->request->setFlash('error', 'La puntuación debe ser entre 1 y 5.');
-            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
+            header("Location: {$redirect}");
             exit;
         }
 
         $this->reviewService->updateReview($reviewId, $score, $body);
         $this->request->setFlash('success', 'Reseña actualizada correctamente.');
-        header("Location: /titles/detail?tmdb_id={$tmdbId}");
+        $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
+        header("Location: {$redirect}");
         exit;
     }
 
@@ -170,13 +173,15 @@ class ReviewController
 
         if (!$review || $review->getUserId() !== $userId) {
             $this->request->setFlash('error', 'No tenés permiso para eliminar esta reseña.');
-            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
+            header("Location: {$redirect}");
             exit;
         }
 
         $this->reviewService->deleteReview($reviewId);
         $this->request->setFlash('success', 'Reseña eliminada.');
-        header("Location: /titles/detail?tmdb_id={$tmdbId}");
+        $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
+        header("Location: {$redirect}");
         exit;
     }
 }

@@ -87,4 +87,14 @@ class UserService
     {
         return $this->userRepository->getStatsByUserId($userId);
     }
+
+    public function getUserByUsername(string $username): ?User
+    {
+        return $this->userRepository->findByUsername($username);
+    }
+
+    public function getPublicReviews(int $userId): array
+    {
+        return $this->userRepository->getPublicReviewsByUserId($userId);
+    }
 }

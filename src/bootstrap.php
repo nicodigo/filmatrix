@@ -173,3 +173,4 @@ $router->get('/profile/password', $protegida(fn() => $makeUserCtrl()->getUpdateP
 $router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()));
 $router->post('/review/update', $protegida(fn() => $makeReviewCtrl()->update()));
 $router->post('/review/delete', $protegida(fn() => $makeReviewCtrl()->delete()));
+$router->get('/my-reviews', $protegida(fn() => $makeUserCtrl()->myReviews()));

@@ -23,14 +23,14 @@
  *   getStatsByUserId(userId): array
  *     Calcula estadísticas generales de actividad de un usuario
  *     basadas en sus reseñas.
- *     ESTADÍSTICAS RETORNADAS:
- *       - total_reviews → cantidad total de reseñas realizadas.
- *       - total_hours   → horas totales consumidas según duración
- *                         de títulos reseñados.
- *       - top_genres    → géneros más frecuentes en títulos reseñados
- *                         (máximo 3).
  *     Retorna un array asociativo con estadísticas resumidas
  *     del perfil del usuario.
+ * 
+ *    getPublicReviewsByUserId(userId): array
+ *     Retorna todas las reseñas públicas realizadas por un usuario,
+ *     incluyendo información resumida de los títulos asociados.
+ *     Las reseñas se ordenan por fecha de creación descendente
+ *     y solo se incluyen aquellas marcadas como visibles.
  *
  * DEPENDENCIAS:
  *   PDO  — conexión a la base de datos.
@@ -185,5 +185,27 @@ class UserRepository
             'total_hours'   => (int) floor($totalMinutes / 60),
             'top_genres'    => $topGenres,
         ];
+    }
+
+    public function getPublicReviewsByUserId(int $userId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT
+                r.id,
+                r.score,
+                r.body,
+                r.created_at,
+                t.title,
+                t.poster_url,
+                t.tmdb_id
+            FROM reviews r
+            JOIN titles t ON t.id = r.title_id
+            WHERE r.user_id = :user_id
+            AND r.is_visible = true
+            ORDER BY r.created_at DESC'
+        );
+
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }

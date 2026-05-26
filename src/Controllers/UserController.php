@@ -23,7 +23,9 @@
  *
  *   updateProfile(): Procesa el formulario de edición. Valida campos, actualiza nombre y email,
  *                    y opcionalmente la contraseña si se provee una nueva.
- *
+ *   myReviews()
+ *     Renderiza la página con todas las reseñas públicas realizadas por
+ *     el usuario autenticado.
  *
  * DEPENDENCIAS:
  *   AuthService  — autenticación, registro, sesión.
@@ -304,6 +306,20 @@ class UserController
             'user'    => $user,
             'error'   => $error,
             'success' => $success,
+        ]);
+    }
+
+    public function myReviews(): void
+    {
+        $userId  = $this->authService->getCurrentUserId();
+        $reviews = $this->userService->getPublicReviews($userId);
+        $flashSuccess = $this->request->getFlash('success');
+        $flashError   = $this->request->getFlash('error');
+
+        echo $this->twig->render('pages/my-reviews.html.twig', [
+            'reviews'      => $reviews,
+            'flashSuccess' => $flashSuccess,
+            'flashError'   => $flashError,
         ]);
     }
 }
