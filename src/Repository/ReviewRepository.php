@@ -1,7 +1,7 @@
 <?php
 /**
  * ReviewRepository
- * Acceso a datos de la tabla reviews.
+ * Acceso a datos de la tabla reviews y consultas relacionadas con autores.
  *
  * MÉTODOS:
  *   findVisibleByTitleId(titleId): Review[]
@@ -23,13 +23,26 @@
  *     Retorna true si la operación fue exitosa.
  *
  *   delete(id): bool
- *     Elimina una reseña por su id. Retorna true si la operación fue exitosa.
+ *     Elimina una reseña por su id.
+ *     Retorna true si la operación fue exitosa.
+ *
+ *   findByTitleIdWithAuthorUsername(titleId): array
+ *     Retorna las reseñas de un título junto con el username
+ *     de sus autores.
+ *
+ *     FUNCIONAMIENTO:
+ *       - Realiza un JOIN entre reviews y users.
+ *       - Incluye únicamente reseñas con body no nulo.
+ *       - Ordena los resultados por fecha de creación descendente.
+ *
+ *     DATOS RETORNADOS:
+ *       - datos completos de la reseña.
+ *       - username del autor asociado.
  *
  * DEPENDENCIAS:
  *   PDO    — conexión a la base de datos.
  *   Review — modelo mapeado desde los resultados de la consulta.
  */
-
 namespace App\Repository;
 
 use PDO;
@@ -154,11 +167,11 @@ class ReviewRepository
         );
 
         return $stmt->execute([
-            ':score' => $review->getScore(),
-            ':body' => $review->getBody(),
-            ':is_flagged' => $review->isFlagged(),
-            ':is_visible' => $review->isVisible(),
-            ':id' => $review->getId(),
+            ':score'      => $review->getScore(),
+            ':body'       => $review->getBody(),
+            ':is_flagged' => $review->isFlagged() ? 1 : 0,
+            ':is_visible' => $review->isVisible() ? 1 : 0,
+            ':id'         => $review->getId(),
         ]);
     }
 

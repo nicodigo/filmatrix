@@ -2,19 +2,68 @@
 
 /**
  * ReviewController
- * Maneja el envío de reseñas de películas.
+ * Maneja la creación, edición y eliminación de reseñas de títulos.
  *
  * MÉTODOS:
  *   postReview()
- *     Procesa el formulario de reseña. Verifica que el usuario esté
- *     autenticado, crea la reseña y redirige al detalle de la película.
- *     Si el usuario ya tiene una reseña para ese título, guarda un mensaje
- *     de error en sesión (flash) y redirige igualmente.
- *     Excepción manejada: ReviewAlreadyExistException
+ *     Procesa el formulario de creación de reseña.
+ *     Verifica que el usuario esté autenticado, valida los datos
+ *     recibidos y crea la reseña.
+ *
+ *     Si el usuario ya posee una reseña para el mismo título,
+ *     guarda un mensaje flash de error y redirige al detalle.
+ *
+ *     VALIDACIONES:
+ *       - title_id válido y mayor a 0.
+ *       - score numérico entre 1 y 5.
+ *
+ *     EXCEPCIONES MANEJADAS:
+ *       - ReviewAlreadyExistException
+ *       - InvalidValueFormatException
+ *
+ *     FLASH MESSAGES:
+ *       - success → reseña creada correctamente.
+ *       - error   → validación o duplicado.
+ *
  *     Ruta: POST /review
  *
+ *   update()
+ *     Actualiza una reseña existente.
+ *
+ *     Verifica:
+ *       - que la reseña exista.
+ *       - que pertenezca al usuario autenticado.
+ *       - que el score esté entre 1 y 5.
+ *
+ *     Si la validación falla, guarda un mensaje flash de error
+ *     y redirige al detalle del título.
+ *
+ *     FLASH MESSAGES:
+ *       - success → reseña actualizada correctamente.
+ *       - error   → permisos inválidos o score incorrecto.
+ *
+ *     Ruta: POST /review/update
+ *
+ *   delete()
+ *     Elimina una reseña existente.
+ *
+ *     Verifica:
+ *       - que la reseña exista.
+ *       - que pertenezca al usuario autenticado.
+ *
+ *     Si el usuario no tiene permisos sobre la reseña,
+ *     guarda un mensaje flash de error y redirige.
+ *
+ *     FLASH MESSAGES:
+ *       - success → reseña eliminada.
+ *       - error   → permisos inválidos.
+ *
+ *     Ruta: POST /review/delete
+ *
  * DEPENDENCIAS:
- *   ReviewService — lógica de creación de reseñas.
+ *   ReviewService — lógica de creación, edición y eliminación de reseñas.
+ *   Request       — acceso a request HTTP, sesión y flash messages.
+ *   Twig          — motor de templates Twig.
  */
 
 namespace App\Controllers;
@@ -81,5 +130,53 @@ class ReviewController
             header("Location: /titles/detail?tmdb_id={$tmdbId}");
             exit;
         }
+    }
+
+    public function update(): void
+    {
+        $userId   = (int) $this->request->session('user_id');
+        $reviewId = (int) $this->request->post('review_id');
+        $score    = (float) $this->request->post('score');
+        $body     = $this->request->post('review_body', '');
+        $tmdbId   = $this->request->post('tmdb_id');
+
+        $review = $this->reviewService->getById($reviewId);
+
+        if (!$review || $review->getUserId() !== $userId) {
+            $this->request->setFlash('error', 'No tenés permiso para editar esta reseña.');
+            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            exit;
+        }
+
+        if ($score < 1 || $score > 5) {
+            $this->request->setFlash('error', 'La puntuación debe ser entre 1 y 5.');
+            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            exit;
+        }
+
+        $this->reviewService->updateReview($reviewId, $score, $body);
+        $this->request->setFlash('success', 'Reseña actualizada correctamente.');
+        header("Location: /titles/detail?tmdb_id={$tmdbId}");
+        exit;
+    }
+
+    public function delete(): void
+    {
+        $userId   = (int) $this->request->session('user_id');
+        $reviewId = (int) $this->request->post('review_id');
+        $tmdbId   = $this->request->post('tmdb_id');
+
+        $review = $this->reviewService->getById($reviewId);
+
+        if (!$review || $review->getUserId() !== $userId) {
+            $this->request->setFlash('error', 'No tenés permiso para eliminar esta reseña.');
+            header("Location: /titles/detail?tmdb_id={$tmdbId}");
+            exit;
+        }
+
+        $this->reviewService->deleteReview($reviewId);
+        $this->request->setFlash('success', 'Reseña eliminada.');
+        header("Location: /titles/detail?tmdb_id={$tmdbId}");
+        exit;
     }
 }

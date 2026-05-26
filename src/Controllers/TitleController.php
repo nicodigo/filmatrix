@@ -37,12 +37,43 @@
  *     Vista: views/pages/titles.html.twig
  *     Ruta: GET /titles
  *
- *   show()
+ *    show()
  *     Renderiza la página de detalle de un título a partir de su tmdb_id
- *     recibido por query string. Si el ID es inválido o el título no existe,
- *     redirige a /titles.
+ *     recibido por query string.
+ *
+ *     VALIDACIONES:
+ *       - Si el tmdb_id es inválido o igual a 0, redirige a /titles.
+ *       - Si el título no existe, redirige a /titles.
+ *
+ *     DATOS OBTENIDOS:
+ *       - Información principal del título.
+ *       - Géneros asociados.
+ *       - Elenco principal.
+ *       - Reseñas visibles con autor.
+ *       - Títulos sugeridos relacionados.
+ *       - Reseña del usuario autenticado (si existe).
+ *
+ *     PROCESAMIENTO:
+ *       - Convierte la duración en minutos a formato legible
+ *         (ej: 2h 15m).
+ *       - Genera una etiqueta de géneros concatenada para la vista.
+ *       - Recupera mensajes flash de éxito y error desde sesión.
+ *
+ *     DATOS ENVIADOS A LA VISTA:
+ *       - title        → título principal.
+ *       - genres       → géneros asociados.
+ *       - genreLabel   → géneros concatenados en texto.
+ *       - cast         → elenco del título.
+ *       - reviews      → reseñas visibles.
+ *       - suggested    → títulos sugeridos.
+ *       - duration     → duración formateada.
+ *       - tmdbId       → identificador TMDB.
+ *       - userReview   → reseña del usuario autenticado.
+ *       - flashError   → mensaje flash de error.
+ *       - flashSuccess → mensaje flash de éxito.
+ *
  *     Vista: views/pages/title-detail.html.twig
- *     Ruta: GET /titles?tmdb_id={id}
+ *     Ruta: GET /titles/detail?tmdb_id={id}
  *
  * DEPENDENCIAS:
  *   TitleService      — datos principales del título.
@@ -116,9 +147,9 @@ class TitleController
         $genres = $this->genreService->getAll();
 
         echo $this->twig->render('pages/titles.html.twig', [
-            'titles'       => $titles,
-            'search_query' => $query,
-            'genres'       => $genres,
+            'titles'         => $titles,
+            'search_query'   => $query,
+            'genres'         => $genres,
             'active_filters' => [
                 'genre'    => $genreId,
                 'year'     => $year,
@@ -153,6 +184,12 @@ class TitleController
         $suggested = $this->titleListService
             ->findSuggested($title->getId(), 4);
 
+        $userReview = null;
+        if (!empty($_SESSION['user_id'])) {
+            $userReview = $this->reviewService
+                ->getByUserAndTitle((int) $_SESSION['user_id'], $title->getId());
+        }
+
         $duration = null;
 
         if ($title->getDurationMinutes() !== null) {
@@ -169,19 +206,20 @@ class TitleController
             $genres
         ));
 
-        $flashError = $this->request->getFlash('error');
+        $flashError   = $this->request->getFlash('error');
         $flashSuccess = $this->request->getFlash('success');
 
         echo $this->twig->render('pages/title-detail.html.twig', [
-            'title' => $title,
-            'genres' => $genres,
-            'genreLabel' => $genreLabel,
-            'cast' => $cast,
-            'reviews' => $reviews,
-            'suggested' => $suggested,
-            'duration' => $duration,
-            'tmdbId' => $tmdbId,
-            'flashError' => $flashError,
+            'title'        => $title,
+            'genres'       => $genres,
+            'genreLabel'   => $genreLabel,
+            'cast'         => $cast,
+            'reviews'      => $reviews,
+            'suggested'    => $suggested,
+            'duration'     => $duration,
+            'tmdbId'       => $tmdbId,
+            'userReview'   => $userReview,
+            'flashError'   => $flashError,
             'flashSuccess' => $flashSuccess,
         ]);
     }
