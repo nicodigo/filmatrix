@@ -149,7 +149,137 @@ class TitleService
     
     public function search(string $query): array
     {
-        return $this->titleRepository->search($query);
+        if (trim($query) === '') {
+            return [];
+        }
+
+        try {
+            $response = $this->tmdbClient->searchMovie($query);
+            $results = $response['results'] ?? [];
+        } catch (\Throwable $e) {
+            $this->logger->error('Search TMDB failed, falling back to local search', [
+                'query' => $query,
+                'error' => $e->getMessage()
+            ]);
+            // Fallback to local search if API is down
+            return $this->titleRepository->search($query);
+        }
+
+        // Defensive adult content filtering (exclude if $item['adult'] is true)
+        $filteredResults = array_filter($results, function ($item) {
+            return empty($item['adult']) || $item['adult'] !== true;
+        });
+
+        if (empty($filteredResults)) {
+            return [];
+        }
+
+        // Extract tmdb_ids
+        $tmdbIds = array_map(fn($item) => (int) $item['id'], $filteredResults);
+
+        // Fetch local avg scores
+        $localScores = $this->titleRepository->findAvgScoresForTmdbIds($tmdbIds);
+
+        // Construct Title objects
+        $titles = [];
+        foreach ($filteredResults as $movie) {
+            $tmdbId = (int) $movie['id'];
+            $releaseYear = !empty($movie['release_date'])
+                ? (int) date('Y', strtotime($movie['release_date']))
+                : null;
+
+            $posterUrl = !empty($movie['poster_path'])
+                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
+                : null;
+
+            $titles[] = new Title(
+                null,
+                $tmdbId,
+                'movie',
+                $movie['title'] ?? '',
+                $movie['overview'] ?? null,
+                $posterUrl,
+                null, // trailerUrl not available in search results
+                $releaseYear,
+                $movie['original_language'] ?? null,
+                null, // durationMinutes not available in search results
+                $localScores[$tmdbId] ?? null
+            );
+        }
+
+        return $titles;
+    }
+
+    public function discover(
+        ?int $genreId,
+        ?int $year,
+        ?string $language
+    ): array {
+        $tmdbGenreId = null;
+        if ($genreId !== null) {
+            $genre = $this->genreService->getById($genreId);
+            if ($genre) {
+                $tmdbGenreId = $genre->getTmdbGenreId();
+            }
+        }
+
+        try {
+            $response = $this->tmdbClient->discoverMovie($tmdbGenreId, $year, $language);
+            $results = $response['results'] ?? [];
+        } catch (\Throwable $e) {
+            $this->logger->error('Discover TMDB failed, falling back to local filter', [
+                'genreId' => $genreId,
+                'year' => $year,
+                'language' => $language,
+                'error' => $e->getMessage()
+            ]);
+            // Fallback to local filter if API is down
+            return $this->titleRepository->filter($genreId, $year, $language, null);
+        }
+
+        // Defensive adult content filtering
+        $filteredResults = array_filter($results, function ($item) {
+            return empty($item['adult']) || $item['adult'] !== true;
+        });
+
+        if (empty($filteredResults)) {
+            return [];
+        }
+
+        // Extract tmdb_ids
+        $tmdbIds = array_map(fn($item) => (int) $item['id'], $filteredResults);
+
+        // Fetch local avg scores
+        $localScores = $this->titleRepository->findAvgScoresForTmdbIds($tmdbIds);
+
+        // Construct Title objects
+        $titles = [];
+        foreach ($filteredResults as $movie) {
+            $tmdbId = (int) $movie['id'];
+            $releaseYear = !empty($movie['release_date'])
+                ? (int) date('Y', strtotime($movie['release_date']))
+                : null;
+
+            $posterUrl = !empty($movie['poster_path'])
+                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
+                : null;
+
+            $titles[] = new Title(
+                null,
+                $tmdbId,
+                'movie',
+                $movie['title'] ?? '',
+                $movie['overview'] ?? null,
+                $posterUrl,
+                null, // trailerUrl not available in search results
+                $releaseYear,
+                $movie['original_language'] ?? null,
+                null, // durationMinutes not available in search results
+                $localScores[$tmdbId] ?? null
+            );
+        }
+
+        return $titles;
     }
 
     public function filter(

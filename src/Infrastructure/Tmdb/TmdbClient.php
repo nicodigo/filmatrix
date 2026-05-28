@@ -138,4 +138,35 @@ class TmdbClient
             'page' => $page,
         ]);
     }
+
+    public function searchMovie(string $query, int $page = 1): array
+    {
+        return $this->request('/search/movie', [
+            'query' => $query,
+            'include_adult' => 'false',
+            'page' => $page,
+        ]);
+    }
+
+    public function discoverMovie(?int $tmdbGenreId, ?int $year, ?string $language, int $page = 1): array
+    {
+        $params = [
+            'include_adult' => 'false',
+            'page' => $page,
+        ];
+
+        if ($tmdbGenreId !== null) {
+            $params['with_genres'] = $tmdbGenreId;
+        }
+
+        if ($year !== null) {
+            $params['primary_release_year'] = $year;
+        }
+
+        if ($language !== null) {
+            $params['with_original_language'] = $language;
+        }
+
+        return $this->request('/discover/movie', $params);
+    }
 }

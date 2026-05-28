@@ -18,8 +18,8 @@
  *           · idioma
  *           · score mínimo
  *
- *       - Si no hay búsqueda ni filtros, obtiene títulos de la sección
- *         "popular" mediante TitleListService.
+ *       - Si no hay búsqueda ni filtros, consulta TMDB Discover sin filtros
+ *         (devuelve películas populares por defecto).
  *
  *     PARÁMETROS QUERY SOPORTADOS:
  *       - q         → texto de búsqueda.
@@ -136,12 +136,22 @@ class TitleController
                 $this->titleService->search($query)
             );
         } elseif ($hasFilters) {
+            if ($minScore !== null) {
+                $titles = array_map(
+                    fn($t) => $t->toArray(),
+                    $this->titleService->filter($genreId, $year, $language, $minScore)
+                );
+            } else {
+                $titles = array_map(
+                    fn($t) => $t->toArray(),
+                    $this->titleService->discover($genreId, $year, $language)
+                );
+            }
+        } else {
             $titles = array_map(
                 fn($t) => $t->toArray(),
-                $this->titleService->filter($genreId, $year, $language, $minScore)
+                $this->titleService->discover(null, null, null)
             );
-        } else {
-            $titles = $this->titleListService->findBySection('popular', 8);
         }
 
         $genres = $this->genreService->getAll();

@@ -103,6 +103,37 @@ class TitleRepository
         return $row ? Title::fromArray($row) : null;
     }
 
+    public function findAvgScoresForTmdbIds(array $tmdbIds): array
+    {
+        if (empty($tmdbIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($tmdbIds), '?'));
+
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.tmdb_id,
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+             FROM titles t
+             LEFT JOIN reviews r
+                ON r.title_id = t.id AND r.is_visible = true
+             WHERE t.tmdb_id IN ($placeholders)
+             GROUP BY t.tmdb_id"
+        );
+
+        $stmt->execute(array_values($tmdbIds));
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        $scores = [];
+        foreach ($rows as $row) {
+            $scores[(int) $row['tmdb_id']] = $row['avg_score'] !== null ? (float) $row['avg_score'] : null;
+        }
+
+        return $scores;
+    }
+
     public function upsert(Title $title): int
     {
         $stmt = $this->pdo->prepare(
