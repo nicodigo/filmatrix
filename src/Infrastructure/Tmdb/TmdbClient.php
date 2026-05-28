@@ -152,6 +152,7 @@ class TmdbClient
     {
         $params = [
             'include_adult' => 'false',
+            'vote_count.gte' => 1000,
             'page' => $page,
         ];
 
