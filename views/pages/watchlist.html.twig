@@ -1,0 +1,106 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Mi Watchlist — Filmatrix{% endblock %}
+
+{% block description %}Gestioná tu watchlist personal en Filmatrix.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/watchlist.css">
+{% endblock %}
+
+{% block content %}
+  <header class="watchlist-header">
+    <h1 class="watchlist-title">Mi Watchlist</h1>
+  </header>
+
+  <nav class="watchlist-filters" aria-label="Filtros de watchlist">
+    <ul class="watchlist-filters__list">
+      <li>
+        <a href="/my-watchlist"
+           class="watchlist-filter{% if status is null %} watchlist-filter--active{% endif %}">
+          Todas
+        </a>
+      </li>
+      <li>
+        <a href="/my-watchlist?status=pending"
+           class="watchlist-filter{% if status == 'pending' %} watchlist-filter--active{% endif %}">
+          Pendientes
+        </a>
+      </li>
+      <li>
+        <a href="/my-watchlist?status=watching"
+           class="watchlist-filter{% if status == 'watching' %} watchlist-filter--active{% endif %}">
+          Viendo
+        </a>
+      </li>
+      <li>
+        <a href="/my-watchlist?status=watched"
+           class="watchlist-filter{% if status == 'watched' %} watchlist-filter--active{% endif %}">
+          Vistas
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <section class="watchlist-content">
+    {% for item in items %}
+      <article class="watchlist-item watchlist-item--{{ item.status }}">
+        <span class="watchlist-item__status">
+          {% if item.status == 'pending' %}
+            Pendiente
+          {% elseif item.status == 'watching' %}
+            Viendo
+          {% elseif item.status == 'watched' %}
+            Vista
+          {% endif %}
+        </span>
+        <span class="watchlist-item__title">Título #{{ item.titleId }}</span>
+        <time class="watchlist-item__date" datetime="{{ item.addedAt }}">
+          Agregado el {{ item.addedAt|date('d/m/Y') }}
+        </time>
+      </article>
+    {% else %}
+      <p class="watchlist-empty">
+        {% if status == 'pending' %}
+          No tenés títulos pendientes.
+        {% elseif status == 'watching' %}
+          No estás viendo ningún título ahora.
+        {% elseif status == 'watched' %}
+          No tenés títulos vistos aún.
+        {% else %}
+          Tu watchlist está vacía. ¡Explorá el catálogo y agregá títulos!
+        {% endif %}
+      </p>
+    {% endfor %}
+  </section>
+
+  {% if total_pages > 1 %}
+    <nav class="watchlist-pagination" aria-label="Paginación de watchlist">
+      {% if page > 1 %}
+        <a href="/my-watchlist?{% if status %}status={{ status }}&{% endif %}page={{ page - 1 }}"
+           class="watchlist-pagination__btn" rel="prev">
+          Anterior
+        </a>
+      {% else %}
+        <span class="watchlist-pagination__btn watchlist-pagination__btn--disabled">
+          Anterior
+        </span>
+      {% endif %}
+
+      <span class="watchlist-pagination__info">
+        Página {{ page }} de {{ total_pages }}
+      </span>
+
+      {% if page < total_pages %}
+        <a href="/my-watchlist?{% if status %}status={{ status }}&{% endif %}page={{ page + 1 }}"
+           class="watchlist-pagination__btn" rel="next">
+          Siguiente
+        </a>
+      {% else %}
+        <span class="watchlist-pagination__btn watchlist-pagination__btn--disabled">
+          Siguiente
+        </span>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}

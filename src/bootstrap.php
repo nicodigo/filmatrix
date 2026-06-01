@@ -4,6 +4,7 @@ namespace App;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\WatchlistController;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Dotenv\Dotenv;
@@ -35,6 +36,8 @@ use App\Controllers\PageController;
 use App\Controllers\TitleController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
+use App\Repository\WatchlistRepository;
+use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
@@ -95,6 +98,7 @@ $genreRepository        = new GenreRepository($connection);
 $peopleRepository       = new PeopleRepository($connection);
 $titleListRepository    = new TitleListRepository($connection);
 $reviewRepository       = new ReviewRepository($connection);
+$watchlistRepository    = new WatchlistRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
@@ -122,6 +126,8 @@ $titleListService = new TitleListService(
     $log_app
 );
 
+$watchlistService = new WatchlistService($watchlistRepository, $titleService);
+
 // Middleware
 $authMiddleware = new AuthMiddleware();
 
@@ -144,6 +150,8 @@ $makeTitleCtrl = fn() => new TitleController(
 );
 
 $makeReviewCtrl = fn() => new ReviewController($twig, $reviewService, $request);
+
+$makeWatchlistCtrl = fn() => new WatchlistController($watchlistService, $twig, $request);
 
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
@@ -174,3 +182,6 @@ $router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()
 $router->post('/review/update', $protegida(fn() => $makeReviewCtrl()->update()));
 $router->post('/review/delete', $protegida(fn() => $makeReviewCtrl()->delete()));
 $router->get('/my-reviews', $protegida(fn() => $makeUserCtrl()->myReviews()));
+
+$router->get('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->index()));
+
