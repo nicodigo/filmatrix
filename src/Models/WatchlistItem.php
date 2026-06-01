@@ -9,7 +9,7 @@ class WatchlistItem
         public readonly int     $id,
         public readonly int     $userId,
         public readonly int     $titleId,
-        public readonly string  $status,       // pending | watching | watched
+        public readonly string  $status,       // pending | watched
         public readonly string  $addedAt,
         public readonly string  $updatedAt,
 

@@ -90,6 +90,7 @@ use App\Services\TitleListService;
 use App\Services\ReviewService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
+use App\Models\TitleCardDto;
 use Twig\Environment;
 
 class TitleController
@@ -132,24 +133,24 @@ class TitleController
 
         if ($query !== '') {
             $titles = array_map(
-                fn($t) => $t->toArray(),
+                fn($t) => TitleCardDto::fromTitle($t),
                 $this->titleService->search($query)
             );
         } elseif ($hasFilters) {
             if ($minScore !== null) {
                 $titles = array_map(
-                    fn($t) => $t->toArray(),
+                    fn($t) => TitleCardDto::fromTitle($t),
                     $this->titleService->filter($genreId, $year, $language, $minScore)
                 );
             } else {
                 $titles = array_map(
-                    fn($t) => $t->toArray(),
+                    fn($t) => TitleCardDto::fromTitle($t),
                     $this->titleService->discover($genreId, $year, $language)
                 );
             }
         } else {
             $titles = array_map(
-                fn($t) => $t->toArray(),
+                fn($t) => TitleCardDto::fromTitle($t),
                 $this->titleService->discover(null, null, null)
             );
         }

@@ -184,4 +184,4 @@ $router->post('/review/delete', $protegida(fn() => $makeReviewCtrl()->delete()))
 $router->get('/my-reviews', $protegida(fn() => $makeUserCtrl()->myReviews()));
 
 $router->get('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->index()));
-
+$router->post('/my-watchlist/store', $protegida(fn() => $makeWatchlistCtrl()->store()));

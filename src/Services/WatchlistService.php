@@ -12,7 +12,7 @@ use InvalidArgumentException;
 
 class WatchlistService
 {
-    private const VALID_STATUSES = ['pending', 'watching', 'watched'];
+    private const VALID_STATUSES = ['pending', 'watched'];
     private WatchlistRepository $watchlistRepository;
     private TitleService $titleService;
 
