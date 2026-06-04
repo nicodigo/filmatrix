@@ -203,3 +203,5 @@ $router->get('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->index()))
 $router->post('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->store()));
 $router->patch('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->update()));
 $router->delete('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->delete()));
+
+$router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());

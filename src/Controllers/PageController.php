@@ -58,4 +58,9 @@ class PageController
         ]
         );
     }
+    
+    public function about(): void
+    {
+        echo $this->twig->render('pages/about.html.twig');
+    }
 }

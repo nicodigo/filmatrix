@@ -1,0 +1,24 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Acerca de nosotros — Filmatrix{% endblock %}
+
+{% block description %}Conocé más sobre Filmatrix, la plataforma de reseñas de películas y series.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/about.css">
+{% endblock %}
+
+{% block content %}
+  <section class="about">
+    <div class="about__container">
+      <h1 class="about__title">Acerca de nosotros</h1>
+      <p class="about__body">
+        Filmatrix es una aplicación web de catálogo y reseñas de películas y series, desarrollada como
+        proyecto integrador de la materia <strong>Programación en Ambiente Web</strong> (UNLu, 2026).
+        Permite explorar títulos obtenidos desde la API de TMDB, consultar detalles, leer y escribir
+        reseñas, y gestionar un perfil personal. Está orientada a estudiantes y docentes como caso de
+        estudio práctico de una aplicación web con arquitectura MVC, construida sin frameworks externos.
+      </p>
+    </div>
+  </section>
+{% endblock %}
