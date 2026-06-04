@@ -205,3 +205,4 @@ $router->patch('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->update(
 $router->delete('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->delete()));
 
 $router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());
+$router->get('/contacto', fn() => $makePageCtrl()->contact());

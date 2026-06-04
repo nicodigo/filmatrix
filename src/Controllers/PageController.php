@@ -63,4 +63,9 @@ class PageController
     {
         echo $this->twig->render('pages/about.html.twig');
     }
+
+    public function contact(): void
+    {
+        echo $this->twig->render('pages/contact.html.twig');
+    }
 }

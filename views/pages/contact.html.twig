@@ -1,0 +1,31 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Contacto — Filmatrix{% endblock %}
+
+{% block description %}Ponete en contacto con el equipo de Filmatrix.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/contact.css">
+{% endblock %}
+
+{% block content %}
+  <section class="contact">
+    <div class="contact__container">
+      <h1 class="contact__title">Contactanos</h1>
+      <ul class="contact__list">
+        <li class="contact__item">
+          <span class="contact__label">Teléfono</span>
+          <span class="contact__value">01115-12345678</span>
+        </li>
+        <li class="contact__item">
+          <span class="contact__label">Dirección</span>
+          <span class="contact__value">Calle Falsa 123 bis, Heavy Bs As</span>
+        </li>
+        <li class="contact__item">
+          <span class="contact__label">Email</span>
+          <a class="contact__value contact__link" href="mailto:consultas@filmatrix.com">consultas@filmatrix.com</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+{% endblock %}
