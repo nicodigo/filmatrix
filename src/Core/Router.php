@@ -18,6 +18,8 @@ class Router
     public array $routes = [
         'GET' => [],
         'POST' => [],
+        'PATCH' => [],
+        'DELETE' => [],
     ];
 
     public string $notFound = 'not_found';
@@ -55,7 +57,7 @@ class Router
 
             $action = $this->getAction($path, $http_method);
 
-            if (isset($http_method) && ($http_method === 'POST')) {
+            if (in_array($http_method, ['POST', 'PATCH', 'DELETE'], true)) {
                 $this->verifyCsrfToken($request);
             }
 
@@ -112,6 +114,16 @@ class Router
         $this->loadRoutes($path, $action, 'POST');
     }
 
+    public function delete($path, callable $action)
+    {
+        $this->loadRoutes($path, $action, 'DELETE');
+    }
+
+    public function patch($path, callable $action)
+    {
+        $this->loadRoutes($path, $action, 'PATCH');
+    }
+
     public function routeExists($path, $http_method): bool
     {
         return (array_key_exists($path, $this->routes[$http_method]));
@@ -119,7 +131,7 @@ class Router
 
     private function verifyCsrfToken(Request $request): void
     {
-        $submitted = $request->post('csrf_token');
+        $submitted = $request->post('csrf_token') ?? $request->server('HTTP_X_CSRF_TOKEN');
         $stored = $request->session('csrf_token') ?? '';
 
         if ($submitted !== $stored) {

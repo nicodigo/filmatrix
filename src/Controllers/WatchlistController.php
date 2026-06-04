@@ -59,21 +59,67 @@ class WatchlistController
         }
     }
 
-    // post /my-watchlist/store
+    // post /my-watchlist
     public function store(): void
     {
         $userId = $this->request->session('user_id');
         if ($userId === null) {
-            throw new RuntimeException("User id null on watchlist index");
+            throw new RuntimeException("User id null on watchlist post");
         }
 
         $body = json_decode(file_get_contents('php://input'), true);
-        $tmdbId = (int) ($body['tmdb_id'] ?? 0);
+        $titleId = (int) ($body['title_id'] ?? 0);
         $status = $body['status'] ?? 'pending';
         header('Content-Type: application/json');
 
         try {
-            $this->watchlistService->addTitle($userId, $tmdbId, $status);
+            $this->watchlistService->addTitle($userId, $titleId, $status);
+            echo json_encode(['success' => true]);
+        } catch (Exception) {
+            echo json_encode(['success' => false]);
+        }
+    }
+
+    // put /my-watchlist
+    public function update(): void
+    {
+        $userId = $this->request->session('user_id');
+        if ($userId === null) {
+            throw new RuntimeException("User id null on watchlist update");
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+
+        $status = $body['status'] ?? null;
+        if ($status === null) {
+            throw new RuntimeException("El campo status es obligatorio");
+        }
+
+        $titleId = (int) ($body['title_id'] ?? 0);
+        header('Content-Type: application/json');
+
+        try {
+            $this->watchlistService->updateStatus($userId, $titleId, $status);
+            echo json_encode(['success' => true]);
+        } catch (Exception) {
+            echo json_encode(['success' => false]);
+        }
+    }
+
+    // delete /my-watchlist
+    public function delete(): void
+    {
+        $userId = $this->request->session('user_id');
+        if ($userId === null) {
+            throw new RuntimeException("User id null on watchlist delete");
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true);
+        $titleId = (int) ($body['title_id'] ?? 0);
+        header('Content-Type: application/json');
+
+        try {
+            $this->watchlistService->deleteItem($userId, $titleId);
             echo json_encode(['success' => true]);
         } catch (Exception) {
             echo json_encode(['success' => false]);

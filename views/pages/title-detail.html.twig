@@ -28,6 +28,31 @@
         <span class="detalle-meta__sep">·</span>
         <span class="detalle-meta__item">{{ genreLabel|default('S/D') }}</span>
       </div>
+      {% if app.user_logged_in %}
+        <div class="detalle-watchlist" id="watchlistSection" data-title-id="{{ title.id }}">
+
+          <div id="watchlistAddState" {% if watchlistItem %}hidden{% endif %}>
+            <button class="detalle-watchlist__add-btn" id="watchlistAdd" type="button">
+              Agregar a watchlist
+            </button>
+          </div>
+
+          <div id="watchlistInState" {% if not watchlistItem %}hidden{% endif %}>
+            <select class="detalle-watchlist__status-select" id="watchlistStatus">
+              <option value="pending" {% if watchlistItem and watchlistItem.status == 'pending' %}selected{% endif %}>
+                Pendiente
+              </option>
+              <option value="watched" {% if watchlistItem and watchlistItem.status == 'watched' %}selected{% endif %}>
+                Vista
+              </option>
+            </select>
+            <button class="detalle-watchlist__remove-btn" id="watchlistRemove" type="button">
+              Eliminar de watchlist
+            </button>
+          </div>
+
+        </div>
+      {% endif %}
     </div>
   </section>
 
@@ -127,7 +152,7 @@
           <p class="resena-propia__texto">{{ userReview.body|default('Sin comentario.') }}</p>
         </div>
 
-        <div class="resena-form-wrap" id="editarResenaWrap";">
+        <div class="resena-form-wrap" id="editarResenaWrap">
           <form class="resena-form" action="/review/update" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="review_id" value="{{ userReview.id }}">
@@ -273,4 +298,8 @@
     </div>
   {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/assets/js/pages/TitleDetails.js"></script>
 {% endblock %}

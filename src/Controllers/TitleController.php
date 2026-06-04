@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TitleController
  * Maneja el catálogo general y el detalle de títulos (películas/series).
@@ -91,6 +92,7 @@ use App\Services\ReviewService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Models\TitleCardDto;
+use App\Services\WatchlistService;
 use Twig\Environment;
 
 class TitleController
@@ -101,6 +103,7 @@ class TitleController
     private ReviewService $reviewService;
     private GenreService $genreService;
     private PeopleService $peopleService;
+    private WatchlistService $watchlistService;
     private Request $request;
 
     public function __construct(
@@ -110,6 +113,7 @@ class TitleController
         ReviewService $reviewService,
         GenreService $genreService,
         PeopleService $peopleService,
+        WatchlistService $watchlistService,
         Request $request
     ) {
         $this->twig = $twig;
@@ -118,6 +122,7 @@ class TitleController
         $this->reviewService = $reviewService;
         $this->genreService = $genreService;
         $this->peopleService = $peopleService;
+        $this->watchlistService = $watchlistService;
         $this->request = $request;
     }
 
@@ -220,6 +225,15 @@ class TitleController
         $flashError   = $this->request->getFlash('error');
         $flashSuccess = $this->request->getFlash('success');
 
+        $watchlistItem = null;
+        $userId = $this->request->session('user_id');
+        if ($userId !== null) {
+            $watchlistItem = $this->watchlistService->getItem(
+                $userId,
+                $title->getId()
+            );
+        }
+
         echo $this->twig->render('pages/title-detail.html.twig', [
             'title'        => $title,
             'genres'       => $genres,
@@ -232,6 +246,7 @@ class TitleController
             'userReview'   => $userReview,
             'flashError'   => $flashError,
             'flashSuccess' => $flashSuccess,
+            'watchlistItem' => $watchlistItem,
         ]);
     }
 }

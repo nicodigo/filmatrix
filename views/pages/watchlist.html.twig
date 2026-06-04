@@ -1,4 +1,5 @@
 {% extends 'layout/main.html.twig' %}
+{% import 'macros/title-cards.html.twig' as cards %}
 
 {% block title %}Mi Watchlist — Filmatrix{% endblock %}
 
@@ -6,6 +7,7 @@
 
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/watchlist.css">
+  <link rel="stylesheet" href="/assets/css/movie-card.css">
 {% endblock %}
 
 {% block content %}
@@ -38,21 +40,7 @@
 
   <section class="watchlist-content">
     {% for item in items %}
-      <article class="watchlist-item watchlist-item--{{ item.status }}">
-        <span class="watchlist-item__status">
-          {% if item.status == 'pending' %}
-            Pendiente
-          {% elseif item.status == 'watching' %}
-            Viendo
-          {% elseif item.status == 'watched' %}
-            Vista
-          {% endif %}
-        </span>
-        <span class="watchlist-item__title">Título #{{ item.titleId }}</span>
-        <time class="watchlist-item__date" datetime="{{ item.addedAt }}">
-          Agregado el {{ item.addedAt|date('d/m/Y') }}
-        </time>
-      </article>
+      {{ cards.titleCard(item) }}
     {% else %}
       <p class="watchlist-empty">
         {% if status == 'pending' %}
@@ -62,7 +50,7 @@
         {% elseif status == 'watched' %}
           No tenés títulos vistos aún.
         {% else %}
-          Tu watchlist está vacía. ¡Explorá el catálogo y agregá títulos!
+          Tu watchlist está vacía.
         {% endif %}
       </p>
     {% endfor %}

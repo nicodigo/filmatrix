@@ -76,7 +76,7 @@ final class CreateFilmatrixSchema extends AbstractMigration
             $table = $this->table('watchlist_items');
             $table->addColumn('user_id', 'integer', ['null' => false])
                   ->addColumn('title_id', 'integer', ['null' => false])
-                  ->addColumn('status', 'string', ['limit' => 20, 'values' => ['pending', 'watching', 'watched'], 'null' => false])
+                  ->addColumn('status', 'string', ['limit' => 20, 'values' => ['pending', 'watched'], 'null' => false])
                   ->addColumn('added_at', 'datetime', ['null' => false])
                   ->addColumn('updated_at', 'datetime', ['null' => false])
                   ->addForeignKey('user_id', 'users', 'id', ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])

@@ -45,14 +45,16 @@ class WatchlistService
         return $this->watchlistRepository->findByUserPaginated($userId, $limit, $offset, $status);
     }
 
-    public function addTitle(int $userId, int $tmdbId, string $status = 'pending'): WatchlistItem
+    public function getItem(int $userId, int $titleId): ?WatchlistItem
+    {
+        return $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
+    }
+
+    public function addTitle(int $userId, int $titleId, string $status = 'pending'): WatchlistItem
     {
         if ($status !== null) {
             $this->assertValidStatus($status);
         }
-
-        $title = $this->titleService->getTitle($tmdbId);
-        $titleId = $title->getId();
 
         $existing = $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
 
@@ -76,6 +78,11 @@ class WatchlistService
         $this->watchlistRepository->updateStatus($userId, $titleId, $status);
 
         return $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
+    }
+
+    public function deleteItem(int $userId, int $titleId): bool
+    {
+        return $this->watchlistRepository->delete($userId, $titleId);
     }
 
     public function lengthUserWatchlist(int $userId, ?string $status = null): int

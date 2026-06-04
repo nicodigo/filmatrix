@@ -80,66 +80,10 @@ body {
 ══════════════════════════════════════ */
 .watchlist-content {
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* ══════════════════════════════════════
-   Item card
-══════════════════════════════════════ */
-.watchlist-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--border);
-  border-radius: var(--r-md);
-  transition: border-left-color 0.2s ease;
-}
-
-.watchlist-item--pending {
-  border-left-color: var(--rating);
-}
-
-.watchlist-item--watching {
-  border-left-color: var(--accent);
-}
-
-.watchlist-item--watched {
-  border-left-color: var(--text-muted);
-}
-
-.watchlist-item__status {
-  font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
-}
-
-.watchlist-item--pending .watchlist-item__status {
-  color: var(--rating);
-}
-
-.watchlist-item--watching .watchlist-item__status {
-  color: var(--accent);
-}
-
-.watchlist-item__title {
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.watchlist-item__date {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  color: var(--text-muted);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 100px));
+  gap: 12px;
+  justify-content: start;
 }
 
 /* ══════════════════════════════════════
@@ -205,7 +149,8 @@ body {
 ══════════════════════════════════════ */
 @media (min-width: 480px) {
   .watchlist-content {
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 155px));
+    gap: 14px;
   }
 }
 
@@ -220,6 +165,8 @@ body {
 
   .watchlist-content {
     padding: 1.25rem 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 170px));
+    gap: 16px;
   }
 
   .watchlist-title {
@@ -243,6 +190,8 @@ body {
   .watchlist-content {
     padding: 1.5rem 2rem;
     max-width: 900px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 180px));
+    gap: 18px;
   }
 
   .watchlist-pagination {
