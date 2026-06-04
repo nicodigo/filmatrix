@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Infrastructure\Tmdb\TmdbClient;
+use App\Models\CatalogQuery;
+use App\Models\CatalogResult;
 use App\Models\Title;
+use App\Models\TitleCardDto;
 use App\Repository\TitleRepository;
 use Psr\Log\LoggerInterface;
 
@@ -14,7 +17,8 @@ class TitleService
     private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
     private LoggerInterface $logger;
-    private const int TITLE_CACHE_TTL = 30; //days
+    private const int PER_PAGE = 20;
+    private const int TMDB_MAX_PAGES = 500;
 
     public function __construct(
         TitleRepository $titleRepository,
@@ -32,7 +36,7 @@ class TitleService
 
     public function getTitle(int $tmdbId): Title
     {
-        $title = $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
+        $title = $this->titleRepository->findByTmdbId($tmdbId);
 
         if ($title === null) {
             $title = $this->syncTitleWithTmdb($tmdbId);
@@ -54,7 +58,8 @@ class TitleService
 
         foreach ($videos['results'] ?? [] as $video) {
             if (($video['site'] ?? '') === 'YouTube' &&
-                ($video['type'] ?? '') === 'Trailer') {
+                ($video['type'] ?? '') === 'Trailer'
+            ) {
                 $trailerUrl = 'https://www.youtube.com/watch?v=' . $video['key'];
                 break;
             }
@@ -129,7 +134,7 @@ class TitleService
 
         $this->logger->info('Title synced', ['tmdb_id' => $tmdbId]);
 
-        $title = $this->titleRepository->findByTmdbId($tmdbId, self::TITLE_CACHE_TTL);
+        $title = $this->titleRepository->findByTmdbId($tmdbId);
 
         if ($title === null) {
             throw new \RuntimeException("Título sincronizado, pero no encontrado en la db: {$tmdbId}");
@@ -146,148 +151,90 @@ class TitleService
             $this->genreService->sync($genre['id'], $genre['name']);
         }
     }
-    
-    public function search(string $query): array
+
+    public function getCatalog(CatalogQuery $query): CatalogResult
     {
-        if (trim($query) === '') {
-            return [];
-        }
+        return $this->catalogFromLocal($query);
+    }
 
+    public function search(string $query, int $page = 1): CatalogResult
+    {
         try {
-            $response = $this->tmdbClient->searchMovie($query);
-            $results = $response['results'] ?? [];
+            $response = $this->tmdbClient->searchMovie($query, $page);
         } catch (\Throwable $e) {
-            $this->logger->error('Search TMDB failed, falling back to local search', [
+            $this->logger->error('Search TMDB failed', [
                 'query' => $query,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            // Fallback to local search if API is down
-            return $this->titleRepository->search($query);
+            return new CatalogResult([], $page, 1, 'tmdb');
         }
 
-        // Defensive adult content filtering (exclude if $item['adult'] is true)
-        $filteredResults = array_filter($results, function ($item) {
-            return empty($item['adult']) || $item['adult'] !== true;
-        });
+        return $this->buildTmdbResult($response, $page);
+    }
 
-        if (empty($filteredResults)) {
-            return [];
-        }
+    private function catalogFromLocal(CatalogQuery $query): CatalogResult
+    {
+        $offset = ($query->page - 1) * self::PER_PAGE;
 
-        // Extract tmdb_ids
-        $tmdbIds = array_map(fn($item) => (int) $item['id'], $filteredResults);
+        $titles = $this->titleRepository->filter(
+            $query->genreId,
+            $query->year,
+            $query->language,
+            $query->minScore,
+            self::PER_PAGE,
+            $offset
+        );
 
-        // Fetch local avg scores
+        $total      = $this->titleRepository->filterCount(
+            $query->genreId,
+            $query->year,
+            $query->language,
+            $query->minScore
+        );
+        $totalPages = max(1, (int) ceil($total / self::PER_PAGE));
+
+        $items = array_map(
+            fn(Title $t) => new TitleCardDto(
+                $t->getTmdbId(),
+                $t->getTitle(),
+                $t->getPosterUrl(),
+                $t->getAvgScore(),
+            ),
+            $titles
+        );
+
+        return new CatalogResult($items, $query->page, $totalPages, 'local');
+    }
+
+    // Lógica de construcción compartida entre discover y search
+    private function buildTmdbResult(array $response, int $page): CatalogResult
+    {
+        $results = array_filter(
+            $response['results'] ?? [],
+            fn($item) => empty($item['adult']) || $item['adult'] !== true
+        );
+
+        $tmdbIds     = array_map(fn($item) => (int) $item['id'], $results);
         $localScores = $this->titleRepository->findAvgScoresForTmdbIds($tmdbIds);
 
-        // Construct Title objects
-        $titles = [];
-        foreach ($filteredResults as $movie) {
-            $tmdbId = (int) $movie['id'];
-            $releaseYear = !empty($movie['release_date'])
-                ? (int) date('Y', strtotime($movie['release_date']))
-                : null;
-
-            $posterUrl = !empty($movie['poster_path'])
-                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
-                : null;
-
-            $titles[] = new Title(
-                null,
+        $items = [];
+        foreach ($results as $movie) {
+            $tmdbId  = (int) $movie['id'];
+            $items[] = new TitleCardDto(
                 $tmdbId,
-                'movie',
                 $movie['title'] ?? '',
-                $movie['overview'] ?? null,
-                $posterUrl,
-                null, // trailerUrl not available in search results
-                $releaseYear,
-                $movie['original_language'] ?? null,
-                null, // durationMinutes not available in search results
-                $localScores[$tmdbId] ?? null
+                !empty($movie['poster_path'])
+                    ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
+                    : null,
+                $localScores[$tmdbId] ?? null,
             );
         }
 
-        return $titles;
-    }
+        $totalPages = min(
+            (int) ($response['total_pages'] ?? 1),
+            self::TMDB_MAX_PAGES
+        );
 
-    public function discover(
-        ?int $genreId,
-        ?int $year,
-        ?string $language
-    ): array {
-        $tmdbGenreId = null;
-        if ($genreId !== null) {
-            $genre = $this->genreService->getById($genreId);
-            if ($genre) {
-                $tmdbGenreId = $genre->getTmdbGenreId();
-            }
-        }
-
-        try {
-            $response = $this->tmdbClient->discoverMovie($tmdbGenreId, $year, $language);
-            $results = $response['results'] ?? [];
-        } catch (\Throwable $e) {
-            $this->logger->error('Discover TMDB failed, falling back to local filter', [
-                'genreId' => $genreId,
-                'year' => $year,
-                'language' => $language,
-                'error' => $e->getMessage()
-            ]);
-            // Fallback to local filter if API is down
-            return $this->titleRepository->filter($genreId, $year, $language, null);
-        }
-
-        // Defensive adult content filtering
-        $filteredResults = array_filter($results, function ($item) {
-            return empty($item['adult']) || $item['adult'] !== true;
-        });
-
-        if (empty($filteredResults)) {
-            return [];
-        }
-
-        // Extract tmdb_ids
-        $tmdbIds = array_map(fn($item) => (int) $item['id'], $filteredResults);
-
-        // Fetch local avg scores
-        $localScores = $this->titleRepository->findAvgScoresForTmdbIds($tmdbIds);
-
-        // Construct Title objects
-        $titles = [];
-        foreach ($filteredResults as $movie) {
-            $tmdbId = (int) $movie['id'];
-            $releaseYear = !empty($movie['release_date'])
-                ? (int) date('Y', strtotime($movie['release_date']))
-                : null;
-
-            $posterUrl = !empty($movie['poster_path'])
-                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
-                : null;
-
-            $titles[] = new Title(
-                null,
-                $tmdbId,
-                'movie',
-                $movie['title'] ?? '',
-                $movie['overview'] ?? null,
-                $posterUrl,
-                null, // trailerUrl not available in search results
-                $releaseYear,
-                $movie['original_language'] ?? null,
-                null, // durationMinutes not available in search results
-                $localScores[$tmdbId] ?? null
-            );
-        }
-
-        return $titles;
-    }
-
-    public function filter(
-        ?int $genreId,
-        ?int $year,
-        ?string $language,
-        ?float $minScore
-    ): array {
-        return $this->titleRepository->filter($genreId, $year, $language, $minScore);
+        return new CatalogResult($items, $page, $totalPages, 'tmdb');
     }
 }

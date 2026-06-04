@@ -167,6 +167,7 @@ $router->setLogger($log_app);
 // Routes
 $router->get('/', fn() => $makePageCtrl()->home());
 $router->get('/titles', fn() => $makeTitleCtrl()->index());
+$router->get('/titles/search', fn() => $makeTitleCtrl()->search());
 $router->get('/titles/detail', fn() => $makeTitleCtrl()->show());
 
 $router->get('/profile', $protegida(fn() => $makeUserCtrl()->profile()));

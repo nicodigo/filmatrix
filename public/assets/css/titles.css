@@ -198,29 +198,30 @@ body {
    Grilla de catálogo
 ══════════════════════════════════════ */
 .films-grid {
+  padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  padding: 0 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 65px));
+  gap: 6px;
+  justify-content: space-evenly;
 }
 
 @media (min-width: 480px) {
   .films-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 105px));
   }
 }
 
 @media (min-width: 768px) {
   .films-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 115px));
+    gap: 6px;
     padding: 0 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .films-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 210px));
     padding: 0 2rem;
   }
 }

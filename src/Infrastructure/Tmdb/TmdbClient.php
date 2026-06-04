@@ -148,26 +148,4 @@ class TmdbClient
         ]);
     }
 
-    public function discoverMovie(?int $tmdbGenreId, ?int $year, ?string $language, int $page = 1): array
-    {
-        $params = [
-            'include_adult' => 'false',
-            'vote_count.gte' => 1000,
-            'page' => $page,
-        ];
-
-        if ($tmdbGenreId !== null) {
-            $params['with_genres'] = $tmdbGenreId;
-        }
-
-        if ($year !== null) {
-            $params['primary_release_year'] = $year;
-        }
-
-        if ($language !== null) {
-            $params['with_original_language'] = $language;
-        }
-
-        return $this->request('/discover/movie', $params);
-    }
 }

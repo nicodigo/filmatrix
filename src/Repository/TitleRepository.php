@@ -1,69 +1,5 @@
 <?php
 
-/**
- * TitleRepository
- * Acceso a datos de la tabla titles y sus relaciones con géneros (title_genres)
- * y elenco (title_cast).
- *
- * MÉTODOS:
- *   findByTmdbId(tmdbId): ?Title
- *     Busca un título por su ID de TMDB. Retorna null si no existe.
- * 
- *   upsert(title): int
- *     Inserta un título o actualiza todos sus campos si ya existe el tmdb_id.
- *     Actualiza el timestamp de caché. Retorna el id interno del registro.
- * 
- *   search(query, limit): array
- *     Busca títulos cuyo nombre coincida parcialmente con el texto ingresado.
- *     La búsqueda es case-insensitive usando ILIKE e incluye el promedio
- *     de score de reseñas visibles.
- *
- *     Los resultados se ordenan por año de estreno descendente y se limita
- *     la cantidad de registros retornados.
- * 
- *   filter(genreId, year, language, minScore, limit): array
- *     Filtra títulos utilizando criterios combinables.
- *
- *     FILTROS DISPONIBLES:
- *       - genreId   → género asociado al título.
- *       - year      → año de estreno.
- *       - language  → idioma original.
- *       - minScore  → score promedio mínimo basado en reseñas visibles.
- *
- *     El score promedio se calcula usando AVG sobre las reseñas visibles.
- *     Los resultados se ordenan por año de estreno descendente y se limita
- *     la cantidad de registros retornados.
- *
- *     Permite aplicar cualquier combinación de filtros dinámicamente.
- *
- * RELACIONES:
- *   clearGenres(titleId)
- *     Elimina todos los géneros asociados a un título. Usado antes de
- *     resincronizar géneros.
- *
- *   attachGenre(titleId, genreId)
- *     Asocia un género a un título. Ignora si la relación ya existe.
- *
- *   findGenresByTitleId(titleId): array
- *     Retorna todos los géneros de un título ordenados alfabéticamente.
- *
- *   clearCast(titleId)
- *     Elimina todo el elenco asociado a un título. Usado antes de
- *     resincronizar el cast.
- *
- *   attachCastMember(titleId, personId, role, characterName, billingOrder)
- *     Asocia una persona al elenco de un título con su rol, nombre de
- *     personaje y orden de crédito. Ignora si la relación ya existe.
- *
- *   findCastByTitleId(titleId): array
- *     Retorna el elenco completo de un título incluyendo nombre, foto,
- *     rol, personaje y orden de crédito, ordenado por billing_order ascendente.
- *
- * DEPENDENCIAS:
- *   PDO   — conexión a la base de datos.
- *   Title — modelo mapeado desde los resultados de la consulta.
- */
-
 namespace App\Repository;
 
 use App\Models\Title;
@@ -78,7 +14,7 @@ class TitleRepository
         $this->pdo = $pdo;
     }
 
-    public function findByTmdbId(int $tmdbId, int $ttl_days): ?Title
+    public function findByTmdbId(int $tmdbId): ?Title
     {
         $stmt = $this->pdo->prepare(
             "SELECT
@@ -88,14 +24,12 @@ class TitleRepository
              LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
              WHERE t.tmdb_id = :tmdb_id
-             AND t.cached_at > NOW() - MAKE_INTERVAL(days := :ttl_days)
              GROUP BY t.id
              LIMIT 1"
         );
 
         $stmt->execute([
             ':tmdb_id' => $tmdbId,
-            ':ttl_days' => $ttl_days,
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -172,7 +106,7 @@ class TitleRepository
         return (int) $stmt->fetchColumn();
     }
 
-    
+
     public function search(string $query, int $limit = 20): array
     {
         $stmt = $this->pdo->prepare(
@@ -203,11 +137,12 @@ class TitleRepository
         ?int $year,
         ?string $language,
         ?float $minScore,
-        int $limit = 20
+        int $limit = 20,
+        int $offset = 0
     ): array {
         $conditions = ['1=1'];
         $params = [];
-    
+
         if ($genreId !== null) {
             $conditions[] = 'EXISTS (
                 SELECT 1 FROM title_genres tg
@@ -215,41 +150,91 @@ class TitleRepository
             )';
             $params[':genre_id'] = $genreId;
         }
-    
+
         if ($year !== null) {
             $conditions[] = 't.release_year = :year';
             $params[':year'] = $year;
         }
-    
+
         if ($language !== null) {
             $conditions[] = 't.language = :language';
             $params[':language'] = $language;
         }
-    
+
         $having = '';
         if ($minScore !== null) {
             $having = 'HAVING COALESCE(ROUND(AVG(r.score)::numeric, 1), 0) >= :min_score';
             $params[':min_score'] = $minScore;
         }
-    
+
         $where = implode(' AND ', $conditions);
-    
+
         $stmt = $this->pdo->prepare(
             "SELECT
-                t.*,
-                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
-             FROM titles t
-             LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
-             WHERE {$where}
-             GROUP BY t.id
-             {$having}
-             ORDER BY t.release_year DESC NULLS LAST
-             LIMIT {$limit}"
+            t.*,
+            COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+         FROM titles t
+         LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+         WHERE {$where}
+         GROUP BY t.id
+         {$having}
+         ORDER BY t.release_year DESC NULLS LAST
+         LIMIT {$limit} OFFSET {$offset}"
         );
-    
+
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         return array_map(fn($row) => Title::fromArray($row), $rows);
+    }
+
+    public function filterCount(
+        ?int $genreId,
+        ?int $year,
+        ?string $language,
+        ?float $minScore
+    ): int {
+        $conditions = ['1=1'];
+        $params = [];
+
+        if ($genreId !== null) {
+            $conditions[] = 'EXISTS (
+            SELECT 1 FROM title_genres tg
+            WHERE tg.title_id = t.id AND tg.genre_id = :genre_id
+        )';
+            $params[':genre_id'] = $genreId;
+        }
+
+        if ($year !== null) {
+            $conditions[] = 't.release_year = :year';
+            $params[':year'] = $year;
+        }
+
+        if ($language !== null) {
+            $conditions[] = 't.language = :language';
+            $params[':language'] = $language;
+        }
+
+        $having = '';
+        if ($minScore !== null) {
+            $having = 'HAVING COALESCE(ROUND(AVG(r.score)::numeric, 1), 0) >= :min_score';
+            $params[':min_score'] = $minScore;
+        }
+
+        $where = implode(' AND ', $conditions);
+
+        $stmt = $this->pdo->prepare(
+            "SELECT COUNT(*) FROM (
+            SELECT t.id
+            FROM titles t
+            LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+            WHERE {$where}
+            GROUP BY t.id
+            {$having}
+        ) AS filtered"
+        );
+
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
     }
 
     /* =========================
@@ -347,4 +332,3 @@ class TitleRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
-

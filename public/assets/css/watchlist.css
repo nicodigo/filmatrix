@@ -83,7 +83,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 100px));
   gap: 12px;
-  justify-content: start;
+  justify-content: space-evenly;
 }
 
 /* ══════════════════════════════════════
