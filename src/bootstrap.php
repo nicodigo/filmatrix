@@ -128,6 +128,20 @@ $titleListService = new TitleListService(
 
 $watchlistService = new WatchlistService($watchlistRepository, $titleService);
 
+
+// ─── Sincronizar géneros al arrancar ───────────────────────────────────────
+try {
+    $genresData = $tmdbClient->getGenres();
+    foreach ($genresData['genres'] ?? [] as $genre) {
+        $genreService->sync((int) $genre['id'], (string) $genre['name']);
+    }
+    $log_app->info('Géneros sincronizados correctamente desde TMDB.');
+} catch (\Throwable $e) {
+    $log_app->error('Error al sincronizar géneros desde TMDB: ' . $e->getMessage());
+}
+// ──────────────────────────────────────────────────────────────────────────
+
+
 // Middleware
 $authMiddleware = new AuthMiddleware();
 
