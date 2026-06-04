@@ -23,45 +23,165 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 
 ```
 .
-├── .env.example                 # Variables de entorno de ejemplo
-├── README.md                    # Este archivo
-├── composer.json                # Dependencias de Composer
-├── composer.lock                # Lock de dependencias
-├── phinx.php                    # Configuración de Phinx
-├── bootstrap.php                # Punto de entrada de la aplicación (carga de rutas, contenedor, etc.)
-├── public/
-│   └── index.php                # Front controller
-├── src/
-│   ├── Controllers/
-│   │   ├── ErrorController.php  # Manejo de errores HTTP (404, 500)
-│   │   └── UserController.php   # Acciones relacionadas con el usuario (perfil, etc.)
-│   ├── Core/
-│   │   ├── Config.php           # Configuración de la aplicación (rutas, DB, etc.)
-│   │   ├── Router.php           # Enrutador HTTP
-│   │   └── Traits/
-│   │       └── Loggable.php     # Trait para inyectar logger Monolog
-│   ├── Models/
-│   │   ├── Genre.php            # Modelo de género
-│   │   ├── People.php           # Modelo de persona (actor/director)
-│   │   ├── Review.php           # Modelo de reseña
-│   │   ├── Title.php            # Modelo de título (película/serie)
-│   │   └── User.php             # Modelo de usuario
-│   ├── Repository/
-│   │   ├── FilmListRepository.php  # Repositorio de listas de catálogo
-│   │   ├── ReviewRepository.php       # Repositorio de reseñas
-│   │   └── UserRepository.php         # Repositorio de usuarios
-│   └── Services/
-│       ├── TitleService.php     # Lógica de negocio para títulos
-│       └── UserService.php      # Lógica de negocio para usuarios
-├── storage/
-│   └── logs/
-│       └── .gitkeep             # Directorio de logs (Monolog)
+├── .env.example                      # Variables de entorno de ejemplo
+├── .github/
+│   └── workflows/
+│       └── deploy_a_dockerhub_railway.yml  # CI/CD a DockerHub y Railway
+├── .gitignore
+├── README.md                         # Este archivo
+├── Dockerfile
+├── docker-compose.yml
+├── docker/
+│   ├── apache.conf                   # Configuración de Apache
+│   └── entrypoint.sh                 # Script de arranque del contenedor
+├── composer.json                     # Dependencias de Composer
+├── composer.lock
+├── phinx.php                         # Configuración de Phinx
+├── jsconfig.json
+├── bin/
+│   └── sync-titles.php               # Script CLI para poblar la DB desde TMDB
+├── db/
+│   └── migrations/                   # Migraciones de Phinx
+│       ├── 20260506125601_create_filmatrix_schema.php
+│       ├── 20260506130000_create_films_lists.php
+│       └── 20260517000000_rename_films_lists_to_title_lists.php
 ├── doc/
+│   ├── DER.md
+│   ├── PROJECT_OVERVIEW.md
 │   └── imgs/
-│       ├── sitemap.png          # Mapa del sitio
+│       ├── logoPAW.svg
+│       ├── sitemap.png
 │       └── Tp_integrador-DERsvg.svg  # Diagrama entidad-relación
-└── migrations/                  # Migraciones de Phinx
-    └── (archivos de migración)
+├── public/                           # Web root (Apache apunta aquí)
+│   ├── .htaccess                     # Reescritura de URLs al front controller
+│   ├── favicon.ico
+│   ├── index.php                     # Front controller
+│   └── assets/
+│       ├── css/
+│       │   ├── auth.css
+│       │   ├── base.css              # Tokens y estilos globales
+│       │   ├── detalle_pelicula.css
+│       │   ├── editar_perfil.css
+│       │   ├── films.css
+│       │   ├── footer.css
+│       │   ├── header.css
+│       │   ├── hero.css
+│       │   ├── home.css
+│       │   ├── miPerfil.css
+│       │   ├── movie-card.css
+│       │   ├── title-card.css
+│       │   ├── title-detail.css
+│       │   ├── titles.css
+│       │   └── watchlist.css
+│       ├── img/
+│       │   ├── filmatrix_isotipo.webp
+│       │   ├── Filmatrix_logo.png
+│       │   ├── Filmatrix_logo.webp
+│       │   ├── hero-bg.webp
+│       │   ├── tmdb_logo.svg
+│       │   └── user_avatar.png
+│       └── js/
+│           ├── app.js                # Entry point JS
+│           ├── modules/
+│           │   ├── CatalogFilters.js
+│           │   ├── NavMenu.js
+│           │   ├── ReviewEdit.js
+│           │   ├── SearchToggle.js
+│           │   ├── Toast.js
+│           │   ├── utils.js
+│           │   └── WatchlistActions.js
+│           └── pages/
+│               ├── home.js
+│               ├── TitleDetails.js
+│               └── Titles.js
+├── src/
+│   ├── bootstrap.php                 # Composición del contenedor, rutas y arranque
+│   ├── Controllers/
+│   │   ├── ErrorController.php       # Manejo de errores HTTP (404, 500)
+│   │   ├── PageController.php        # Páginas estáticas (home, etc.)
+│   │   ├── ReviewController.php      # CRUD de reseñas
+│   │   ├── TitleController.php       # Catálogo y detalle de títulos
+│   │   ├── UserController.php        # Perfil, registro y autenticación
+│   │   └── WatchlistController.php   # Gestión de watchlist
+│   ├── Core/
+│   │   ├── Config.php                # Lectura de variables de entorno
+│   │   ├── Request.php               # Abstracción de la petición HTTP
+│   │   ├── Router.php                # Enrutador HTTP
+│   │   ├── Database/
+│   │   │   └── ConnectionBuilder.php # Construcción de la conexión PDO
+│   │   ├── Exceptions/               # Excepciones de dominio
+│   │   │   ├── EmailAlreadyTakenException.php
+│   │   │   ├── InvalidPasswordException.php
+│   │   │   ├── InvalidValueFormatException.php
+│   │   │   ├── ReviewAlreadyExistException.php
+│   │   │   ├── RouteNotFoundException.php
+│   │   │   ├── TmdbApiException.php
+│   │   │   ├── UsernameAlreadyExistsException.php
+│   │   │   ├── UserNotFoundException.php
+│   │   │   ├── WatchlistItemAlreadyExistsException.php
+│   │   │   └── WatchlistItemNotFoundException.php
+│   │   └── Traits/
+│   │       └── Loggable.php          # Trait para inyectar logger Monolog
+│   ├── Infrastructure/
+│   │   └── Tmdb/
+│   │       └── TmdbClient.php        # Cliente HTTP para la API de TMDB
+│   ├── Middleware/
+│   │   └── AuthMiddleware.php        # Protección de rutas autenticadas
+│   ├── Models/                       # DTOs y entidades de dominio
+│   │   ├── CatalogQuery.php
+│   │   ├── CatalogResult.php
+│   │   ├── Genre.php
+│   │   ├── People.php
+│   │   ├── Review.php
+│   │   ├── Title.php
+│   │   ├── TitleCardDto.php
+│   │   ├── User.php
+│   │   ├── WatchlistEntry.php
+│   │   └── WatchlistItem.php
+│   ├── Repository/                   # Acceso a datos (solo SQL con PDO)
+│   │   ├── GenreRepository.php
+│   │   ├── PeopleRepository.php
+│   │   ├── ReviewRepository.php
+│   │   ├── TitleListRepository.php
+│   │   ├── TitleRepository.php
+│   │   ├── UserRepository.php
+│   │   └── WatchlistRepository.php
+│   └── Services/                     # Lógica de negocio
+│       ├── AuthService.php
+│       ├── GenreService.php
+│       ├── PeopleService.php
+│       ├── ReviewService.php
+│       ├── TitleListService.php
+│       ├── TitleService.php
+│       ├── UserService.php
+│       └── WatchlistService.php
+├── storage/
+│   ├── cache/                        # Caché de Twig
+│   ├── logs/
+│   │   └── app.log
+│   └── uploads/
+├── tests/                            # (pendiente)
+└── views/                            # Plantillas Twig
+    ├── layout/
+    │   └── main.html.twig            # Layout base
+    ├── macros/
+    │   └── title-cards.html.twig     # Macro reutilizable de tarjetas
+    ├── pages/
+    │   ├── change-password.html.twig
+    │   ├── edit-profile.html.twig
+    │   ├── error-404.html.twig
+    │   ├── error-500.html.twig
+    │   ├── home.html.twig
+    │   ├── login.html.twig
+    │   ├── my-reviews.html.twig
+    │   ├── profile.html.twig
+    │   ├── register.html.twig
+    │   ├── title-detail.html.twig
+    │   ├── titles.html.twig
+    │   └── watchlist.html.twig
+    └── partials/
+        ├── footer.html.twig
+        └── header.html.twig
 ```
 
 ## Requisitos previos
