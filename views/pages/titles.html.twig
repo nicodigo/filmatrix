@@ -120,6 +120,28 @@
       {% endfor %}
     </div>
   </section>
+
+  <nav class="page-nav">
+      {% if prevUrl %}
+          <a href="{{ prevUrl }}" class="btn-page">
+              Anterior
+          </a>
+      {% else %}
+          <span class="btn-page disabled">
+              Anterior
+          </span>
+      {% endif %}
+
+      {% if nextUrl %}
+          <a href="{{ nextUrl }}" class="btn-page">
+              Siguiente
+          </a>
+      {% else %}
+          <span class="btn-page disabled">
+              Siguiente
+          </span>
+      {% endif %}
+  </nav>
 {% endblock %}
 {% block scripts %}
   <script type="module" src="/assets/js/pages/Titles.js"></script>

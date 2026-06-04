@@ -17,7 +17,7 @@ class TitleService
     private PeopleService $peopleService;
     private TmdbClient $tmdbClient;
     private LoggerInterface $logger;
-    private const int PER_PAGE = 20;
+    private const int PER_PAGE = 40;
     private const int TMDB_MAX_PAGES = 500;
 
     public function __construct(

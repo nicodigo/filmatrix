@@ -57,17 +57,32 @@ class TitleController
         $result = $this->titleService->getCatalog($query);
         $genres = $this->genreService->getAll();
 
+        $baseParams = array_filter([
+            'genre'    => $query->genreId,
+            'year'     => $query->year,
+            'language' => $query->language,
+            'score'    => $query->minScore,
+            'sort'     => $query->sort,
+        ], fn($v) => $v !== null);
+
+        $prevUrl = null;
+        $nextUrl = null;
+
+        if ($result->hasPrevPage()) {
+            $prevUrl = '/titles?' . http_build_query($baseParams + ['page' => $result->currentPage - 1]);
+        }
+
+        if ($result->hasNextPage()) {
+            $nextUrl = '/titles?' . http_build_query($baseParams + ['page' => $result->currentPage + 1]);
+        }
+
         echo $this->twig->render('pages/titles.html.twig', [
             'titles'         => $result->items,
             'pagination'     => $result,
             'genres'         => $genres,
-            'active_filters' => [
-                'genre'    => $query->genreId,
-                'year'     => $query->year,
-                'language' => $query->language,
-                'score'    => $query->minScore,
-                'sort'     => $query->sort,
-            ],
+            'active_filters' => $baseParams,
+            'prevUrl'        => $prevUrl,
+            'nextUrl'        => $nextUrl,
         ]);
     }
 
