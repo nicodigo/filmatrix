@@ -138,7 +138,8 @@ class TitleRepository
         ?string $language,
         ?float $minScore,
         int $limit = 20,
-        int $offset = 0
+        int $offset = 0,
+        string $orderBy = 'release_year'
     ): array {
         $conditions = ['1=1'];
         $params = [];
@@ -167,18 +168,27 @@ class TitleRepository
             $params[':min_score'] = $minScore;
         }
 
+        $orderClauses = [
+            'release_year' => 'ORDER BY t.release_year DESC NULLS LAST',
+            'popularity'   => 'ORDER BY popularity DESC',
+            'avg_score'    => 'ORDER BY avg_score DESC NULLS LAST',
+        ];
+        $orderSql = $orderClauses[$orderBy] ?? $orderClauses['release_year'];
+
         $where = implode(' AND ', $conditions);
 
         $stmt = $this->pdo->prepare(
             "SELECT
             t.*,
-            COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+            COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
+            COUNT(DISTINCT r.id) * 2 + COUNT(DISTINCT wi.id) AS popularity
          FROM titles t
          LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+         LEFT JOIN watchlist_items wi ON wi.title_id = t.id
          WHERE {$where}
          GROUP BY t.id
          {$having}
-         ORDER BY t.release_year DESC NULLS LAST
+         {$orderSql}
          LIMIT {$limit} OFFSET {$offset}"
         );
 

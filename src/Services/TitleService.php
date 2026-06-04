@@ -182,7 +182,8 @@ class TitleService
             $query->language,
             $query->minScore,
             self::PER_PAGE,
-            $offset
+            $offset,
+            $query->sort
         );
 
         $total      = $this->titleRepository->filterCount(

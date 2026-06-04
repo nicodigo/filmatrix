@@ -10,5 +10,6 @@ class CatalogQuery
         public readonly ?string $language,
         public readonly ?float  $minScore,
         public readonly int     $page = 1,
+        public readonly string  $sort = 'release_year',
     ) {}
 }

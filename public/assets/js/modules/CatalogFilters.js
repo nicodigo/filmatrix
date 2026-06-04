@@ -1,7 +1,7 @@
 export class CatalogFilters {
   constructor() {
     this.selects = document.querySelectorAll(
-      "#filterGenre, #filterYear, #filterLanguage, #filterScore",
+      "#filterGenre, #filterYear, #filterLanguage, #filterScore, #filterSort",
     );
 
     if (!this.selects.length) return;
@@ -21,10 +21,6 @@ export class CatalogFilters {
         params.delete(select.name);
       }
     });
-
-    // Mantener búsqueda activa si existe
-    const q = params.get("q");
-    if (!q) params.delete("q");
 
     window.location.href = "/titles?" + params.toString();
   }

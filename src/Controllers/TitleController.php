@@ -51,6 +51,7 @@ class TitleController
             language: $this->request->get('language')  ? (string)$this->request->get('language') : null,
             minScore: $this->request->get('score')     ? (float) $this->request->get('score')    : null,
             page: max(1, (int) $this->request->get('page', 1)),
+            sort: $this->request->get('sort', 'release_year'),
         );
 
         $result = $this->titleService->getCatalog($query);
@@ -65,6 +66,7 @@ class TitleController
                 'year'     => $query->year,
                 'language' => $query->language,
                 'score'    => $query->minScore,
+                'sort'     => $query->sort,
             ],
         ]);
     }
