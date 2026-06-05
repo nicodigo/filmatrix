@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Core\Exceptions\WatchlistItemAlreadyExistsException;
 use App\Core\Exceptions\WatchlistItemNotFoundException;
+use App\Dtos\WatchlistQuery;
+use App\Dtos\WatchlistResult;
 use App\Models\WatchlistItem;
 use App\Repository\WatchlistRepository;
 use InvalidArgumentException;
@@ -13,6 +15,7 @@ use InvalidArgumentException;
 class WatchlistService
 {
     private const VALID_STATUSES = ['pending', 'watched'];
+    private const int PER_PAGE = 40;
     private WatchlistRepository $watchlistRepository;
     private TitleService $titleService;
 
@@ -43,6 +46,27 @@ class WatchlistService
             $this->assertValidStatus($status);
         }
         return $this->watchlistRepository->findByUserPaginated($userId, $limit, $offset, $status);
+    }
+
+    public function getPaginated(int $userId, WatchlistQuery $query): WatchlistResult
+    {
+        if ($query->status !== null) {
+            $this->assertValidStatus($query->status);
+        }
+
+        $offset = ($query->page - 1) * self::PER_PAGE;
+
+        $items = $this->watchlistRepository->findByUserPaginated(
+            $userId,
+            self::PER_PAGE,
+            $offset,
+            $query->status,
+        );
+
+        $total      = $this->watchlistRepository->countUserWatchlistItems($userId, $query->status);
+        $totalPages = max(1, (int) ceil($total / self::PER_PAGE));
+
+        return new WatchlistResult($items, $query->page, $totalPages, $query->status);
     }
 
     public function getItem(int $userId, int $titleId): ?WatchlistItem

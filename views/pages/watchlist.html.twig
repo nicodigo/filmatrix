@@ -19,19 +19,19 @@
     <ul class="watchlist-filters__list">
       <li>
         <a href="/my-watchlist"
-           class="watchlist-filter{% if status is null %} watchlist-filter--active{% endif %}">
+           class="watchlist-filter{% if pagination.status is null %} watchlist-filter--active{% endif %}">
           Todas
         </a>
       </li>
       <li>
         <a href="/my-watchlist?status=pending"
-           class="watchlist-filter{% if status == 'pending' %} watchlist-filter--active{% endif %}">
+           class="watchlist-filter{% if pagination.status == 'pending' %} watchlist-filter--active{% endif %}">
           Pendientes
         </a>
       </li>
       <li>
         <a href="/my-watchlist?status=watched"
-           class="watchlist-filter{% if status == 'watched' %} watchlist-filter--active{% endif %}">
+           class="watchlist-filter{% if pagination.status == 'watched' %} watchlist-filter--active{% endif %}">
           Vistas
         </a>
       </li>
@@ -43,11 +43,9 @@
       {{ cards.titleCard(item) }}
     {% else %}
       <p class="watchlist-empty">
-        {% if status == 'pending' %}
+        {% if pagination.status == 'pending' %}
           No tenés títulos pendientes.
-        {% elseif status == 'watching' %}
-          No estás viendo ningún título ahora.
-        {% elseif status == 'watched' %}
+        {% elseif pagination.status == 'watched' %}
           No tenés títulos vistos aún.
         {% else %}
           Tu watchlist está vacía.
@@ -56,11 +54,10 @@
     {% endfor %}
   </section>
 
-  {% if total_pages > 1 %}
+  {% if pagination.totalPages > 1 %}
     <nav class="watchlist-pagination" aria-label="Paginación de watchlist">
-      {% if page > 1 %}
-        <a href="/my-watchlist?{% if status %}status={{ status }}&{% endif %}page={{ page - 1 }}"
-           class="watchlist-pagination__btn" rel="prev">
+      {% if prevUrl %}
+        <a href="{{ prevUrl }}" class="watchlist-pagination__btn" rel="prev">
           Anterior
         </a>
       {% else %}
@@ -70,12 +67,11 @@
       {% endif %}
 
       <span class="watchlist-pagination__info">
-        Página {{ page }} de {{ total_pages }}
+        Página {{ pagination.currentPage }} de {{ pagination.totalPages }}
       </span>
 
-      {% if page < total_pages %}
-        <a href="/my-watchlist?{% if status %}status={{ status }}&{% endif %}page={{ page + 1 }}"
-           class="watchlist-pagination__btn" rel="next">
+      {% if nextUrl %}
+        <a href="{{ nextUrl }}" class="watchlist-pagination__btn" rel="next">
           Siguiente
         </a>
       {% else %}

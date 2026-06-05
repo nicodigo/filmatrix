@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Request;
 use App\Dtos\TitleCardDto;
+use App\Dtos\WatchlistQuery;
 use App\Services\WatchlistService;
 use Exception;
 use RuntimeException;
@@ -16,17 +17,15 @@ class WatchlistController
     private Environment $twig;
     private WatchlistService $watchlistService;
     private Request $request;
-    private int $perPage;
 
     public function __construct(WatchlistService $watchlistService, Environment $twig, Request $request)
     {
         $this->watchlistService = $watchlistService;
         $this->twig = $twig;
         $this->request = $request;
-        $this->perPage = 20;
     }
 
-    // GET /my-watchlist?status=pending
+    // GET /my-watchlist?status=pending&page=1
     public function index(): void
     {
         $userId = $this->request->session('user_id');
@@ -34,29 +33,39 @@ class WatchlistController
             throw new RuntimeException("User id null on watchlist index");
         }
 
-        try {
-            $status = $this->request->get('status');
-            $page = max(1, $this->request->get('page', 1));
-            $offset = ($page - 1) * $this->perPage;
+        $query = new WatchlistQuery(
+            status: $this->request->get('status'),
+            page:   max(1, (int) $this->request->get('page', 1)),
+        );
 
-            $items = $this->watchlistService->getUserWatchlistPaginated($userId, $this->perPage, $offset, $status);
-            $totalWatchItems = $this->watchlistService->lengthUserWatchlist($userId, $status);
-            $totalPages = (int) ceil($totalWatchItems / $this->perPage);
+        $result = $this->watchlistService->getPaginated($userId, $query);
 
-            $mappedItems = array_map(fn($entry) => TitleCardDto::fromWatchlistEntry($entry), $items);
+        $mappedItems = array_map(
+            fn($entry) => TitleCardDto::fromWatchlistEntry($entry),
+            $result->items,
+        );
 
-            $this->twig->display(
-                'pages/watchlist.html.twig',
-                [
-                    'items' => $mappedItems,
-                    'status' => $status,
-                    'page' => $page,
-                    'total_pages' => $totalPages,
-                ]
-            );
-        } catch (Exception) {
-            $this->twig->display('pages/error-500.html.twig');
+        $baseParams = array_filter([
+            'status' => $query->status,
+        ], fn($v) => $v !== null);
+
+        $prevUrl = null;
+        $nextUrl = null;
+
+        if ($result->hasPrevPage()) {
+            $prevUrl = '/my-watchlist?' . http_build_query($baseParams + ['page' => $result->currentPage - 1]);
         }
+
+        if ($result->hasNextPage()) {
+            $nextUrl = '/my-watchlist?' . http_build_query($baseParams + ['page' => $result->currentPage + 1]);
+        }
+
+        $this->twig->display('pages/watchlist.html.twig', [
+            'items'      => $mappedItems,
+            'pagination' => $result,
+            'prevUrl'    => $prevUrl,
+            'nextUrl'    => $nextUrl,
+        ]);
     }
 
     // post /my-watchlist
