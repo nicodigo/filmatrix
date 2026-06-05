@@ -1,0 +1,615 @@
+/* ══════════════════════════════════════
+   Lists — page styles (my-lists + list-detail)
+   Mobile-first — uses only base.css variables
+   Matches Filmatrix design system v1.0
+══════════════════════════════════════ */
+
+/* ══════════════════════════════════════
+   Lists page header
+══════════════════════════════════════ */
+.lists-header {
+  padding: 1.5rem 1rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lists-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.lists-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lists-create-btn:hover {
+  background: var(--accent-hover);
+}
+
+.lists-create-btn svg {
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   Empty state
+══════════════════════════════════════ */
+.lists-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.lists-empty p + p {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ══════════════════════════════════════
+   Lists grid
+══════════════════════════════════════ */
+.lists-grid {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* ══════════════════════════════════════
+   List card
+══════════════════════════════════════ */
+.list-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.list-card:hover {
+  border-color: var(--accent);
+}
+
+.list-card__link {
+  display: block;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.list-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.list-card__name {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  word-break: break-word;
+  flex: 1;
+}
+
+.list-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
+.list-card__badge--public {
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.list-card__badge--private {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.list-card__meta {
+  display: flex;
+  gap: 20px;
+}
+
+.list-card__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.list-card__meta-item dt {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.list-card__meta-item dd {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.list-card__delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.list-card__delete-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ══════════════════════════════════════
+   List detail header
+══════════════════════════════════════ */
+.list-detail-header {
+  padding: 1.5rem 1rem 0.5rem;
+}
+
+.list-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.list-detail-back:hover {
+  color: var(--accent);
+}
+
+.list-detail-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.list-detail-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.list-detail-actions {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.list-detail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.list-detail-btn:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.list-detail-btn svg {
+  flex-shrink: 0;
+}
+
+.list-detail-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+/* ══════════════════════════════════════
+   List detail content grid
+══════════════════════════════════════ */
+.list-detail-content {
+  padding: 1rem;
+}
+
+.list-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 65px));
+  gap: 12px;
+  justify-content: space-evenly;
+}
+
+/* ══════════════════════════════════════
+   Pagination
+══════════════════════════════════════ */
+.list-detail-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.list-detail-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.list-detail-pagination__btn:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.list-detail-pagination__btn--disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.list-detail-pagination__info {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════
+   Dialog (create / edit list)
+   Native <dialog> + backdrop
+══════════════════════════════════════ */
+.list-dialog {
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface-el);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  max-width: 420px;
+  width: calc(100vw - 32px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+}
+
+.list-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.list-dialog__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+}
+
+.list-dialog__title {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.list-dialog__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.list-dialog__close:hover {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.list-dialog__label {
+  padding: 16px 20px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.list-dialog__input {
+  margin: 0 20px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.list-dialog__input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-muted);
+}
+
+.list-dialog__input::placeholder {
+  color: var(--text-muted);
+}
+
+.list-dialog__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.list-dialog__checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.list-dialog__checkbox input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.list-dialog__checkbox input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.list-dialog__checkbox-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.list-dialog__checkbox-hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.list-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px 20px;
+}
+
+.list-dialog__btn {
+  padding: 8px 18px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.list-dialog__btn--primary {
+  border: none;
+  background: var(--accent);
+  color: #fff;
+}
+
+.list-dialog__btn--primary:hover {
+  background: var(--accent-hover);
+}
+
+.list-dialog__btn--secondary {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.list-dialog__btn--secondary:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ══════════════════════════════════════
+   Responsive — 480px+
+══════════════════════════════════════ */
+@media (min-width: 480px) {
+  .lists-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .list-detail-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 155px));
+    gap: 14px;
+  }
+}
+
+/* ══════════════════════════════════════
+   Responsive — 768px+
+══════════════════════════════════════ */
+@media (min-width: 768px) {
+  .lists-header {
+    padding: 2rem 1.5rem 0.5rem;
+  }
+
+  .lists-title {
+    font-size: 2.5rem;
+  }
+
+  .lists-grid {
+    padding: 1.25rem 1.5rem;
+    gap: 16px;
+  }
+
+  .list-detail-header {
+    padding: 2rem 1.5rem 0.5rem;
+  }
+
+  .list-detail-title {
+    font-size: 2.25rem;
+  }
+
+  .list-detail-content {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .list-detail-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 170px));
+    gap: 16px;
+  }
+
+  .list-detail-pagination {
+    padding: 1.5rem 1.5rem 2rem;
+  }
+}
+
+/* ══════════════════════════════════════
+   Responsive — 1024px+
+══════════════════════════════════════ */
+@media (min-width: 1024px) {
+  .lists-header {
+    padding: 2rem 2rem 0.5rem;
+  }
+
+  .lists-grid {
+    padding: 1.5rem 2rem;
+    max-width: 960px;
+    gap: 18px;
+  }
+
+  .list-detail-header {
+    padding: 2rem 2rem 0.5rem;
+  }
+
+  .list-detail-content {
+    padding: 1.5rem 2rem;
+  }
+
+  .list-detail-grid {
+    max-width: 960px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 180px));
+    gap: 18px;
+  }
+
+  .list-detail-pagination {
+    padding: 1.5rem 2rem 2rem;
+    max-width: 960px;
+  }
+}
