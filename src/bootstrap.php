@@ -109,7 +109,6 @@ $authService    = new AuthService($userRepository, $log_app);
 $userService    = new UserService($userRepository);
 $genreService   = new GenreService($genreRepository);
 $peopleService  = new PeopleService($peopleRepository);
-$reviewService  = new ReviewService($reviewRepository);
 
 $titleService = new TitleService(
     $titleRepository,
@@ -127,6 +126,7 @@ $titleListService = new TitleListService(
 );
 
 $watchlistService = new WatchlistService($watchlistRepository, $titleService);
+$reviewService   = new ReviewService($reviewRepository, $watchlistService, $log_app);
 
 
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\Models\WatchlistEntry;
+use App\Dtos\WatchlistEntry;
 use App\Models\WatchlistItem;
 use PDO;
 

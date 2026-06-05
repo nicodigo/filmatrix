@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Infrastructure\Tmdb\TmdbClient;
-use App\Models\CatalogQuery;
-use App\Models\CatalogResult;
+use App\Dtos\CatalogQuery;
+use App\Dtos\CatalogResult;
 use App\Models\Title;
-use App\Models\TitleCardDto;
+use App\Dtos\TitleCardDto;
 use App\Repository\TitleRepository;
 use Psr\Log\LoggerInterface;
 

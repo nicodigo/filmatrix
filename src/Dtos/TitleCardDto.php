@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace App\Dtos;
 
 class TitleCardDto
 {
@@ -14,7 +14,7 @@ class TitleCardDto
         public readonly ?string $watchlistStatus = null,
     ) {}
 
-    public static function fromTitle(Title $title): self
+    public static function fromTitle(\App\Models\Title $title): self
     {
         return new self(
             tmdbId:          $title->getTmdbId(),

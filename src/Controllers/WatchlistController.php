@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Request;
-use App\Models\TitleCardDto;
+use App\Dtos\TitleCardDto;
 use App\Services\WatchlistService;
 use Exception;
 use RuntimeException;

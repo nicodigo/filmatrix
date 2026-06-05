@@ -6,14 +6,22 @@ use App\Core\Exceptions\InvalidValueFormatException;
 use App\Core\Exceptions\ReviewAlreadyExistException;
 use App\Models\Review;
 use App\Repository\ReviewRepository;
+use Psr\Log\LoggerInterface;
 
 class ReviewService
 {
     private ReviewRepository $reviewRepository;
+    private WatchlistService $watchlistService;
+    private LoggerInterface $logger;
 
-    public function __construct(ReviewRepository $reviewRepository)
-    {
+    public function __construct(
+        ReviewRepository $reviewRepository,
+        WatchlistService $watchlistService,
+        LoggerInterface $logger
+    ) {
         $this->reviewRepository = $reviewRepository;
+        $this->watchlistService = $watchlistService;
+        $this->logger = $logger;
     }
 
     /**
@@ -69,7 +77,21 @@ class ReviewService
             $body
         );
 
-        return $this->reviewRepository->save($review);
+        $reviewId = $this->reviewRepository->save($review);
+
+        // Auto-add to watchlist with 'watched' status —
+        // reviewing a film implies having watched it.
+        try {
+            $this->watchlistService->ensureWatched($userId, $titleId);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to auto-watchlist after review', [
+                'user_id'  => $userId,
+                'title_id' => $titleId,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+
+        return $reviewId;
     }
 
     public function updateReview(

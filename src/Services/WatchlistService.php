@@ -80,6 +80,27 @@ class WatchlistService
         return $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
     }
 
+    /**
+     * Ensure a title is in the user's watchlist with status 'watched'.
+     *
+     * Idempotent — safe to call regardless of whether the item already
+     * exists or has a different status.  Used as a side effect when a
+     * user writes a review (reviewing implies having watched).
+     */
+    public function ensureWatched(int $userId, int $titleId): void
+    {
+        $existing = $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
+
+        if ($existing !== null) {
+            if ($existing->status !== 'watched') {
+                $this->watchlistRepository->updateStatus($userId, $titleId, 'watched');
+            }
+            return;
+        }
+
+        $this->watchlistRepository->insert($userId, $titleId, 'watched');
+    }
+
     public function deleteItem(int $userId, int $titleId): bool
     {
         return $this->watchlistRepository->delete($userId, $titleId);

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Request;
-use App\Models\CatalogQuery;
+use App\Dtos\CatalogQuery;
 use App\Services\TitleService;
 use App\Services\TitleListService;
 use App\Services\ReviewService;
