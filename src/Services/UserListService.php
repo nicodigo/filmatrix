@@ -155,6 +155,12 @@ class UserListService
         return $this->userListRepository->removeItem($listId, $titleId);
     }
 
+    /** @return int[] */
+    public function getListIdsContainingTitle(int $userId, int $titleId): array
+    {
+        return $this->userListRepository->findListIdsContainingTitle($userId, $titleId);
+    }
+
     /** @return ListCardDto[] */
     public function getAvailableListsForTitle(int $userId, int $titleId): array
     {

@@ -290,6 +290,69 @@ body {
 }
 
 /* ══════════════════════════════════════
+   ADD TO LIST
+══════════════════════════════════════ */
+.detalle-lists {
+  margin-top: 0.5rem;
+}
+
+.detalle-lists__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.detalle-lists__btn:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.detalle-lists__btn svg {
+  flex-shrink: 0;
+}
+
+.list-dialog__list-group {
+  padding: 0 20px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.list-dialog__loading {
+  padding: 16px 0;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  text-align: center;
+}
+
+.list-dialog__list-group::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list-dialog__list-group::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.list-dialog__list-group::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ══════════════════════════════════════
    REPARTO
 ══════════════════════════════════════ */
 .detalle-reparto-section {
@@ -878,4 +941,3 @@ body {
   align-items: center;
   gap: 0.75rem;
 }
-

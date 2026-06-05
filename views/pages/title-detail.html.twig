@@ -52,6 +52,43 @@
           </div>
 
         </div>
+
+        {# ── List section ── #}
+        <div class="detalle-lists" id="listsSection" data-title-id="{{ title.id }}">
+          <button class="detalle-lists__btn" id="listsAddBtn" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            Agregar a lista
+          </button>
+
+          <dialog class="list-dialog" id="listsDialog" aria-labelledby="lists-dialog-title">
+            <form method="dialog" class="list-dialog__form" id="lists-form">
+              <header class="list-dialog__header">
+                <h2 id="lists-dialog-title" class="list-dialog__title">Agregar a lista</h2>
+                <button type="button" class="list-dialog__close" id="lists-dialog-close" aria-label="Cerrar">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </header>
+
+              <div class="list-dialog__list-group" id="lists-checklist">
+                <p class="list-dialog__loading">Cargando listas…</p>
+              </div>
+
+              <footer class="list-dialog__actions">
+                <button type="button" class="list-dialog__btn list-dialog__btn--secondary" id="lists-dialog-cancel">Cerrar</button>
+              </footer>
+            </form>
+          </dialog>
+        </div>
       {% endif %}
     </div>
   </section>

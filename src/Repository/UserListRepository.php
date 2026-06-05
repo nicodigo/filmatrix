@@ -185,6 +185,22 @@ class UserListRepository
         return $stmt->fetchColumn() !== false;
     }
 
+    /** @return int[] */
+    public function findListIdsContainingTitle(int $userId, int $titleId): array
+    {
+        $sql = 'SELECT l.id
+                FROM lists l
+                JOIN list_items li ON li.list_id = l.id
+                WHERE l.user_id = :user_id AND li.title_id = :title_id';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'user_id'  => $userId,
+            'title_id' => $titleId,
+        ]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    }
+
     public function countByUser(int $userId): int
     {
         $sql = 'SELECT COUNT(*) FROM lists WHERE user_id = :user_id';

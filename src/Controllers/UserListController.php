@@ -219,15 +219,17 @@ class UserListController
         }
 
         $titleId = (int) $this->request->get('title_id', 0);
-        $lists   = $this->userListService->getUserLists($userId);
+        $lists      = $this->userListService->getUserLists($userId);
+        $containing = $this->userListService->getListIdsContainingTitle($userId, $titleId);
         header('Content-Type: application/json');
 
         $mapped = array_map(
             fn($list) => [
-                'id'         => $list->id,
-                'name'       => $list->name,
-                'is_public'  => $list->isPublic,
-                'item_count' => $list->itemCount,
+                'id'          => $list->id,
+                'name'        => $list->name,
+                'is_public'   => $list->isPublic,
+                'item_count'  => $list->itemCount,
+                'is_in_list'  => in_array($list->id, $containing, true),
             ],
             $lists
         );
