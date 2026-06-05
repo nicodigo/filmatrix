@@ -18,11 +18,16 @@ class WatchlistService
     private const int PER_PAGE = 40;
     private WatchlistRepository $watchlistRepository;
     private TitleService $titleService;
+    private ?GenrePreferenceService $preferenceService;
 
-    public function __construct(WatchlistRepository $watchlistRepository, TitleService $titleService)
-    {
+    public function __construct(
+        WatchlistRepository    $watchlistRepository,
+        TitleService           $titleService,
+        ?GenrePreferenceService $preferenceService = null,
+    ) {
         $this->watchlistRepository = $watchlistRepository;
-        $this->titleService = $titleService;
+        $this->titleService        = $titleService;
+        $this->preferenceService   = $preferenceService;
     }
 
     private function assertValidStatus(?string $status)
@@ -86,7 +91,14 @@ class WatchlistService
             throw new WatchlistItemAlreadyExistsException("Title $titleId already exists in watchlis");
         }
 
-        return $this->watchlistRepository->insert($userId, $titleId, $status);
+        $item = $this->watchlistRepository->insert($userId, $titleId, $status);
+
+        // Si se agrega directamente como 'watched', actualizar preferencias de género.
+        if ($status === 'watched') {
+            $this->applyWatchedPreferences($userId, $titleId);
+        }
+
+        return $item;
     }
 
     public function updateStatus(int $userId, int $titleId, string $status): WatchlistItem
@@ -99,7 +111,14 @@ class WatchlistService
             throw new WatchlistItemNotFoundException();
         }
 
+        $previousStatus = $item->status;
+
         $this->watchlistRepository->updateStatus($userId, $titleId, $status);
+
+        // Actualizar preferencias de género al marcar como visto por primera vez.
+        if ($status === 'watched' && $previousStatus !== 'watched') {
+            $this->applyWatchedPreferences($userId, $titleId);
+        }
 
         return $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
     }
@@ -110,6 +129,9 @@ class WatchlistService
      * Idempotent — safe to call regardless of whether the item already
      * exists or has a different status.  Used as a side effect when a
      * user writes a review (reviewing implies having watched).
+     *
+     * No actualiza preferencias de género intencionalmente: ReviewService
+     * se encarga de aplicar el delta de la puntuación de la reseña.
      */
     public function ensureWatched(int $userId, int $titleId): void
     {
@@ -137,5 +159,12 @@ class WatchlistService
         }
 
         return $this->watchlistRepository->countUserWatchlistItems($userId, $status);
+    }
+
+    // ── Privado ───────────────────────────────────────────────────────────────
+
+    private function applyWatchedPreferences(int $userId, int $titleId): void
+    {
+        $this->preferenceService?->applyWatched($userId, $titleId);
     }
 }

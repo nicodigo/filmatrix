@@ -152,4 +152,34 @@ class WatchlistRepository
 
         return (int) $stmt->fetchColumn();
     }
+
+    // ── Discarded titles ─────────────────────────────────────────────────────
+
+    /**
+     * Registra un título como descartado por el usuario.
+     * Idempotente: si ya existía la fila, no hace nada.
+     */
+    public function discard(int $userId, int $titleId): void
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO discarded_titles (user_id, title_id, discarded_at)
+             VALUES (:user_id, :title_id, NOW())
+             ON CONFLICT DO NOTHING'
+        );
+        $stmt->execute(['user_id' => $userId, 'title_id' => $titleId]);
+    }
+
+    /**
+     * Verifica si el usuario descartó un título.
+     */
+    public function isDiscarded(int $userId, int $titleId): bool
+    {
+        $stmt = $this->db->prepare(
+            'SELECT 1 FROM discarded_titles
+             WHERE user_id = :user_id AND title_id = :title_id'
+        );
+        $stmt->execute(['user_id' => $userId, 'title_id' => $titleId]);
+
+        return $stmt->fetchColumn() !== false;
+    }
 }

@@ -4,6 +4,7 @@ namespace App;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\RecommendationController;
 use App\Controllers\WatchlistController;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -21,6 +22,8 @@ use App\Repository\PeopleRepository;
 use App\Repository\TitleListRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\UserListRepository;
+use App\Repository\GenrePreferenceRepository;
+use App\Repository\RecommendationRepository;
 
 use App\Services\AuthService;
 use App\Services\UserService;
@@ -29,6 +32,8 @@ use App\Services\PeopleService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
 use App\Services\UserListService;
+use App\Services\GenrePreferenceService;
+use App\Services\RecommendationService;
 
 use App\Middleware\AuthMiddleware;
 
@@ -95,14 +100,16 @@ $twig->addGlobal('app', [
 ]);
 
 // Repositories
-$userRepository         = new UserRepository($connection);
-$titleRepository        = new TitleRepository($connection);
-$genreRepository        = new GenreRepository($connection);
-$peopleRepository       = new PeopleRepository($connection);
-$titleListRepository    = new TitleListRepository($connection);
-$reviewRepository       = new ReviewRepository($connection);
-$watchlistRepository    = new WatchlistRepository($connection);
-$userListRepository     = new UserListRepository($connection);
+$userRepository             = new UserRepository($connection);
+$titleRepository            = new TitleRepository($connection);
+$genreRepository            = new GenreRepository($connection);
+$peopleRepository           = new PeopleRepository($connection);
+$titleListRepository        = new TitleListRepository($connection);
+$reviewRepository           = new ReviewRepository($connection);
+$watchlistRepository        = new WatchlistRepository($connection);
+$userListRepository         = new UserListRepository($connection);
+$genrePreferenceRepository  = new GenrePreferenceRepository($connection);
+$recommendationRepository   = new RecommendationRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
@@ -129,9 +136,34 @@ $titleListService = new TitleListService(
     $log_app
 );
 
-$watchlistService = new WatchlistService($watchlistRepository, $titleService);
-$reviewService   = new ReviewService($reviewRepository, $watchlistService, $log_app);
+// GenrePreferenceService: requiere TitleRepository para buscar géneros por título.
+$genrePreferenceService = new GenrePreferenceService(
+    $genrePreferenceRepository,
+    $titleRepository,
+);
+
+// WatchlistService: recibe GenrePreferenceService para actualizar pesos al marcar 'watched'.
+$watchlistService = new WatchlistService(
+    $watchlistRepository,
+    $titleService,
+    $genrePreferenceService,
+);
+
+// ReviewService: recibe GenrePreferenceService para actualizar pesos al reseñar.
+$reviewService = new ReviewService(
+    $reviewRepository,
+    $watchlistService,
+    $log_app,
+    $genrePreferenceService,
+);
+
 $userListService = new UserListService($userListRepository);
+
+$recommendationService = new RecommendationService(
+    $recommendationRepository,
+    $watchlistRepository,
+    $genrePreferenceService,
+);
 
 
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────
@@ -174,6 +206,12 @@ $makeReviewCtrl = fn() => new ReviewController($twig, $reviewService, $request);
 $makeWatchlistCtrl = fn() => new WatchlistController($watchlistService, $twig, $request);
 
 $makeUserListCtrl = fn() => new UserListController($userListService, $twig, $request);
+
+$makeRecommendationCtrl = fn() => new RecommendationController(
+    $recommendationService,
+    $twig,
+    $request,
+);
 
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
@@ -219,6 +257,9 @@ $router->get('/my-lists/detail', $protegida(fn() => $makeUserListCtrl()->show())
 $router->post('/my-lists/item', $protegida(fn() => $makeUserListCtrl()->addItem()));
 $router->delete('/my-lists/item', $protegida(fn() => $makeUserListCtrl()->removeItem()));
 $router->get('/my-lists/available', $protegida(fn() => $makeUserListCtrl()->available()));
+
+$router->get('/recommendations', $protegida(fn() => $makeRecommendationCtrl()->index()));
+$router->post('/recommendations/discard', $protegida(fn() => $makeRecommendationCtrl()->discard()));
 
 $router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());
 $router->get('/contacto', fn() => $makePageCtrl()->contact());

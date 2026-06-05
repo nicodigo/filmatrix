@@ -104,11 +104,11 @@ const tasks = [
   { id:44, group:"Watchlist", name:"Botón 'Agregar a watchlist' en detalle de título", sub:"Condicional según estado actual del título para el usuario. JS fetch hacia rutas watchlist", layer:"FE", done:false },
   { id:45, group:"Watchlist", name:"Actualización del perfil de gustos al marcar 'visto'", sub:"WatchlistService dispara actualización de user_genre_preferences al cambiar estado a 'watched'", layer:"BE", done:false },
 
-  { id:46, group:"Recomendaciones", name:"Lógica de peso en user_genre_preferences", sub:"Función que incrementa/decrementa peso por género según watchlist (visto, descartado) y reseñas", layer:"BE", done:false },
-  { id:47, group:"Recomendaciones", name:"Motor de scoring — RecommendationService", sub:"Candidatos desde catálogo local. Score = suma de pesos de géneros del título para el usuario. Excluir ya vistos y descartados", layer:"BE", done:false },
-  { id:48, group:"Recomendaciones", name:"Ruta GET /recommendations", sub:"RecommendationController@index, auth guard, devuelve top N títulos rankeados", layer:"BE", done:false },
-  { id:49, group:"Recomendaciones", name:"Vista /recommendations", sub:"Grilla de sugerencias. Botón 'no me interesa' que descarta y refresca", layer:"FE", done:false },
-  { id:50, group:"Recomendaciones", name:"Descarte desde recomendaciones", sub:"POST /recommendations/discard → escribe en discarded_titles → recalcula lista", layer:"FULL", done:false },
+  { id:46, group:"Recomendaciones", name:"Lógica de peso en user_genre_preferences", sub:"Función que incrementa/decrementa peso por género según watchlist (visto, descartado) y reseñas", layer:"BE", done:true },
+  { id:47, group:"Recomendaciones", name:"Motor de scoring — RecommendationService", sub:"Candidatos desde catálogo local. Score = suma de pesos de géneros del título para el usuario. Excluir ya vistos y descartados", layer:"BE", done:true },
+  { id:48, group:"Recomendaciones", name:"Ruta GET /recommendations", sub:"RecommendationController@index, auth guard, devuelve top N títulos rankeados", layer:"BE", done:true },
+  { id:49, group:"Recomendaciones", name:"Vista /recommendations", sub:"Grilla de sugerencias. Botón 'no me interesa' que descarta y refresca", layer:"FE", done:true },
+  { id:50, group:"Recomendaciones", name:"Descarte desde recomendaciones", sub:"POST /recommendations/discard → escribe en discarded_titles → recalcula lista", layer:"FULL", done:true },
 
   { id:51, group:"Panel admin", name:"AdminMiddleware — protección por rol", sub:"Verifica user.role === 'admin'. Reutiliza patrón de AuthMiddleware", layer:"BE", done:false },
   { id:52, group:"Panel admin", name:"Rutas y controlador admin", sub:"GET/POST /admin, /admin/reviews, /admin/stats. AdminController", layer:"BE", done:false },

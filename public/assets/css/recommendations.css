@@ -1,0 +1,53 @@
+/* ── Recomendaciones ──────────────────────────────────────────────────────── */
+
+/* Botón ✕ posicionado en la esquina superior derecha de la card */
+.reco-card {
+  position: relative; /* ya está en .movie-card, pero lo reforzamos */
+}
+
+.reco-discard {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.15s ease;
+}
+
+/* Mostrar el botón al hacer hover sobre la card */
+.reco-card:hover .reco-discard {
+  opacity: 1;
+}
+
+.reco-discard:hover {
+  background: rgba(220, 38, 38, 0.85); /* rojo al pasar el mouse sobre el botón */
+}
+
+.reco-discard:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Fade-out al descartar */
+.reco-card--discarding {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
