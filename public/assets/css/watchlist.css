@@ -81,7 +81,7 @@ body {
 .watchlist-content {
   padding: 1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 100px));
+  grid-template-columns: repeat(auto-fill, minmax(60px, 65px));
   gap: 12px;
   justify-content: space-evenly;
 }
