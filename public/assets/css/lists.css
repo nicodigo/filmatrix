@@ -4,6 +4,10 @@
    Matches Filmatrix design system v1.0
 ══════════════════════════════════════ */
 
+body {
+  background-color: var(--bg-base);
+}
+
 /* ══════════════════════════════════════
    Lists page header
 ══════════════════════════════════════ */
@@ -95,7 +99,7 @@
 
 .list-card__link {
   display: block;
-  padding: 16px;
+  padding: 16px 16px 16px 44px;
   text-decoration: none;
   color: inherit;
 }
@@ -174,8 +178,9 @@
 
 .list-card__delete-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  left: 8px;
+  right: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -346,6 +351,7 @@
    Native <dialog> + backdrop
 ══════════════════════════════════════ */
 .list-dialog {
+  margin: auto;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
