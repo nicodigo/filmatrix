@@ -1,0 +1,131 @@
+{% extends 'layout/main.html.twig' %}
+{% import 'macros/title-cards.html.twig' as cards %}
+
+{% block title %}{{ list.listName }} — Mis Listas — Filmatrix{% endblock %}
+
+{% block description %}Explorá los títulos de la lista {{ list.listName }} en Filmatrix.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/lists.css">
+  <link rel="stylesheet" href="/assets/css/movie-card.css">
+{% endblock %}
+
+{% block content %}
+  <header class="list-detail-header">
+    <a href="/my-lists" class="list-detail-back" aria-label="Volver a mis listas">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Mis listas
+    </a>
+
+    <div class="list-detail-title-group">
+      <h1 class="list-detail-title">{{ list.listName }}</h1>
+      <span class="list-card__badge {{ list.isPublic ? 'list-card__badge--public' : 'list-card__badge--private' }}">
+        {{ list.isPublic ? 'Pública' : 'Privada' }}
+      </span>
+    </div>
+
+    {% if list.isOwner %}
+      <menu class="list-detail-actions">
+        <button type="button" class="list-detail-btn" id="list-edit-btn" aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+          </svg>
+          Editar
+        </button>
+        <button type="button" class="list-detail-btn list-detail-btn--danger" id="list-delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+          </svg>
+          Eliminar
+        </button>
+      </menu>
+    {% endif %}
+  </header>
+
+  <section class="list-detail-content" aria-label="Títulos en esta lista">
+    {% if list.items is empty %}
+      <p class="lists-empty">Esta lista está vacía. Buscá películas y agregalas desde su detalle.</p>
+    {% else %}
+      <div class="list-detail-grid">
+        {% for item in list.items %}
+          {{ cards.titleCard(item) }}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  {% if list.totalPages > 1 %}
+    <nav class="list-detail-pagination" aria-label="Paginación de la lista">
+      {% if prevUrl %}
+        <a href="{{ prevUrl }}" class="list-detail-pagination__btn" rel="prev">
+          Anterior
+        </a>
+      {% else %}
+        <span class="list-detail-pagination__btn list-detail-pagination__btn--disabled">
+          Anterior
+        </span>
+      {% endif %}
+
+      <span class="list-detail-pagination__info">
+        Página {{ list.currentPage }} de {{ list.totalPages }}
+      </span>
+
+      {% if nextUrl %}
+        <a href="{{ nextUrl }}" class="list-detail-pagination__btn" rel="next">
+          Siguiente
+        </a>
+      {% else %}
+        <span class="list-detail-pagination__btn list-detail-pagination__btn--disabled">
+          Siguiente
+        </span>
+      {% endif %}
+    </nav>
+  {% endif %}
+
+  {# ── Edit list dialog ── #}
+  <dialog class="list-dialog" id="list-edit-dialog" aria-labelledby="list-edit-dialog-title">
+    <form method="dialog" class="list-dialog__form" id="list-edit-form">
+      <header class="list-dialog__header">
+        <h2 id="list-edit-dialog-title" class="list-dialog__title">Editar lista</h2>
+        <button type="button" class="list-dialog__close" id="list-edit-dialog-close" aria-label="Cerrar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
+      <input type="hidden" name="list_id" value="{{ listId }}">
+
+      <label class="list-dialog__label" for="edit-name-input">Nombre</label>
+      <input type="text"
+             id="edit-name-input"
+             name="name"
+             class="list-dialog__input"
+             value="{{ list.listName }}"
+             maxlength="150"
+             required
+             autofocus>
+
+      <label class="list-dialog__checkbox">
+        <input type="checkbox" name="is_public" id="edit-public-checkbox" {{ list.isPublic ? 'checked' : '' }}>
+        <span class="list-dialog__checkbox-label">Lista pública</span>
+        <span class="list-dialog__checkbox-hint">(visible para todos)</span>
+      </label>
+
+      <footer class="list-dialog__actions">
+        <button type="button" class="list-dialog__btn list-dialog__btn--secondary" id="list-edit-cancel">Cancelar</button>
+        <button type="submit" class="list-dialog__btn list-dialog__btn--primary">Guardar cambios</button>
+      </footer>
+    </form>
+  </dialog>
+
+{% endblock %}
+
+{% block scripts %}
+  <script src="/assets/js/modules/ListActions.js" type="module"></script>
+{% endblock %}
