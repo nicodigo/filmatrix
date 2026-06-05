@@ -20,6 +20,7 @@ use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\TitleListRepository;
 use App\Repository\ReviewRepository;
+use App\Repository\UserListRepository;
 
 use App\Services\AuthService;
 use App\Services\UserService;
@@ -27,6 +28,7 @@ use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\ReviewService;
 use App\Services\TitleService;
+use App\Services\UserListService;
 
 use App\Middleware\AuthMiddleware;
 
@@ -36,6 +38,7 @@ use App\Controllers\PageController;
 use App\Controllers\TitleController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
+use App\Controllers\UserListController;
 use App\Repository\WatchlistRepository;
 use App\Services\WatchlistService;
 use App\Services\TitleListService;
@@ -99,6 +102,7 @@ $peopleRepository       = new PeopleRepository($connection);
 $titleListRepository    = new TitleListRepository($connection);
 $reviewRepository       = new ReviewRepository($connection);
 $watchlistRepository    = new WatchlistRepository($connection);
+$userListRepository     = new UserListRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
@@ -127,6 +131,7 @@ $titleListService = new TitleListService(
 
 $watchlistService = new WatchlistService($watchlistRepository, $titleService);
 $reviewService   = new ReviewService($reviewRepository, $watchlistService, $log_app);
+$userListService = new UserListService($userListRepository);
 
 
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────
@@ -168,6 +173,8 @@ $makeReviewCtrl = fn() => new ReviewController($twig, $reviewService, $request);
 
 $makeWatchlistCtrl = fn() => new WatchlistController($watchlistService, $twig, $request);
 
+$makeUserListCtrl = fn() => new UserListController($userListService, $twig, $request);
+
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
@@ -203,6 +210,15 @@ $router->get('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->index()))
 $router->post('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->store()));
 $router->patch('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->update()));
 $router->delete('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->delete()));
+
+$router->get('/my-lists', $protegida(fn() => $makeUserListCtrl()->index()));
+$router->post('/my-lists', $protegida(fn() => $makeUserListCtrl()->store()));
+$router->patch('/my-lists', $protegida(fn() => $makeUserListCtrl()->update()));
+$router->delete('/my-lists', $protegida(fn() => $makeUserListCtrl()->delete()));
+$router->get('/my-lists/detail', $protegida(fn() => $makeUserListCtrl()->show()));
+$router->post('/my-lists/item', $protegida(fn() => $makeUserListCtrl()->addItem()));
+$router->delete('/my-lists/item', $protegida(fn() => $makeUserListCtrl()->removeItem()));
+$router->get('/my-lists/available', $protegida(fn() => $makeUserListCtrl()->available()));
 
 $router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());
 $router->get('/contacto', fn() => $makePageCtrl()->contact());
