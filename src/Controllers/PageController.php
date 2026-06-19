@@ -1,28 +1,9 @@
 <?php
-/**
- * PageController 
- * Maneja las páginas estáticas o de contenido general de la aplicación
- * que no pertenecen a un recurso específico (películas, usuarios, etc.).
- *
- * MÉTODOS:
- *   home()
- *     Renderiza la página principal. Obtiene las 4 películas más populares
- *     de la sección 'popular' del catálogo para mostrarlas como destacadas.
- *     Vista: views/pages/home.php
- *     Ruta: GET /
- *
- * DEPENDENCIAS:
- *   FilmListRepository — para obtener películas destacadas del catálogo.
- *
- * NOTA: Este controller usa el repository directamente ya que es una
- * consulta de solo lectura simple que no requiere lógica de negocio.
- * 
- * (PROXIMA ACTUALIZACION: REEMPLAZAR REPOSITORY POR FilmSyncService y que no depende del repositorio)
- */
 
 namespace App\Controllers;
 
 use App\Core\Request;
+use App\Dtos\TitleCardDto;
 use App\Repository\TitleListRepository;
 use Twig\Environment;
 
@@ -41,7 +22,16 @@ class PageController
 
     public function home(): void
     {
-        $popular = $this->titleListRepository->findBySection('popular', 4);
+        $popular = array_map(
+            fn(array $row) => new TitleCardDto(
+                tmdbId:    (int) $row['tmdb_id'],
+                title:     $row['title'],
+                posterUrl: $row['poster_url'] ?? null,
+                avgScore:  isset($row['avg_score']) ? (float) $row['avg_score'] : null,
+            ),
+            $this->titleListRepository->findBySection('popular', 12)
+        );
+
         $dailyReview = [
             'title'       => 'Dune: Part Two',
             'year'        => '2024',

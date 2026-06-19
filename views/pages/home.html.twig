@@ -17,16 +17,36 @@
   </section>
 
   <section class="popular-movies">
-    <div class="movie-flex">
-      {% if (popular is empty) %}
-        <p class="catalogo-empty">Sin títulos disponibles.</p>
-      {% endif %}
+    <h2 class="popular-movies__title">Populares</h2>
 
-      {% import 'macros/title-cards.html.twig' as cards %}
+    <div class="movie-carousel">
+      <button type="button" class="carousel-arrow carousel-arrow--prev" aria-label="Anterior" id="carouselPrev">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
 
-      {% for movie in popular %}
-        {{ cards.titleCard(movie) }}
-      {% endfor %}
+      <div class="movie-flex" id="movieCarousel">
+        {% if (popular is empty) %}
+          <p class="catalogo-empty">Sin títulos disponibles.</p>
+        {% endif %}
+
+        {% import 'macros/title-cards.html.twig' as cards %}
+
+        {% for movie in popular %}
+          {{ cards.titleCard(movie) }}
+        {% endfor %}
+      </div>
+
+      <button type="button" class="carousel-arrow carousel-arrow--next" aria-label="Siguiente" id="carouselNext">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
     </div>
   </section>
 
@@ -51,4 +71,8 @@
       </div>
     </article>
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/assets/js/pages/home.js"></script>
 {% endblock %}

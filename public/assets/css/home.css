@@ -7,20 +7,89 @@ body {
   background-color: var(--bg-base);
   position: relative;
   z-index: 1;
+  padding: 1.5rem 1rem;
 }
 
-.movie-flex{
+.popular-movies__title {
+  font-family: var(--font-display) !important;
+  font-size: 1.5rem !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 1rem;
+}
+
+.movie-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.movie-flex {
   display: flex;
   flex-direction: row;
   gap: 8px;
-  padding: 8px 8px;
+  padding: 8px 0;
   position: relative;
   z-index: 1;
+  overflow-x: auto;      /* ← cambiar esto */
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  scrollbar-width: none;       /* Firefox: oculta la barra */
+  -ms-overflow-style: none;    /* IE/Edge */
 }
 
-@media (min-width: 768px) {
-  .movie-grid {
-    grid-template-columns: repeat(1, 1fr);
+.movie-flex::-webkit-scrollbar {
+  display: none;   /* Chrome/Safari: oculta la barra */
+}
+
+.movie-flex .movie-card {
+  flex: 0 0 calc(25% - 6px);
+  min-width: 0;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(13, 17, 23, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.carousel-arrow--prev {
+  left: 8px;
+}
+
+.carousel-arrow--next {
+  right: 8px;
+}
+
+.carousel-arrow:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .movie-flex .movie-card {
+    flex: 0 0 calc(50% - 4px);
   }
 }
 
