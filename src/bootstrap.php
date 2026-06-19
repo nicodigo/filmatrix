@@ -159,9 +159,10 @@ $reviewService = new ReviewService(
 
 $userListService = new UserListService($userListRepository);
 
+// RecommendationService: ya no recibe WatchlistRepository — discard()/isDiscarded()
+// se movieron a RecommendationRepository (no tienen relación con watchlist_items).
 $recommendationService = new RecommendationService(
     $recommendationRepository,
-    $watchlistRepository,
     $genrePreferenceService,
 );
 

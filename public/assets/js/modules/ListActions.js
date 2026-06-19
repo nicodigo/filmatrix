@@ -1,15 +1,9 @@
+import { Toast } from './Toast.js';
+
 /**
  * ListActions
- * Maneja la interacción AJAX para listas de películas.
- *
- * - Página "Mis Listas": crear / eliminar listas
- * - Página "Detalle de Lista": editar / eliminar lista
- *
- * Uso desde template:
- *   <script src="/assets/js/modules/ListActions.js" type="module"></script>
+ * Maneja la interacción AJAX para listas de películas
  */
-
-/* ── Clase de acciones AJAX ── */
 
 export class ListActions {
   #csrfToken;
@@ -27,6 +21,7 @@ export class ListActions {
       },
       body: JSON.stringify({ name, is_public: isPublic }),
     });
+
     const data = await res.json();
     if (!data.success) throw new Error(data.error ?? 'create failed');
     return data;
@@ -41,6 +36,7 @@ export class ListActions {
       },
       body: JSON.stringify({ list_id: listId, name, is_public: isPublic }),
     });
+
     const data = await res.json();
     if (!data.success) throw new Error(data.error ?? 'update failed');
     return data;
@@ -55,6 +51,7 @@ export class ListActions {
       },
       body: JSON.stringify({ list_id: listId }),
     });
+
     const data = await res.json();
     if (!data.success) throw new Error(data.error ?? 'delete failed');
     return data;
@@ -69,6 +66,7 @@ export class ListActions {
       },
       body: JSON.stringify({ list_id: listId, title_id: titleId }),
     });
+
     const data = await res.json();
     if (!data.success) throw new Error(data.error ?? 'addItem failed');
     return data;
@@ -83,13 +81,45 @@ export class ListActions {
       },
       body: JSON.stringify({ list_id: listId, title_id: titleId }),
     });
+
     const data = await res.json();
     if (!data.success) throw new Error(data.error ?? 'removeItem failed');
     return data;
   }
 }
 
-/* ── Inicialización automática por página ── */
+/* ─────────────────────────────────────
+   TOAST
+───────────────────────────────────── */
+
+function showToast(message, type = 'success') {
+  const existing = document.getElementById('toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'toast';
+  toast.className = `toast toast--${type}`;
+  toast.setAttribute('role', 'alert');
+
+  toast.innerHTML = message;
+
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    new Toast();
+  });
+}
+
+/* 🔥 FIX CRÍTICO: esperar render real del browser */
+function nextPaint(callback) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(callback);
+  });
+}
+
+/* ─────────────────────────────────────
+   INIT
+───────────────────────────────────── */
 
 function init() {
   const csrfToken =
@@ -97,9 +127,10 @@ function init() {
 
   const actions = new ListActions(csrfToken);
 
-  /* ══════════════════════════════════════
-     Página "Mis Listas" — /my-lists
-  ══════════════════════════════════════ */
+  /* ═════════════════════════════
+     MIS LISTAS
+  ═════════════════════════════ */
+
   const createBtn = document.getElementById('lists-create-btn');
   const createDialog = document.getElementById('list-create-dialog');
 
@@ -122,19 +153,26 @@ function init() {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const name = nameInput.value.trim();
       if (!name) return;
 
       try {
-        const result = await actions.create(name, publicCheckbox.checked);
-        window.location.reload();
+        await actions.create(name, publicCheckbox.checked);
+
+        showToast('Lista creada con éxito');
+
+        nextPaint(() => {
+          window.location.reload();
+        });
+
       } catch {
-        /* silencioso */
+        showToast('No se pudo crear la lista', 'error');
       }
     });
   }
 
-  // Delete buttons on list cards
+  /* DELETE LIST */
   document.querySelectorAll('.list-card__delete-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const listId = parseInt(btn.dataset.listId, 10);
@@ -144,16 +182,21 @@ function init() {
 
       try {
         await actions.remove(listId);
+
+        showToast('Lista eliminada con éxito');
+
         btn.closest('.list-card')?.remove();
+
       } catch {
-        /* silencioso */
+        showToast('No se pudo eliminar la lista', 'error');
       }
     });
   });
 
-  /* ══════════════════════════════════════
-     Página "Detalle de Lista" — /my-lists/detail
-  ══════════════════════════════════════ */
+  /* ═════════════════════════════
+     DETALLE LISTA
+  ═════════════════════════════ */
+
   const editBtn = document.getElementById('list-edit-btn');
   const editDialog = document.getElementById('list-edit-dialog');
 
@@ -174,21 +217,32 @@ function init() {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const listId = parseInt(form.querySelector('[name="list_id"]').value, 10);
+
+      const listId = parseInt(
+        form.querySelector('[name="list_id"]').value,
+        10,
+      );
+
       const name = nameInput.value.trim();
       if (!name) return;
 
       try {
         await actions.update(listId, name, publicCheckbox.checked);
-        window.location.reload();
+
+        showToast('Lista modificada con éxito');
+
+        nextPaint(() => {
+          window.location.reload();
+        });
+
       } catch {
-        /* silencioso */
+        showToast('No se pudo modificar la lista', 'error');
       }
     });
   }
 
-  // Delete button on list detail page
   const deleteBtn = document.getElementById('list-delete-btn');
+
   if (deleteBtn) {
     const listId = parseInt(
       document.querySelector('[name="list_id"]')?.value ?? '0',
@@ -200,9 +254,15 @@ function init() {
 
       try {
         await actions.remove(listId);
-        window.location.href = '/my-lists';
+
+        showToast('Lista eliminada con éxito');
+
+        nextPaint(() => {
+          window.location.href = '/my-lists';
+        });
+
       } catch {
-        /* silencioso */
+        showToast('No se pudo eliminar la lista', 'error');
       }
     });
   }

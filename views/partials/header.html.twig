@@ -24,10 +24,6 @@
         <a href="/my-watchlist" class="nav-menu-item">Mi Watchlist</a>
         <a href="/my-lists" class="nav-menu-item">Mis Listas</a>
         <a href="/recommendations" class="nav-menu-item">Recomendaciones</a>
-        <form action="/logout" method="POST" class="nav-menu-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <button type="submit" class="nav-menu-item nav-menu-item--logout">Cerrar Sesión</button>
-        </form>
       {% else %}
         <a href="/login" class="nav-menu-item">Iniciar Sesión</a>
         <a href="/register" class="nav-menu-item">Registrarme</a>
