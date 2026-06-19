@@ -164,6 +164,7 @@ $userListService = new UserListService($userListRepository);
 $recommendationService = new RecommendationService(
     $recommendationRepository,
     $genrePreferenceService,
+    $genreService,
 );
 
 

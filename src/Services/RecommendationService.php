@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Repository\RecommendationRepository;
 use App\Services\GenrePreferenceService;
+use App\Services\GenreService;
 
 /**
  * Motor de recomendaciones personalizadas.
@@ -23,6 +24,7 @@ class RecommendationService
     public function __construct(
         private RecommendationRepository $recommendationRepository,
         private GenrePreferenceService   $preferenceService,
+        private GenreService             $genreService,
     ) {}
 
     /**
@@ -58,5 +60,52 @@ class RecommendationService
     {
         $this->recommendationRepository->discard($userId, $titleId);
         $this->preferenceService->applyDiscard($userId, $titleId);
+    }
+
+    /**
+     * Obtiene el top 3 de generos favoritos del usuario.
+     *
+     * @return array<int, float> genre_id => weight
+     */
+    public function getTopGenres(int $userId): array
+    {
+        return $this->preferenceService->getTopGenres($userId);
+    }
+
+    /**
+     * Obtiene 12 peliculas recomendables para un genero particular
+     */
+    public function getRecommendationsByGenre(int $userId, int $genreId, int $limit = 12): array
+    {
+        return $this->recommendationRepository->findRankedByGenre($userId, $genreId, $limit);
+    }
+
+    /**
+     * Devuelve 3 generos y 12 peliculas asociadas a cada genero para recomendarle al usuario
+     */
+    public function getGenreBasedRecommendations(int $userId): array
+    {
+        $genres = $this->getTopGenres($userId); // genre_id => weight
+
+        $result = [];
+
+        foreach ($genres as $genreId => $weight) {
+            $genre = $this->genreService->getById($genreId);
+
+            if ($genre === null) {
+                continue;
+            }
+
+            $result[] = [
+                'genre' => $genre->getName(),
+                'titles' => $this->getRecommendationsByGenre(
+                    $userId,
+                    $genreId,
+                    12
+                ),
+            ];
+        }
+
+        return $result;
     }
 }

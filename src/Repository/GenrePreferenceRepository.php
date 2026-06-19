@@ -36,7 +36,7 @@ class GenrePreferenceRepository
         }
 
         return $result;
-    }
+    }    
 
     /**
      * Incrementa o decrementa el peso de un género para un usuario.

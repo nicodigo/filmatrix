@@ -28,7 +28,7 @@ use App\Repository\TitleRepository;
 class GenrePreferenceService
 {
     private const float DELTA_WATCHED = 0.10;
-    private const float DELTA_DISCARD = -0.15;
+    private const float DELTA_DISCARD = -0.10;
 
     /** @var array<int, float> */
     private const array REVIEW_DELTAS = [
@@ -87,5 +87,12 @@ class GenrePreferenceService
         foreach ($genres as $genre) {
             $this->prefRepository->adjustWeight($userId, (int) $genre['id'], $delta);
         }
+    }
+
+    public function getTopGenres(int $userId): array
+    {
+        $weights = $this->prefRepository->findByUser($userId);
+        arsort($weights);
+        return array_slice($weights, 0, 3, true);
     }
 }

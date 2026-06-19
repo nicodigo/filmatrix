@@ -24,14 +24,18 @@ class RecommendationController
     public function index(): void
     {
         $userId = $this->request->session('user_id');
+
         if ($userId === null) {
             throw new RuntimeException('User not authenticated');
         }
 
-        $titles = $this->recommendationService->getRecommendations((int) $userId);
+        $titles = $this->recommendationService->getRecommendations($userId);
+
+        $genreBlocks = $this->recommendationService->getGenreBasedRecommendations($userId);
 
         $this->twig->display('pages/recommendations.html.twig', [
             'titles' => $titles,
+            'genreBlocks' => $genreBlocks,
         ]);
     }
 
