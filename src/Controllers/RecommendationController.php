@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Request;
+use App\Services\RecommendationService;
+use RuntimeException;
+use Twig\Environment;
+
+class RecommendationController
+{
+    public function __construct(
+        private RecommendationService $recommendationService,
+        private Environment           $twig,
+        private Request               $request,
+    ) {}
+
+    /**
+     * GET /recommendations
+     * Renderiza la grilla de títulos sugeridos para el usuario autenticado.
+     */
+    public function index(): void
+    {
+        $userId = $this->request->session('user_id');
+        if ($userId === null) {
+            throw new RuntimeException('User not authenticated');
+        }
+
+        $titles = $this->recommendationService->getRecommendations((int) $userId);
+
+        $this->twig->display('pages/recommendations.html.twig', [
+            'titles' => $titles,
+        ]);
+    }
+
+    /**
+     * POST /recommendations/discard
+     * Body JSON: { "title_id": N }
+     *
+     * Descarta el título: lo excluye de futuras recomendaciones y
+     * ajusta las preferencias de género del usuario.
+     * Responde con JSON { success: bool }.
+     */
+    public function discard(): void
+    {
+        $userId = $this->request->session('user_id');
+        if ($userId === null) {
+            throw new RuntimeException('User not authenticated');
+        }
+
+        $body    = json_decode(file_get_contents('php://input'), true);
+        $titleId = (int) ($body['title_id'] ?? 0);
+
+        header('Content-Type: application/json');
+
+        if ($titleId <= 0) {
+            echo json_encode(['success' => false, 'error' => 'title_id inválido']);
+            return;
+        }
+
+        try {
+            $this->recommendationService->discard((int) $userId, $titleId);
+            echo json_encode(['success' => true]);
+        } catch (\Throwable $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+}

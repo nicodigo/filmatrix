@@ -12,16 +12,19 @@ class ReviewService
 {
     private ReviewRepository $reviewRepository;
     private WatchlistService $watchlistService;
+    private ?GenrePreferenceService $preferenceService;
     private LoggerInterface $logger;
 
     public function __construct(
-        ReviewRepository $reviewRepository,
-        WatchlistService $watchlistService,
-        LoggerInterface $logger
+        ReviewRepository        $reviewRepository,
+        WatchlistService        $watchlistService,
+        LoggerInterface         $logger,
+        ?GenrePreferenceService $preferenceService = null,
     ) {
-        $this->reviewRepository = $reviewRepository;
-        $this->watchlistService = $watchlistService;
-        $this->logger = $logger;
+        $this->reviewRepository  = $reviewRepository;
+        $this->watchlistService  = $watchlistService;
+        $this->logger            = $logger;
+        $this->preferenceService = $preferenceService;
     }
 
     /**
@@ -87,6 +90,21 @@ class ReviewService
             $this->logger->warning('Failed to auto-watchlist after review', [
                 'user_id'  => $userId,
                 'title_id' => $titleId,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+
+        // Actualizar preferencias de género:
+        // +0.10 por marcar como vista (equivalente a haberla marcado manualmente)
+        // + delta según puntuación de la reseña.
+        try {
+            $this->preferenceService?->applyWatched($userId, $titleId);
+            $this->preferenceService?->applyReview($userId, $titleId, $score);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to update genre preferences after review', [
+                'user_id'  => $userId,
+                'title_id' => $titleId,
+                'score'    => $score,
                 'error'    => $e->getMessage(),
             ]);
         }

@@ -1,0 +1,51 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Recomendaciones — Filmatrix{% endblock %}
+
+{% block description %}Títulos sugeridos para vos según tu historial y preferencias.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/title-card.css">
+  <link rel="stylesheet" href="/assets/css/titles.css">
+  <link rel="stylesheet" href="/assets/css/recommendations.css">
+{% endblock %}
+
+{% block content %}
+  <section class="films-header">
+    <h1 class="films-title">Recomendaciones</h1>
+  </section>
+
+  <section class="films-section">
+    <div class="films-grid">
+      {% if titles is empty %}
+        <p class="films-empty">
+          No hay recomendaciones disponibles por el momento.
+          Explorá el <a href="/titles">catálogo</a> y marcá títulos como vistos para personalizar tus sugerencias.
+        </p>
+      {% else %}
+        {% for title in titles %}
+          <article class="movie-card reco-card" data-title-id="{{ title.id }}">
+            <a href="/titles/detail?tmdb_id={{ title.tmdb_id }}" class="movie-card__link">
+              <img src="{{ title.poster_url }}" alt="{{ title.title }}">
+              <div class="movie-card__overlay">
+                <p class="movie-card__title">{{ title.title }}</p>
+                <p class="movie-card__score">{{ title.avg_score ?? 'S/P' }}</p>
+              </div>
+            </a>
+            <button
+              class="reco-discard"
+              data-title-id="{{ title.id }}"
+              type="button"
+              aria-label="No me interesa"
+              title="No me interesa"
+            >✕</button>
+          </article>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/assets/js/pages/Recommendations.js"></script>
+{% endblock %}
