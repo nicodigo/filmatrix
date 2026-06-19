@@ -1,23 +1,8 @@
 import { Toast } from '../modules/Toast.js';
-
-/**
- * Recommendations.js
- *
- * Maneja el botón ✕ en las cards de recomendaciones.
- *
- * Al hacer click:
- *   1. Deshabilita el botón para evitar doble envío.
- *   2. POST /recommendations/discard con { title_id: N } (ID interno).
- *   3. Si el servidor responde { success: true }, anima la card y la elimina.
- *   4. Muestra un toast de éxito.
- *   5. Si falla, muestra un toast de error.
- */
+import { Carousel } from '../modules/Carousel.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const grid = document.querySelector('.films-grid');
-  if (!grid) return;
-
-  grid.addEventListener('click', async (e) => {
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.reco-discard');
     if (!btn) return;
 
@@ -44,10 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ title_id: titleId }),
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
       const data = await res.json();
 
       if (data.success) {
@@ -59,43 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
           'transitionend',
           () => {
             card.remove();
-            checkEmpty(grid);
           },
           { once: true }
         );
       } else {
         btn.disabled = false;
-
-        showToast(
-          data.error ?? 'No se pudo descartar el título',
-          'error'
-        );
-
-        console.warn('Discard failed:', data.error ?? 'unknown');
+        showToast(data.error ?? 'No se pudo descartar', 'error');
       }
     } catch (err) {
       btn.disabled = false;
-
-      showToast(
-        'Ocurrió un error al descartar el título',
-        'error'
-      );
-
-      console.error('Error al descartar:', err);
+      showToast('Ocurrió un error', 'error');
     }
   });
-});
 
-function checkEmpty(grid) {
-  if (grid.querySelectorAll('.reco-card').length === 0) {
-    grid.innerHTML = `
-      <p class="films-empty">
-        No quedan más sugerencias por ahora.
-        Explorá el <a href="/titles">catálogo</a> y marcá más títulos como vistos.
-      </p>
-    `;
-  }
-}
+  document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
+    new Carousel(wrapper);
+  });
+});
 
 function showToast(message, type = 'success') {
   const existingToast = document.getElementById('toast');

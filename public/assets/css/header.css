@@ -121,7 +121,7 @@
 
 .nav-menu-item:hover {
   color: var(--text-primary);
-  background: var(--surface-el);
+  background: var(--accent-muted);
   border-left-color: var(--accent);
 }
 
@@ -147,7 +147,7 @@
 
 .nav-menu-item--logout:hover {
   color: var(--text-primary);
-  background: var(--surface-el);
+  background: var(--accent-muted);
   border-left-color: var(--accent);
 }
 
@@ -290,6 +290,7 @@
 
   .nav-menu-item:hover {
     border-left-color: transparent;
+    background: var(--accent-muted);
   }
 
   .nav-menu-item--logout {
@@ -303,6 +304,7 @@
 
   .nav-menu-item--logout:hover {
     border-left-color: transparent;
+    background: var(--accent-muted);
   }
 
   .search-toggle {

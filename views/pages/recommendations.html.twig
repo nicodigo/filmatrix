@@ -8,42 +8,75 @@
   <link rel="stylesheet" href="/assets/css/title-card.css">
   <link rel="stylesheet" href="/assets/css/titles.css">
   <link rel="stylesheet" href="/assets/css/recommendations.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
 {% endblock %}
 
 {% block content %}
-  <section class="films-header">
-    <h1 class="films-title">Recomendaciones</h1>
-  </section>
 
-  <section class="films-section">
-    <div class="films-grid">
-      {% if titles is empty %}
-        <p class="films-empty">
-          No hay recomendaciones disponibles por el momento.
-          Explorá el <a href="/titles">catálogo</a> y marcá títulos como vistos para personalizar tus sugerencias.
-        </p>
-      {% else %}
-        {% for title in titles %}
-          <article class="movie-card reco-card" data-title-id="{{ title.id }}">
-            <a href="/titles/detail?tmdb_id={{ title.tmdb_id }}" class="movie-card__link">
-              <img src="{{ title.poster_url }}" alt="{{ title.title }}">
-              <div class="movie-card__overlay">
-                <p class="movie-card__title">{{ title.title }}</p>
-                <p class="movie-card__score">{{ title.avg_score ?? 'S/P' }}</p>
-              </div>
-            </a>
-            <button
-              class="reco-discard"
-              data-title-id="{{ title.id }}"
-              type="button"
-              aria-label="No me interesa"
-              title="No me interesa"
-            >✕</button>
-          </article>
-        {% endfor %}
-      {% endif %}
+<section class="films-header">
+  <h1 class="films-title">Recomendaciones</h1>
+</section>
+
+<section class="films-section">
+  <div class="carousel-wrapper">
+    <button class="carouselPrev">‹</button>
+
+    <div class="carousel-track movieCarousel">
+      {% for title in titles %}
+        <article class="movie-card reco-card" data-title-id="{{ title.id }}">
+          <a href="/titles/detail?tmdb_id={{ title.tmdb_id }}" class="movie-card__link">
+            <img src="{{ title.poster_url }}" alt="{{ title.title }}">
+
+            <div class="movie-card__overlay">
+              <p class="movie-card__title">{{ title.title }}</p>
+              <p class="movie-card__score">{{ title.avg_score ?? 'S/P' }}</p>
+            </div>
+          </a>
+
+          <button class="reco-discard" data-title-id="{{ title.id }}">✕</button>
+        </article>
+      {% endfor %}
     </div>
-  </section>
+
+    <button class="carouselNext">›</button>
+  </div>
+</section>
+
+{% for block in genreBlocks %}
+
+<section class="films-section">
+
+  <h2 class="section-title">
+    {{ block.genre }}, solo para vos
+  </h2>
+
+  <div class="carousel-wrapper">
+    <button class="carouselPrev">‹</button>
+
+    <div class="carousel-track movieCarousel">
+      {% for title in block.titles %}
+        <article class="movie-card reco-card" data-title-id="{{ title.id }}">
+          <a href="/titles/detail?tmdb_id={{ title.tmdb_id }}" class="movie-card__link">
+            <img src="{{ title.poster_url }}" alt="{{ title.title }}">
+
+            <div class="movie-card__overlay">
+              <p class="movie-card__title">{{ title.title }}</p>
+              <p class="movie-card__score">{{ title.avg_score ?? 'S/P' }}</p>
+            </div>
+          </a>
+
+          <button class="reco-discard" data-title-id="{{ title.id }}">✕</button>
+        </article>
+      {% endfor %}
+    </div>
+
+    <button class="carouselNext">›</button>
+  </div>
+
+</section>
+
+{% endfor %}
+
 {% endblock %}
 
 {% block scripts %}
