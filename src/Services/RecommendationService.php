@@ -97,8 +97,9 @@ class RecommendationService
             }
 
             $result[] = [
-                'genre' => $genre->getName(),
-                'titles' => $this->getRecommendationsByGenre(
+                'genre'   => $genre->getName(),
+                'genreId' => $genreId,
+                'titles'  => $this->getRecommendationsByGenre(
                     $userId,
                     $genreId,
                     12
@@ -107,5 +108,15 @@ class RecommendationService
         }
 
         return $result;
+    }
+
+    public function getReplacementByGenre(int $userId, int $genreId, array $excludeIds): ?array
+    {
+        return $this->recommendationRepository->findReplacementByGenre($userId, $genreId, $excludeIds);
+    }
+
+    public function getReplacement(int $userId, array $excludeIds): ?array
+    {
+        return $this->recommendationRepository->findReplacement($userId, $excludeIds);
     }
 }

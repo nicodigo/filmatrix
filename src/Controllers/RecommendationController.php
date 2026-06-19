@@ -54,8 +54,12 @@ class RecommendationController
             throw new RuntimeException('User not authenticated');
         }
 
-        $body    = json_decode(file_get_contents('php://input'), true);
-        $titleId = (int) ($body['title_id'] ?? 0);
+        $body       = json_decode(file_get_contents('php://input'), true);
+        $titleId    = (int) ($body['title_id'] ?? 0);
+        $genreId    = isset($body['genre_id']) && $body['genre_id'] !== null
+            ? (int) $body['genre_id']
+            : null;
+        $excludeIds = array_map('intval', $body['visible_ids'] ?? []);
 
         header('Content-Type: application/json');
 
@@ -66,7 +70,15 @@ class RecommendationController
 
         try {
             $this->recommendationService->discard((int) $userId, $titleId);
-            echo json_encode(['success' => true]);
+
+            $replacement = $genreId !== null
+                ? $this->recommendationService->getReplacementByGenre((int) $userId, $genreId, $excludeIds)
+                : $this->recommendationService->getReplacement((int) $userId, $excludeIds);
+
+            echo json_encode([
+                'success'     => true,
+                'replacement' => $replacement,
+            ]);
         } catch (\Throwable $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }

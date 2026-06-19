@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     e.stopPropagation();
 
     const card = btn.closest('.reco-card');
+    const track = btn.closest('.carousel-track');
     const titleId = parseInt(btn.dataset.titleId, 10);
+    const genreId = track?.dataset.genreId ? parseInt(track.dataset.genreId, 10) : null;
 
     if (!titleId || !card) return;
 
@@ -19,6 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken =
       document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
+    // IDs visibles en este carrusel puntual (para no repetir)
+    const visibleIds = track
+      ? Array.from(track.querySelectorAll('.reco-card')).map(
+          c => parseInt(c.dataset.titleId, 10)
+        )
+      : [];
+
     try {
       const res = await fetch('/recommendations/discard', {
         method: 'POST',
@@ -26,7 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken,
         },
-        body: JSON.stringify({ title_id: titleId }),
+        body: JSON.stringify({
+          title_id: titleId,
+          genre_id: genreId,
+          visible_ids: visibleIds,
+        }),
       });
 
       const data = await res.json();
@@ -34,15 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         showToast('Título descartado con éxito', 'success');
 
-        card.classList.add('reco-card--discarding');
-
-        card.addEventListener(
-          'transitionend',
-          () => {
-            card.remove();
-          },
-          { once: true }
-        );
+        if (data.replacement) {
+          replaceCard(card, data.replacement);
+        } else {
+          card.classList.add('reco-card--discarding');
+          card.addEventListener('transitionend', () => card.remove(), { once: true });
+        }
       } else {
         btn.disabled = false;
         showToast(data.error ?? 'No se pudo descartar', 'error');
@@ -57,6 +67,25 @@ document.addEventListener('DOMContentLoaded', () => {
     new Carousel(wrapper);
   });
 });
+
+function replaceCard(oldCard, title) {
+  const newCard = document.createElement('article');
+  newCard.className = 'movie-card reco-card';
+  newCard.dataset.titleId = title.id;
+
+  newCard.innerHTML = `
+    <a href="/titles/detail?tmdb_id=${title.tmdb_id}" class="movie-card__link">
+      <img src="${title.poster_url ?? ''}" alt="${title.title}">
+      <div class="movie-card__overlay">
+        <p class="movie-card__title">${title.title}</p>
+        <p class="movie-card__score">${title.avg_score ?? 'S/P'}</p>
+      </div>
+    </a>
+    <button class="reco-discard" data-title-id="${title.id}">✕</button>
+  `;
+
+  oldCard.replaceWith(newCard);
+}
 
 function showToast(message, type = 'success') {
   const existingToast = document.getElementById('toast');

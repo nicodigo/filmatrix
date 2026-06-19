@@ -46,14 +46,14 @@
 
 <section class="films-section">
 
-  <h2 class="section-title">
-    {{ block.genre }}, solo para vos
+  <h2>
+    {{ block.genre }} — solo para vos
   </h2>
 
   <div class="carousel-wrapper">
     <button class="carouselPrev">‹</button>
 
-    <div class="carousel-track movieCarousel">
+    <div class="carousel-track movieCarousel" data-genre-id="{{ block.genreId }}">
       {% for title in block.titles %}
         <article class="movie-card reco-card" data-title-id="{{ title.id }}">
           <a href="/titles/detail?tmdb_id={{ title.tmdb_id }}" class="movie-card__link">

@@ -1,13 +1,10 @@
 export class Carousel {
   constructor(wrapper) {
-    //MODO HOME (compatibilidad con IDs)
     if (!wrapper) {
       this.track = document.getElementById('movieCarousel');
       this.prevBtn = document.getElementById('carouselPrev');
       this.nextBtn = document.getElementById('carouselNext');
-    } 
-    //MODO REUTILIZABLE
-    else {
+    } else {
       this.track = wrapper.querySelector('.movieCarousel');
       this.prevBtn = wrapper.querySelector('.carouselPrev');
       this.nextBtn = wrapper.querySelector('.carouselNext');
@@ -38,16 +35,15 @@ export class Carousel {
   }
 
   move(direction) {
-    const step = this.itemsPerView;
-    const next = this.currentIndex + direction * step;
+    this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
 
-    if (next > this.maxIndex) {
-      this.currentIndex = 0;
-    } else if (next < 0) {
-      this.currentIndex = this.maxIndex;
-    } else {
-      this.currentIndex = next;
-    }
+    const step = this.itemsPerView;
+    let next = this.currentIndex + direction * step;
+
+    // Clampear en vez de ciclar — si nos pasamos del final, quedamos en maxIndex.
+    next = Math.max(0, Math.min(next, this.maxIndex));
+
+    this.currentIndex = next;
 
     const card = this.track.querySelector('.movie-card');
     if (!card) return;
@@ -66,7 +62,17 @@ export class Carousel {
   }
 
   updateButtons() {
-    this.prevBtn.disabled = false;
-    this.nextBtn.disabled = false;
+    this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
+
+    // Si no hay nada que desplazar, ocultar ambas flechas.
+    const hasOverflow = this.totalItems > this.itemsPerView;
+
+    this.prevBtn.style.display = hasOverflow ? '' : 'none';
+    this.nextBtn.style.display = hasOverflow ? '' : 'none';
+
+    if (!hasOverflow) return;
+
+    this.prevBtn.disabled = this.currentIndex <= 0;
+    this.nextBtn.disabled = this.currentIndex >= this.maxIndex;
   }
 }
