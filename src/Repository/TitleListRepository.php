@@ -69,13 +69,16 @@ class TitleListRepository
     {
         $stmt = $this->pdo->prepare(
             'SELECT
-                 t.id,
-                 t.tmdb_id,
-                 t.title,
-                 t.poster_url,
-                 t.release_year,
-                 COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
-                 cl.position
+                t.id,
+                t.tmdb_id,
+                t.title,
+                t.poster_url,
+                t.release_year,
+                COALESCE(
+                    ROUND(AVG(r.score)::numeric, 1),
+                    t.tmdb_vote_average
+                ) AS avg_score,
+                cl.position
              FROM title_lists cl
              JOIN titles t ON t.id = cl.title_id
              LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true

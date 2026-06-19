@@ -15,6 +15,7 @@ class Title
     private ?string $language;
     private ?int $durationMinutes;
     private ?float $avgScore;
+    private ?float $tmdbVoteAverage;
     private ?string $cachedAt;
 
     public function __construct(
@@ -29,6 +30,7 @@ class Title
         ?string $language = null,
         ?int $durationMinutes = null,
         ?float $avgScore = null,
+        ?float $tmdbVoteAverage = null,
         ?string $cachedAt = null
     ) {
         $this->id = $id;
@@ -45,6 +47,7 @@ class Title
         $this->language = $language;
         $this->durationMinutes = $durationMinutes;
         $this->avgScore = $avgScore;
+        $this->tmdbVoteAverage = $tmdbVoteAverage;
         $this->cachedAt = $cachedAt;
     }
 
@@ -101,6 +104,16 @@ class Title
     public function getAvgScore(): ?float
     {
         return $this->avgScore;
+    }
+
+    public function getTmdbVoteAverage(): ?float
+    {
+        return $this->tmdbVoteAverage;
+    }
+
+    public function getDisplayScore(): ?float
+    {
+        return $this->avgScore ?? $this->tmdbVoteAverage;
     }
 
     public function getCachedAt(): ?string
@@ -165,6 +178,11 @@ class Title
         $this->avgScore = $avgScore;
     }
 
+    public function setTmdbVoteAverage(?float $tmdbVoteAverage): void
+    {
+        $this->tmdbVoteAverage = $tmdbVoteAverage;
+    }
+
     public function setCachedAt(?string $cachedAt): void
     {
         $this->cachedAt = $cachedAt;
@@ -200,6 +218,9 @@ class Title
             isset($data['avg_score'])
                 ? (float) $data['avg_score']
                 : null,
+            isset($data['tmdb_vote_average'])
+                ? (float) $data['tmdb_vote_average']
+                : null,
             $data['cached_at'] ?? null
         );
     }
@@ -218,6 +239,7 @@ class Title
             'language' => $this->language,
             'duration_minutes' => $this->durationMinutes,
             'avg_score' => $this->avgScore,
+            'tmdb_vote_average' => $this->tmdbVoteAverage,
             'cached_at' => $this->cachedAt,
         ];
     }

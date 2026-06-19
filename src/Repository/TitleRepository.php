@@ -19,13 +19,13 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             "SELECT
                 t.*,
-                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
-             FROM titles t
-             LEFT JOIN reviews r
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score
+            FROM titles t
+            LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
-             WHERE t.tmdb_id = :tmdb_id
-             GROUP BY t.id
-             LIMIT 1"
+            WHERE t.tmdb_id = :tmdb_id
+            GROUP BY t.id
+            LIMIT 1"
         );
 
         $stmt->execute([
@@ -48,12 +48,12 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             "SELECT
                 t.tmdb_id,
-                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
-             FROM titles t
-             LEFT JOIN reviews r
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score
+            FROM titles t
+            LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
-             WHERE t.tmdb_id IN ($placeholders)
-             GROUP BY t.tmdb_id"
+            WHERE t.tmdb_id IN ($placeholders)
+            GROUP BY t.tmdb_id, t.tmdb_vote_average"
         );
 
         $stmt->execute(array_values($tmdbIds));
@@ -73,12 +73,12 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             'INSERT INTO titles
                 (tmdb_id, type, title, synopsis, poster_url, trailer_url,
-                 release_year, language, duration_minutes, cached_at)
-             VALUES
+                release_year, language, duration_minutes, tmdb_vote_average, cached_at)
+            VALUES
                 (:tmdb_id, :type, :title, :synopsis, :poster_url, :trailer_url,
-                 :release_year, :language, :duration_minutes, NOW())
-             ON CONFLICT (tmdb_id)
-             DO UPDATE SET
+                :release_year, :language, :duration_minutes, :tmdb_vote_average, NOW())
+            ON CONFLICT (tmdb_id)
+            DO UPDATE SET
                 type = EXCLUDED.type,
                 title = EXCLUDED.title,
                 synopsis = EXCLUDED.synopsis,
@@ -87,8 +87,9 @@ class TitleRepository
                 release_year = EXCLUDED.release_year,
                 language = EXCLUDED.language,
                 duration_minutes = EXCLUDED.duration_minutes,
+                tmdb_vote_average = EXCLUDED.tmdb_vote_average,
                 cached_at = NOW()
-             RETURNING id'
+            RETURNING id'
         );
 
         $stmt->execute([
@@ -101,6 +102,7 @@ class TitleRepository
             ':release_year' => $title->getReleaseYear(),
             ':language' => $title->getLanguage(),
             ':duration_minutes' => $title->getDurationMinutes(),
+            ':tmdb_vote_average' => $title->getTmdbVoteAverage(),
         ]);
 
         return (int) $stmt->fetchColumn();
@@ -112,7 +114,7 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             "SELECT
                 t.*,
-                COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score
             FROM titles t
             LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
@@ -180,16 +182,16 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             "SELECT
             t.*,
-            COALESCE(ROUND(AVG(r.score)::numeric, 1), NULL) AS avg_score,
+            COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score,
             COUNT(DISTINCT r.id) * 2 + COUNT(DISTINCT wi.id) AS popularity
-         FROM titles t
-         LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
-         LEFT JOIN watchlist_items wi ON wi.title_id = t.id
-         WHERE {$where}
-         GROUP BY t.id
-         {$having}
-         {$orderSql}
-         LIMIT {$limit} OFFSET {$offset}"
+            FROM titles t
+            LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+            LEFT JOIN watchlist_items wi ON wi.title_id = t.id
+            WHERE {$where}
+            GROUP BY t.id
+            {$having}
+            {$orderSql}
+            LIMIT {$limit} OFFSET {$offset}"
         );
 
         $stmt->execute($params);

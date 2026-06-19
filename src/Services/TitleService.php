@@ -69,20 +69,23 @@ class TitleService
             ? (int) date('Y', strtotime($movie['release_date']))
             : null;
 
-        $title = new Title(
-            null,
-            $movie['id'],
-            'movie',
-            $movie['title'],
-            $movie['overview'] ?? null,
-            !empty($movie['poster_path'])
-                ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
-                : null,
-            $trailerUrl,
-            $releaseYear,
-            $movie['original_language'] ?? null,
-            $movie['runtime'] ?? null,
-        );
+            $title = new Title(
+                null,
+                $movie['id'],
+                'movie',
+                $movie['title'],
+                $movie['overview'] ?? null,
+                !empty($movie['poster_path'])
+                    ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
+                    : null,
+                $trailerUrl,
+                $releaseYear,
+                $movie['original_language'] ?? null,
+                $movie['runtime'] ?? null,
+                null, // avgScore, no aplica acá, se calcula en queries
+                isset($movie['vote_average']) ? round(((float) $movie['vote_average']) / 2, 1) : null,
+                null // cachedAt, lo pone la DB
+            );
 
         $titleId = $this->titleRepository->upsert($title);
 
