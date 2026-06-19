@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Repository\RecommendationRepository;
-use App\Repository\WatchlistRepository;
+use App\Services\GenrePreferenceService;
 
 /**
  * Motor de recomendaciones personalizadas.
@@ -17,16 +17,20 @@ use App\Repository\WatchlistRepository;
 class RecommendationService
 {
     private const int DEFAULT_LIMIT = 20;
+    private const int MIN_LIMIT     = 1;
+    private const int MAX_LIMIT     = 50;
 
     public function __construct(
         private RecommendationRepository $recommendationRepository,
-        private WatchlistRepository      $watchlistRepository,
         private GenrePreferenceService   $preferenceService,
     ) {}
 
     /**
      * Retorna hasta $limit títulos recomendados para el usuario,
      * ordenados por relevancia descendente.
+     *
+     * $limit se clampea a [MIN_LIMIT, MAX_LIMIT] para evitar cargas
+     * arbitrarias a la base si en el futuro se expone por query param.
      *
      * @return array<int, array{
      *   id: int,
@@ -40,6 +44,8 @@ class RecommendationService
      */
     public function getRecommendations(int $userId, int $limit = self::DEFAULT_LIMIT): array
     {
+        $limit = max(self::MIN_LIMIT, min(self::MAX_LIMIT, $limit));
+
         return $this->recommendationRepository->findRanked($userId, $limit);
     }
 
@@ -50,7 +56,7 @@ class RecommendationService
      */
     public function discard(int $userId, int $titleId): void
     {
-        $this->watchlistRepository->discard($userId, $titleId);
+        $this->recommendationRepository->discard($userId, $titleId);
         $this->preferenceService->applyDiscard($userId, $titleId);
     }
 }
