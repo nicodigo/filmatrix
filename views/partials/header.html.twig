@@ -17,13 +17,14 @@
     {# ── Main navigation (hidden on mobile, visible on desktop) ── #}
     <nav class="nav-menu" id="main-menu" aria-label="Navegación principal">
       <a href="/titles" class="nav-menu-item">Películas</a>
+      <a href="/upcoming" class="nav-menu-item">Próximos Estrenos</a>
 
       {% if app.user_logged_in %}
-        <a href="/profile" class="nav-menu-item">Mi Perfil</a>
         <a href="/my-reviews" class="nav-menu-item">Mis Reseñas</a>
         <a href="/my-watchlist" class="nav-menu-item">Mi Watchlist</a>
         <a href="/my-lists" class="nav-menu-item">Mis Listas</a>
         <a href="/recommendations" class="nav-menu-item">Recomendaciones</a>
+        <a href="/profile" class="nav-menu-item">Mi Perfil</a>
       {% else %}
         <a href="/login" class="nav-menu-item">Iniciar Sesión</a>
         <a href="/register" class="nav-menu-item">Registrarme</a>

@@ -48,6 +48,10 @@ use App\Repository\WatchlistRepository;
 use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
+use App\Controllers\UpcomingReleaseController;
+use App\Repository\UpcomingReleaseRepository;
+use App\Services\UpcomingReleaseService;
+
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 
@@ -110,6 +114,7 @@ $watchlistRepository        = new WatchlistRepository($connection);
 $userListRepository         = new UserListRepository($connection);
 $genrePreferenceRepository  = new GenrePreferenceRepository($connection);
 $recommendationRepository   = new RecommendationRepository($connection);
+$upcomingReleaseRepository = new UpcomingReleaseRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
@@ -167,6 +172,12 @@ $recommendationService = new RecommendationService(
     $genreService,
 );
 
+$upcomingReleaseService = new UpcomingReleaseService(
+    $upcomingReleaseRepository,
+    $tmdbClient,
+    $log_app
+);
+
 
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────
 try {
@@ -214,6 +225,8 @@ $makeRecommendationCtrl = fn() => new RecommendationController(
     $twig,
     $request,
 );
+
+$makeUpcomingCtrl = fn() => new UpcomingReleaseController($upcomingReleaseService, $twig, $request);
 
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
@@ -265,3 +278,5 @@ $router->post('/recommendations/discard', $protegida(fn() => $makeRecommendation
 
 $router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());
 $router->get('/contacto', fn() => $makePageCtrl()->contact());
+
+$router->get('/upcoming', fn() => $makeUpcomingCtrl()->index());

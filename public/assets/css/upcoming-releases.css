@@ -1,0 +1,288 @@
+@import 'base.css';
+
+body {
+  background-color: var(--bg-base);
+}
+
+/* ══════════════════════════════════════
+   Header de la página
+══════════════════════════════════════ */
+.upcoming-header {
+  padding: 2.5rem 1rem 1rem;
+  text-align: center;
+}
+
+.upcoming-subtitle {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* ══════════════════════════════════════
+   Layout general
+══════════════════════════════════════ */
+.upcoming-calendar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem 1rem 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .upcoming-calendar-section {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* ══════════════════════════════════════
+   Calendario
+══════════════════════════════════════ */
+.calendar-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 900px) {
+  .calendar-wrapper {
+    width: 360px;
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.calendar-month-label {
+  font-family: var(--font-display) !important;
+  font-size: 1.3rem !important;
+  font-weight: 400 !important;
+  color: var(--text-primary) !important;
+  text-transform: capitalize !important;
+  letter-spacing: normal !important;
+  margin-bottom: 0 !important;
+  padding-left: 0 !important;
+}
+
+.calendar-month-label::before,
+.calendar-month-label::after {
+  display: none !important;
+}
+
+.calendar-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-el);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.5rem;
+}
+
+.calendar-weekdays span {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  position: relative;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.calendar-day--blank {
+  pointer-events: none;
+}
+
+.calendar-day:not(.calendar-day--blank):hover {
+  background: var(--surface-el);
+  color: var(--text-primary);
+}
+
+.calendar-day--has-release {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.calendar-day--selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.calendar-day--selected:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.calendar-day__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rating);
+}
+
+.calendar-day--selected .calendar-day__dot {
+  background: #fff;
+}
+
+/* ══════════════════════════════════════
+   Lista de estrenos
+══════════════════════════════════════ */
+.upcoming-list {
+  flex: 1;
+  min-width: 0;
+}
+
+.upcoming-list__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.upcoming-list__clear {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.upcoming-list__clear:hover {
+  text-decoration: underline;
+}
+
+.upcoming-empty {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 2rem 0;
+}
+
+/* ══════════════════════════════════════
+   Carousel de próximos estrenos
+══════════════════════════════════════ */
+.movie-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.movie-flex {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding: 8px 0;
+  position: relative;
+  z-index: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.movie-flex::-webkit-scrollbar {
+  display: none;
+}
+
+.movie-flex .movie-card {
+  flex: 0 0 calc(25% - 6px);
+  min-width: 0;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(13, 17, 23, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.carousel-arrow--prev {
+  left: 8px;
+}
+
+.carousel-arrow--next {
+  right: 8px;
+}
+
+.carousel-arrow:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .movie-flex .movie-card {
+    flex: 0 0 calc(50% - 4px);
+  }
+}

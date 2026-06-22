@@ -10,6 +10,7 @@
 .movie-card__link {
   display: block;
   text-decoration: none;
+  color: inherit;
 }
 
 .movie-card img {
@@ -47,4 +48,39 @@
   color: var(--rating);
   font-size: 0.875rem;
   margin: 0.25rem 0 0;
+}
+
+.upcoming-card {
+  font-size: 0.85em;
+}
+
+.upcoming-card .movie-card__overlay {
+  padding: 0.75rem;
+}
+
+.upcoming-card .movie-card__title {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.upcoming-card__date {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7C3AED !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0.2rem 0 0;
+}
+
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .upcoming-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
 }

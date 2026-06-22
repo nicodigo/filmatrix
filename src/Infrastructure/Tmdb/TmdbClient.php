@@ -46,6 +46,12 @@
  *     Películas ordenadas por popularidad descendente, con al menos 500
  *     votos para filtrar títulos sin relevancia.
  *     Endpoint: GET /discover/movie (con sort_by=popularity.desc)
+ *
+ *   getUpcoming(page)
+ *     Películas con estreno futuro (a partir de mañana), ordenadas por
+ *     fecha de estreno ascendente. Usado para poblar la sección
+ *     "Próximos estrenos" con su calendario.
+ *     Endpoint: GET /discover/movie (con filtro de fecha futura)
  */
 namespace App\Infrastructure\Tmdb;
 
@@ -135,6 +141,21 @@ class TmdbClient
             'sort_by' => 'popularity.desc',
             'include_adult' => 'false',
             'vote_count.gte' => 500,
+            'page' => $page,
+        ]);
+    }
+
+    public function getUpcoming(int $page = 1): array
+    {
+        $startDate = date('Y-m-d', strtotime('+1 day'));
+        $endDate   = date('Y-m-d', strtotime('+90 days'));
+
+        return $this->request('/discover/movie', [
+            'sort_by' => 'primary_release_date.asc',
+            'include_adult' => 'false',
+            'with_release_type' => '2|3',
+            'primary_release_date.gte' => $startDate,
+            'primary_release_date.lte' => $endDate,
             'page' => $page,
         ]);
     }

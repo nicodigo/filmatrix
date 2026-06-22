@@ -1,0 +1,160 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Próximos Estrenos, Filmatrix{% endblock %}
+
+{% block description %}Descubrí qué películas se estrenan próximamente. Explorá el calendario y planificá tus próximas funciones.{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/title-card.css">
+  <link rel="stylesheet" href="/assets/css/upcoming-releases.css">
+{% endblock %}
+
+{% block content %}
+
+{% import 'macros/title-cards.html.twig' as cards %}
+
+<section class="upcoming-header">
+  <h1>Próximos Estrenos</h1>
+  <p class="upcoming-subtitle">Explorá el calendario y descubrí qué se viene en el cine.</p>
+</section>
+
+<section class="upcoming-calendar-section">
+
+  <div class="calendar-wrapper">
+
+    <div class="calendar-nav">
+      <a href="/upcoming?year={{ prevMonth.format('Y') }}&month={{ prevMonth.format('n') }}" class="calendar-nav-btn" aria-label="Mes anterior">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </a>
+
+      <h2 class="calendar-month-label">{{ currentMonth.format('F Y')|capitalize }}</h2>
+
+      <a href="/upcoming?year={{ nextMonth.format('Y') }}&month={{ nextMonth.format('n') }}" class="calendar-nav-btn" aria-label="Mes siguiente">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="calendar-weekdays">
+      <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+    </div>
+
+    <div class="calendar-grid" id="calendarGrid">
+      {% set daysInMonth = currentMonth.format('t') %}
+      {% set firstWeekday = currentMonth.format('N') %}
+      {% set leadingBlanks = firstWeekday - 1 %}
+
+      {% for i in 1..leadingBlanks %}
+        <div class="calendar-day calendar-day--blank"></div>
+      {% endfor %}
+
+      {% for day in 1..daysInMonth %}
+        {% set dateStr = currentMonth.format('Y-m') ~ '-' ~ (day < 10 ? '0' ~ day : day) %}
+        {% set count = counts[dateStr] ?? 0 %}
+        <a
+          href="/upcoming?year={{ year }}&month={{ month }}&date={{ dateStr }}"
+          class="calendar-day {{ count > 0 ? 'calendar-day--has-release' : '' }} {{ selectedDate == dateStr ? 'calendar-day--selected' : '' }}"
+        >
+          <span class="calendar-day__num">{{ day }}</span>
+          {% if count > 0 %}
+            <span class="calendar-day__dot"></span>
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <div class="upcoming-list">
+
+    {% if selectedDate %}
+
+      <h3 class="upcoming-list__title">
+        Estrenos del {{ selectedDate|date('d/m/Y') }}
+        <a href="/upcoming?year={{ year }}&month={{ month }}" class="upcoming-list__clear">Ver todos</a>
+      </h3>
+
+      {% if selectedReleases is empty %}
+        <p class="upcoming-empty">No hay estrenos programados para este día.</p>
+      {% else %}
+        <div class="movie-carousel upcoming-carousel">
+
+          <button type="button" class="carousel-arrow carousel-arrow--prev carouselPrev" aria-label="Anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+
+          <div class="movie-flex movieCarousel">
+            {% for release in selectedReleases %}
+              {{ cards.upcomingCard(release) }}
+            {% endfor %}
+          </div>
+
+          <button type="button" class="carousel-arrow carousel-arrow--next carouselNext" aria-label="Siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+        </div>
+      {% endif %}
+
+    {% else %}
+
+      <h3 class="upcoming-list__title">
+        Estrenos de {{ currentMonth.format('F')|capitalize }}
+      </h3>
+
+      {% if releases is empty %}
+        <p class="upcoming-empty">No hay estrenos programados para este mes.</p>
+      {% else %}
+        <div class="movie-carousel upcoming-carousel">
+
+          <button type="button" class="carousel-arrow carousel-arrow--prev carouselPrev" aria-label="Anterior">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+
+          <div class="movie-flex movieCarousel">
+            {% for release in releases %}
+              {{ cards.upcomingCard(release) }}
+            {% endfor %}
+          </div>
+
+          <button type="button" class="carousel-arrow carousel-arrow--next carouselNext" aria-label="Siguiente">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+        </div>
+      {% endif %}
+
+    {% endif %}
+
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="/assets/js/pages/upcoming-releases.js"></script>
+{% endblock %}

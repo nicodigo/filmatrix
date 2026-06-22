@@ -10,3 +10,15 @@
     </a>
   </article>
 {% endmacro %}
+
+{% macro upcomingCard(release) %}
+  <article class="movie-card upcoming-card">
+    <a href="https://www.themoviedb.org/movie/{{ release.tmdbId }}" target="_blank" rel="noopener" class="movie-card__link">
+      <img src="{{ release.posterUrl|default('/assets/img/hero-bg.webp') }}" alt="{{ release.title }}">
+      <div class="movie-card__overlay">
+        <p class="movie-card__title">{{ release.title }}</p>
+        <p class="upcoming-card__date">{{ release.releaseDate|date('d/m') }}</p>
+      </div>
+    </a>
+  </article>
+{% endmacro %}
