@@ -189,10 +189,15 @@ class TitleRepository
             "SELECT
             t.*,
             COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score,
-            COUNT(DISTINCT r.id) * 2 + COUNT(DISTINCT wi.id) AS popularity
+            COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '30 days' THEN r.id END) * 3
+                + COUNT(DISTINCT CASE WHEN wi.status = 'watched' THEN wi.id END) * 2
+                + COUNT(DISTINCT CASE WHEN wi.status = 'pending' THEN wi.id END) * 1
+                + COUNT(DISTINCT li.list_id) * 1.5
+                AS popularity
             FROM titles t
             LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
             LEFT JOIN watchlist_items wi ON wi.title_id = t.id
+            LEFT JOIN list_items li ON li.title_id = t.id
             WHERE {$where}
             GROUP BY t.id
             {$having}
