@@ -142,6 +142,7 @@ body {
 
 .detalle-sinopsis {
   flex: 1;
+  min-width: 800px;
 }
 
 .detalle-sinopsis__texto {

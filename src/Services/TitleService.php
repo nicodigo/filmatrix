@@ -283,4 +283,9 @@ class TitleService
 
         return new CatalogResult($items, $page, $totalPages, 'tmdb');
     }
+
+    public function getTitleById(int $id): ?Title
+    {
+        return $this->titleRepository->findById($id);
+    }
 }

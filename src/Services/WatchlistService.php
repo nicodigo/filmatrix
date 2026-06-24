@@ -85,6 +85,13 @@ class WatchlistService
             $this->assertValidStatus($status);
         }
 
+        if ($status === 'watched') {
+            $title = $this->titleService->getTitleById($titleId);
+            if ($title !== null && $title->isUpcoming()) {
+                throw new InvalidArgumentException("No se puede marcar como vista una película que todavía no se estrenó.");
+            }
+        }
+
         $existing = $this->watchlistRepository->findByUserAndTitle($userId, $titleId);
 
         if ($existing !== null) {
@@ -103,6 +110,13 @@ class WatchlistService
 
     public function updateStatus(int $userId, int $titleId, string $status): WatchlistItem
     {
+        if ($status === 'watched') {
+            $title = $this->titleService->getTitleById($titleId);
+            if ($title !== null && $title->isUpcoming()) {
+                throw new InvalidArgumentException("No se puede marcar como vista una película que todavía no se estrenó.");
+            }
+        }
+
         $this->assertValidStatus($status);
 
         $item = $this->watchlistRepository->findByUserAndTitle($userId, $titleId);

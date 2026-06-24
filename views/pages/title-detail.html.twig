@@ -43,9 +43,11 @@
               <option value="pending" {% if watchlistItem and watchlistItem.status == 'pending' %}selected{% endif %}>
                 Pendiente
               </option>
-              <option value="watched" {% if watchlistItem and watchlistItem.status == 'watched' %}selected{% endif %}>
-                Vista
-              </option>
+              {% if not isUpcoming %}
+                <option value="watched" {% if watchlistItem and watchlistItem.status == 'watched' %}selected{% endif %}>
+                  Vista
+                </option>
+              {% endif %}
             </select>
             <button class="detalle-watchlist__remove-btn" id="watchlistRemove" type="button">
               Eliminar de watchlist

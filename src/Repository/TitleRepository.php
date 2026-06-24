@@ -429,4 +429,22 @@ class TitleRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
+
+    public function findById(int $id): ?Title
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.*,
+                COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score
+            FROM titles t
+            LEFT JOIN reviews r
+                ON r.title_id = t.id AND r.is_visible = true
+            WHERE t.id = :id
+            GROUP BY t.id
+            LIMIT 1"
+        );
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? Title::fromArray($row) : null;
+    }
 }
