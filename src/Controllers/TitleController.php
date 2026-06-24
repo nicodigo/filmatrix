@@ -54,7 +54,7 @@ class TitleController
             sort: $this->request->get('sort', 'release_year'),
         );
 
-        $result = $this->titleService->getCatalog($query);
+        $result = $this->titleService->getCatalog($query, $_SESSION['user_id'] ?? null);
         $genres = $this->genreService->getAll();
 
         $baseParams = array_filter([

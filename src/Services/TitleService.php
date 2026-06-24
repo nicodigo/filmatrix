@@ -156,8 +156,12 @@ class TitleService
         }
     }
 
-    public function getCatalog(CatalogQuery $query): CatalogResult
+    public function getCatalog(CatalogQuery $query, ?int $userId = null): CatalogResult
     {
+        if ($query->sort === 'for_you' && $userId !== null) {
+            return $this->catalogPersonalized($query, $userId);
+        }
+
         return $this->catalogFromLocal($query);
     }
 
@@ -188,6 +192,41 @@ class TitleService
             self::PER_PAGE,
             $offset,
             $query->sort
+        );
+
+        $total      = $this->titleRepository->filterCount(
+            $query->genreId,
+            $query->year,
+            $query->language,
+            $query->minScore
+        );
+        $totalPages = max(1, (int) ceil($total / self::PER_PAGE));
+
+        $items = array_map(
+            fn(Title $t) => new TitleCardDto(
+                $t->getTmdbId(),
+                $t->getTitle(),
+                $t->getPosterUrl(),
+                $t->getAvgScore(),
+            ),
+            $titles
+        );
+
+        return new CatalogResult($items, $query->page, $totalPages, 'local');
+    }
+
+    private function catalogPersonalized(CatalogQuery $query, int $userId): CatalogResult
+    {
+        $offset = ($query->page - 1) * self::PER_PAGE;
+
+        $titles = $this->titleRepository->filterPersonalized(
+            $userId,
+            $query->genreId,
+            $query->year,
+            $query->language,
+            $query->minScore,
+            self::PER_PAGE,
+            $offset,
         );
 
         $total      = $this->titleRepository->filterCount(

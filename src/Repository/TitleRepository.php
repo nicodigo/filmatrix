@@ -263,6 +263,78 @@ class TitleRepository
         return (int) $stmt->fetchColumn();
     }
 
+    public function filterPersonalized(
+        int $userId,
+        ?int $genreId,
+        ?int $year,
+        ?string $language,
+        ?float $minScore,
+        int $limit = 20,
+        int $offset = 0,
+    ): array {
+        $conditions = [
+            '1=1',
+            't.release_date <= CURRENT_DATE',
+        ];
+        $params = [
+            ':user_id' => $userId,
+        ];
+
+        if ($genreId !== null) {
+            $conditions[] = 'EXISTS (
+                SELECT 1 FROM title_genres tg2
+                WHERE tg2.title_id = t.id AND tg2.genre_id = :genre_id
+            )';
+            $params[':genre_id'] = $genreId;
+        }
+
+        if ($year !== null) {
+            $conditions[] = 't.release_year = :year';
+            $params[':year'] = $year;
+        }
+
+        if ($language !== null) {
+            $conditions[] = 't.language = :language';
+            $params[':language'] = $language;
+        }
+
+        $having = '';
+        if ($minScore !== null) {
+            $having = 'HAVING COALESCE(ROUND(AVG(r.score)::numeric, 1), 0) >= :min_score';
+            $params[':min_score'] = $minScore;
+        }
+
+        $where = implode(' AND ', $conditions);
+
+        $stmt = $this->pdo->prepare(
+            "SELECT
+            t.*,
+            COALESCE(ROUND(AVG(r.score)::numeric, 1), t.tmdb_vote_average) AS avg_score,
+            COALESCE(AVG(ugp.weight), 0) AS rec_score,
+            COUNT(DISTINCT CASE WHEN r.created_at >= NOW() - INTERVAL '30 days' THEN r.id END) * 3
+                + COUNT(DISTINCT CASE WHEN wi.status = 'watched' THEN wi.id END) * 2
+                + COUNT(DISTINCT CASE WHEN wi.status = 'pending' THEN wi.id END) * 1
+                + COUNT(DISTINCT li.list_id) * 1.5
+                AS popularity
+            FROM titles t
+            LEFT JOIN reviews r ON r.title_id = t.id AND r.is_visible = true
+            LEFT JOIN watchlist_items wi ON wi.title_id = t.id
+            LEFT JOIN list_items li ON li.title_id = t.id
+            LEFT JOIN title_genres tg ON tg.title_id = t.id
+            LEFT JOIN user_genre_preferences ugp
+                ON ugp.genre_id = tg.genre_id AND ugp.user_id = :user_id
+            WHERE {$where}
+            GROUP BY t.id
+            {$having}
+            ORDER BY rec_score DESC, popularity DESC
+            LIMIT {$limit} OFFSET {$offset}"
+        );
+
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return array_map(fn($row) => Title::fromArray($row), $rows);
+    }
+
     /* =========================
        RELACIONES
     ========================= */

@@ -85,6 +85,9 @@
         <div class="filter-group">
           <label class="filter-label" for="filterSort">Ordenar por</label>
           <select class="filter-select" id="filterSort" name="sort">
+            {% if app.user_logged_in %}
+            <option value="for_you"      {% if active_filters.sort == 'for_you' %}selected{% endif %}>Para vos</option>
+            {% endif %}
             <option value="release_year" {% if active_filters.sort == 'release_year' %}selected{% endif %}>Más nuevos</option>
             <option value="popularity"   {% if active_filters.sort == 'popularity' %}selected{% endif %}>Más populares</option>
             <option value="avg_score"    {% if active_filters.sort == 'avg_score' %}selected{% endif %}>Mejor puntuados</option>
