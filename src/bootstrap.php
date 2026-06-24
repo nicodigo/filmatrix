@@ -83,6 +83,9 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Request
+$request = new Request();
+
 // twig
 $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../views');
 
@@ -99,6 +102,9 @@ $twig->addGlobal('app', [
     'username' => $_SESSION['username'] ?? null,
     'user_role' => $_SESSION['user_role'] ?? null,
 ]);
+
+$twig->addGlobal('app_url', rtrim($config->get('APP_URL'), '/'));
+$twig->addGlobal('current_path', $request->uri());
 
 // Repositories
 $userRepository             = new UserRepository($connection);
@@ -183,9 +189,6 @@ try {
 
 // Middleware
 $authMiddleware = new AuthMiddleware();
-
-// Request
-$request = new Request();
 
 // Controllers factories
 $makeUserCtrl = fn() => new UserController($twig, $authService, $userService, $request);

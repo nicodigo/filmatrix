@@ -1,8 +1,11 @@
 {% extends 'layout/main.html.twig' %}
 
-{% block title %}Detalle — Filmatrix{% endblock %}
+{% block title %}{{ title.title }} ({{ title.releaseYear|default('S/D') }}) — Filmatrix{% endblock %}
 
-{% block description %}Información, reparto y reseñas de la película en Filmatrix.{% endblock %}
+{% block description %}{{ title.synopsis|default('Información, reparto y reseñas de la película en Filmatrix.')|slice(0, 160) }}{% endblock %}
+
+{% block og_type %}video.movie{% endblock %}
+{% block og_image %}{{ title.posterUrl|default('/assets/img/hero-bg.webp') }}{% endblock %}
 
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/title-card.css">

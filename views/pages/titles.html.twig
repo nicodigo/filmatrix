@@ -1,8 +1,6 @@
 {% extends 'layout/main.html.twig' %}
 
-{% block title %}
-  {% if search_query %}Resultados para "{{ search_query }}" — Filmatrix{% else %}Catálogo — Filmatrix{% endif %}
-{% endblock %}
+{% block title %}{% if search_query %}Resultados para "{{ search_query }}" — Filmatrix{% else %}Catálogo — Filmatrix{% endif %}{% endblock %}
 
 {% block description %}Explorá el catálogo completo de películas en Filmatrix.{% endblock %}
 

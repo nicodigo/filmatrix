@@ -25,6 +25,7 @@ class Config
 
         $this->configs['SESSION_LIFETIME'] = getenv('SESSION_LIFETIME') ?: 0;
         $this->configs['SESSION_GC_MAXLIFETIME'] = getenv('SESSION_GC_MAXLIFETIME') ?: 86400;
+        $this->configs['APP_URL'] = getenv('APP_URL') ?: 'http://localhost:8000';
     }
 
     public function get($name)

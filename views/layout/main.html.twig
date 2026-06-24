@@ -8,6 +8,15 @@
   <meta name="description" content="{% block description %}Plataforma de reseñas de películas{% endblock %}">
   <meta name="csrf-token" content="{{ csrf_token }}">
 
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name" content="Filmatrix">
+  <meta property="og:title" content="{% block og_title %}{{ block('title') }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ block('description') }}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}/assets/img/hero-bg.webp{% endblock %}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:url" content="{{ app_url }}{{ current_path }}">
+  <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
