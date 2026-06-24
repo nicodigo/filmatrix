@@ -5,21 +5,28 @@ namespace App\Controllers;
 use App\Core\Request;
 use App\Dtos\TitleCardDto;
 use App\Repository\TitleListRepository;
+use App\Repository\ReviewRepository;
 use Twig\Environment;
 
 class PageController
 {
     private TitleListRepository $titleListRepository;
+    private ReviewRepository $reviewRepository;
     private Environment $twig;
     private Request $request;
 
-    public function __construct(Environment $twig, TitleListRepository $titleListRepository, Request $request)
-    {
+    public function __construct(
+        Environment $twig,
+        TitleListRepository $titleListRepository,
+        ReviewRepository $reviewRepository, 
+        Request $request
+    ) {
         $this->twig = $twig;
         $this->titleListRepository = $titleListRepository;
+        $this->reviewRepository = $reviewRepository; 
         $this->request = $request;
     }
-
+    
     public function home(): void
     {
         $popular = array_map(
@@ -31,22 +38,13 @@ class PageController
             ),
             $this->titleListRepository->findBySection('popular', 12)
         );
-
-        $dailyReview = [
-            'title'       => 'Dune: Part Two',
-            'year'        => '2024',
-            'author'      => 'María López',
-            'avatar'      => '/assets/img/user_avatar.png',
-            'body' => 'Una obra maestra visual que expande el universo de Frank Herbert con una narrativa épica y actuaciones memorables.',
-            'likes'       => 128,
-            'url_banner'  => '/assets/img/hero-bg.webp',
-        ];
-
+    
+        $dailyReview = $this->reviewRepository->findLatestWithAuthorAndTitle();
+    
         echo $this->twig->render('pages/home.html.twig', [
-            'popular' => $popular,
+            'popular'     => $popular,
             'dailyReview' => $dailyReview,
-        ]
-        );
+        ]);
     }
     
     public function about(): void

@@ -190,7 +190,7 @@ $request = new Request();
 // Controllers factories
 $makeUserCtrl = fn() => new UserController($twig, $authService, $userService, $request);
 
-$makePageCtrl = fn() => new PageController($twig, $titleListRepository, $request);
+$makePageCtrl = fn() => new PageController($twig, $titleListRepository, $reviewRepository, $request);
 
 $makeTitleCtrl = fn() => new TitleController(
     $twig,

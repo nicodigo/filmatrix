@@ -135,6 +135,80 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
+  aspect-ratio: 2 / 3;
+}
+
+@media (min-width: 768px) {
+  .daily-review figure {
+    width: 160px;
+  }
+  .daily-review figure img {
+    width: 160px;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+.daily-review__content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.daily-review__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.daily-review__author {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.daily-review__author::before {
+  content: 'por ';
+}
+
+.daily-review__text {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.daily-review__score {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--rating);
+}
+
+@media (min-width: 768px) {
+  .daily-review article {
+    flex-direction: row;
+  }
+}
+
+.daily-review figure {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.daily-review figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
   aspect-ratio: 16 / 9;
 }
 

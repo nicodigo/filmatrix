@@ -199,4 +199,21 @@ class ReviewRepository
         $stmt->execute([':title_id' => $titleId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    public function findLatestWithAuthorAndTitle(): ?array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT r.*, u.username, t.title, t.poster_url, t.tmdb_id
+            FROM reviews r
+            JOIN users u ON u.id = r.user_id
+            JOIN titles t ON t.id = r.title_id
+            WHERE r.body IS NOT NULL
+            AND r.is_visible = true
+            ORDER BY r.created_at DESC
+            LIMIT 1'
+        );
+    
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
 }
