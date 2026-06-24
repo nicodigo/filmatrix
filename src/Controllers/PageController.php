@@ -38,12 +38,32 @@ class PageController
             ),
             $this->titleListRepository->findBySection('popular', 12)
         );
-    
+
         $dailyReview = $this->reviewRepository->findLatestWithAuthorAndTitle();
-    
+
+        $popularJsonLd = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'itemListElement' => array_values(array_map(
+                fn(TitleCardDto $dto, int $i) => [
+                    '@type' => 'ListItem',
+                    'position' => $i + 1,
+                    'url' => '/titles/detail?tmdb_id=' . $dto->tmdbId,
+                    'item' => [
+                        '@type' => 'Movie',
+                        'name' => $dto->title,
+                        'image' => $dto->posterUrl ?? '/assets/img/hero-bg.webp',
+                    ],
+                ],
+                $popular,
+                array_keys($popular)
+            )),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         echo $this->twig->render('pages/home.html.twig', [
-            'popular'     => $popular,
-            'dailyReview' => $dailyReview,
+            'popular'       => $popular,
+            'dailyReview'   => $dailyReview,
+            'popularJsonLd' => $popularJsonLd,
         ]);
     }
     

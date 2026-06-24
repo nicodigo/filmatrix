@@ -12,6 +12,9 @@
 {% endblock %}
 
 {% block content %}
+  {% if not search_query and titlesJsonLd %}
+    <script type="application/ld+json">{{ titlesJsonLd|raw }}</script>
+  {% endif %}
   <input type="checkbox" id="filterToggle" class="filter-toggle-input">
   <section class="films-header">
     <h1 class="films-title">

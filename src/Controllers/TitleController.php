@@ -10,6 +10,7 @@ use App\Services\ReviewService;
 use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\WatchlistService;
+use App\Dtos\TitleCardDto;
 use Twig\Environment;
 
 class TitleController
@@ -76,6 +77,25 @@ class TitleController
             $nextUrl = '/titles?' . http_build_query($baseParams + ['page' => $result->currentPage + 1]);
         }
 
+        $titlesJsonLd = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'itemListElement' => array_values(array_map(
+                fn(TitleCardDto $dto, int $i) => [
+                    '@type' => 'ListItem',
+                    'position' => $i + 1,
+                    'url' => '/titles/detail?tmdb_id=' . $dto->tmdbId,
+                    'item' => [
+                        '@type' => 'Movie',
+                        'name' => $dto->title,
+                        'image' => $dto->posterUrl ?? '/assets/img/hero-bg.webp',
+                    ],
+                ],
+                $result->items,
+                array_keys($result->items)
+            )),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         echo $this->twig->render('pages/titles.html.twig', [
             'titles'         => $result->items,
             'pagination'     => $result,
@@ -83,6 +103,7 @@ class TitleController
             'active_filters' => $baseParams,
             'prevUrl'        => $prevUrl,
             'nextUrl'        => $nextUrl,
+            'titlesJsonLd' => $titlesJsonLd,
         ]);
     }
 
@@ -164,6 +185,80 @@ class TitleController
             );
         }
         $isUpcoming = $title->isUpcoming();
+
+        $genreNames = array_values(array_map(
+            fn($genre) => is_array($genre) ? $genre['name'] : $genre->getName(),
+            $genres
+        ));
+        
+        $actorNames = [];
+        $directorNames = [];
+        foreach ($cast as $member) {
+            if ($member['role'] === 'actor') {
+                $actorNames[] = $member['name'];
+            } elseif ($member['role'] === 'director') {
+                $directorNames[] = $member['name'];
+            }
+        }
+        
+        $movieSchema = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'Movie',
+            'name'        => $title->getTitle(),
+            'image'       => $title->getPosterUrl() ?? '/assets/img/hero-bg.webp',
+            'description' => $title->getSynopsis() ?? '',
+            'datePublished' => $title->getReleaseDate(),
+            'genre'       => $genreNames,
+        ];
+        
+        if ($title->getDurationMinutes()) {
+            $h = intdiv($title->getDurationMinutes(), 60);
+            $m = $title->getDurationMinutes() % 60;
+            $movieSchema['duration'] = sprintf('PT%dH%dM', $h, $m);
+        }
+        
+        if (!empty($actorNames)) {
+            $movieSchema['actor'] = array_map(
+                fn($n) => ['@type' => 'Person', 'name' => $n],
+                $actorNames
+            );
+        }
+        
+        if (!empty($directorNames)) {
+            $movieSchema['director'] = array_map(
+                fn($n) => ['@type' => 'Person', 'name' => $n],
+                $directorNames
+            );
+        }
+        
+        if (!$isUpcoming && !empty($reviews)) {
+            $movieSchema['aggregateRating'] = [
+                '@type'       => 'AggregateRating',
+                'ratingValue' => $title->getAvgScore(),
+                'bestRating'  => 5,
+                'worstRating' => 1,
+                'ratingCount' => count($reviews),
+            ];
+        }
+        
+        if (!$isUpcoming && !empty($reviews)) {
+            $movieSchema['review'] = array_map(fn($r) => [
+                '@type' => 'Review',
+                'author' => ['@type' => 'Person', 'name' => $r['username']],
+                'reviewRating' => [
+                    '@type'       => 'Rating',
+                    'ratingValue' => $r['score'],
+                    'bestRating'  => 5,
+                    'worstRating' => 1,
+                ],
+                'reviewBody'    => $r['body'],
+                'datePublished' => date('Y-m-d', strtotime($r['created_at'])),
+            ], $reviews);
+        }
+        
+        $movieJsonLd = json_encode($movieSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+
         echo $this->twig->render('pages/title-detail.html.twig', [
             'title'        => $title,
             'genres'       => $genres,
@@ -178,6 +273,7 @@ class TitleController
             'flashSuccess' => $flashSuccess,
             'watchlistItem' => $watchlistItem,
             'isUpcoming'    => $isUpcoming,
+            'movieJsonLd' => $movieJsonLd,
         ]);
     }
 }
