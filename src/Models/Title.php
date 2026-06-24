@@ -12,6 +12,7 @@ class Title
     private ?string $posterUrl;
     private ?string $trailerUrl;
     private ?int $releaseYear;
+    private ?string $releaseDate;
     private ?string $language;
     private ?int $durationMinutes;
     private ?float $avgScore;
@@ -27,6 +28,7 @@ class Title
         ?string $posterUrl = null,
         ?string $trailerUrl = null,
         ?int $releaseYear = null,
+        ?string $releaseDate = null,
         ?string $language = null,
         ?int $durationMinutes = null,
         ?float $avgScore = null,
@@ -44,6 +46,7 @@ class Title
         $this->posterUrl = $posterUrl;
         $this->trailerUrl = $trailerUrl;
         $this->releaseYear = $releaseYear;
+        $this->releaseDate = $releaseDate;
         $this->language = $language;
         $this->durationMinutes = $durationMinutes;
         $this->avgScore = $avgScore;
@@ -89,6 +92,11 @@ class Title
     public function getReleaseYear(): ?int
     {
         return $this->releaseYear;
+    }
+
+    public function getReleaseDate(): ?string
+    {
+        return $this->releaseDate;
     }
 
     public function getLanguage(): ?string
@@ -163,6 +171,11 @@ class Title
         $this->releaseYear = $releaseYear;
     }
 
+    public function setReleaseDate(?string $releaseDate): void
+    {
+        $this->releaseDate = $releaseDate;
+    }
+
     public function setLanguage(?string $language): void
     {
         $this->language = $language;
@@ -211,6 +224,7 @@ class Title
             isset($data['release_year'])
                 ? (int) $data['release_year']
                 : null,
+            $data['release_date'] ?? null,
             $data['language'] ?? null,
             isset($data['duration_minutes'])
                 ? (int) $data['duration_minutes']
@@ -236,11 +250,27 @@ class Title
             'poster_url' => $this->posterUrl,
             'trailer_url' => $this->trailerUrl,
             'release_year' => $this->releaseYear,
+            'release_date' => $this->releaseDate,
             'language' => $this->language,
             'duration_minutes' => $this->durationMinutes,
             'avg_score' => $this->avgScore,
             'tmdb_vote_average' => $this->tmdbVoteAverage,
             'cached_at' => $this->cachedAt,
         ];
+    }
+
+    public function isUpcoming(): bool
+    {
+        if ($this->releaseDate === null) {
+            return false;
+        }
+
+        try {
+            $release = new \DateTimeImmutable($this->releaseDate);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return $release > new \DateTimeImmutable('today');
     }
 }

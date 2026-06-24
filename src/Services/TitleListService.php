@@ -78,4 +78,31 @@ class TitleListService
     {
         return $this->titleListRepository->findBySection($section, $limit);
     }
+
+        public function syncUpcoming(int $pages = 3): void
+    {
+        $this->titleListRepository->clearSection('upcoming');
+
+        for ($page = 1; $page <= $pages; $page++) {
+            $response = $this->tmdbClient->getUpcoming($page);
+            $this->syncSection('upcoming', $response['results'], ($page - 1) * 20);
+        }
+
+        $this->logger->info('upcoming synced', ['pages' => $pages]);
+    }
+
+    public function getUpcomingByMonth(int $limit = 100): array
+    {
+        return $this->titleListRepository->findUpcomingGroupedByMonth($limit);
+    }
+
+    public function getUpcomingByDate(string $date): array
+    {
+        return $this->titleListRepository->findUpcomingByDate($date);
+    }
+
+    public function getUpcomingCountsByMonth(): array
+    {
+        return $this->titleListRepository->countUpcomingByMonth();
+    }
 }

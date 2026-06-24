@@ -163,7 +163,7 @@ class TitleController
                 $title->getId()
             );
         }
-
+        $isUpcoming = $title->isUpcoming();
         echo $this->twig->render('pages/title-detail.html.twig', [
             'title'        => $title,
             'genres'       => $genres,
@@ -177,6 +177,7 @@ class TitleController
             'flashError'   => $flashError,
             'flashSuccess' => $flashSuccess,
             'watchlistItem' => $watchlistItem,
+            'isUpcoming'    => $isUpcoming,
         ]);
     }
 }

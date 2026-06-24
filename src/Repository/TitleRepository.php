@@ -73,10 +73,10 @@ class TitleRepository
         $stmt = $this->pdo->prepare(
             'INSERT INTO titles
                 (tmdb_id, type, title, synopsis, poster_url, trailer_url,
-                release_year, language, duration_minutes, tmdb_vote_average, cached_at)
+                release_year, release_date, language, duration_minutes, tmdb_vote_average, cached_at)
             VALUES
                 (:tmdb_id, :type, :title, :synopsis, :poster_url, :trailer_url,
-                :release_year, :language, :duration_minutes, :tmdb_vote_average, NOW())
+                :release_year, :release_date, :language, :duration_minutes, :tmdb_vote_average, NOW())
             ON CONFLICT (tmdb_id)
             DO UPDATE SET
                 type = EXCLUDED.type,
@@ -85,6 +85,7 @@ class TitleRepository
                 poster_url = EXCLUDED.poster_url,
                 trailer_url = EXCLUDED.trailer_url,
                 release_year = EXCLUDED.release_year,
+                release_date = EXCLUDED.release_date,
                 language = EXCLUDED.language,
                 duration_minutes = EXCLUDED.duration_minutes,
                 tmdb_vote_average = EXCLUDED.tmdb_vote_average,
@@ -100,6 +101,7 @@ class TitleRepository
             ':poster_url' => $title->getPosterUrl(),
             ':trailer_url' => $title->getTrailerUrl(),
             ':release_year' => $title->getReleaseYear(),
+            ':release_date' => $title->getReleaseDate(),
             ':language' => $title->getLanguage(),
             ':duration_minutes' => $title->getDurationMinutes(),
             ':tmdb_vote_average' => $title->getTmdbVoteAverage(),
@@ -119,6 +121,7 @@ class TitleRepository
             LEFT JOIN reviews r
                 ON r.title_id = t.id AND r.is_visible = true
             WHERE t.title ILIKE :query
+            AND t.release_date <= CURRENT_DATE
             GROUP BY t.id
             ORDER BY t.release_year DESC NULLS LAST
             LIMIT :limit"
@@ -143,7 +146,10 @@ class TitleRepository
         int $offset = 0,
         string $orderBy = 'release_year'
     ): array {
-        $conditions = ['1=1'];
+        $conditions = [
+            '1=1',
+            't.release_date <= CURRENT_DATE',
+        ];
         $params = [];
 
         if ($genreId !== null) {
@@ -205,7 +211,10 @@ class TitleRepository
         ?string $language,
         ?float $minScore
     ): int {
-        $conditions = ['1=1'];
+        $conditions = [
+            '1=1',
+            't.release_date <= CURRENT_DATE',
+        ];
         $params = [];
 
         if ($genreId !== null) {

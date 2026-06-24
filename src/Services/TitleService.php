@@ -80,6 +80,7 @@ class TitleService
                     : null,
                 $trailerUrl,
                 $releaseYear,
+                $movie['release_date'] ?? null,
                 $movie['original_language'] ?? null,
                 $movie['runtime'] ?? null,
                 null, // avgScore, no aplica acá, se calcula en queries
@@ -215,7 +216,9 @@ class TitleService
     {
         $results = array_filter(
             $response['results'] ?? [],
-            fn($item) => empty($item['adult']) || $item['adult'] !== true
+            fn($item) => (empty($item['adult']) || $item['adult'] !== true)
+                && !empty($item['release_date'])
+                && $item['release_date'] <= date('Y-m-d')
         );
 
         $tmdbIds     = array_map(fn($item) => (int) $item['id'], $results);

@@ -5,32 +5,24 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Request;
-use App\Services\UpcomingReleaseService;
+use App\Services\TitleListService;
 use Twig\Environment;
 
 class UpcomingReleaseController
 {
     public function __construct(
-        private UpcomingReleaseService $service,
-        private Environment            $twig,
-        private Request                $request,
+        private TitleListService $titleListService,
+        private Environment      $twig,
+        private Request          $request,
     ) {}
 
-    /**
-     * GET /upcoming
-     * Renderiza el calendario de próximos estrenos para el mes/año
-     * solicitado (por defecto, el mes actual), junto con la lista
-     * de estrenos de ese mes y, si hay un día seleccionado, los
-     * estrenos de ese día puntual.
-     */
     public function index(): void
     {
         $today = new \DateTimeImmutable();
 
-        $year  = (int) $this->request->get('year', $today->format('Y'));
+        $year  = (int) $this->request->get('year',  $today->format('Y'));
         $month = (int) $this->request->get('month', $today->format('n'));
 
-        // Clamp básico para evitar meses inválidos vía query string.
         if ($month < 1) {
             $month = 12;
             $year--;
@@ -39,12 +31,20 @@ class UpcomingReleaseController
             $year++;
         }
 
-        $releases = $this->service->getByMonth($year, $month);
-        $counts   = $this->service->getCountsByMonth($year, $month);
+        // Traemos todos los upcoming agrupados por mes y filtramos el mes pedido
+        $allByMonth = $this->titleListService->getUpcomingByMonth();
+        $monthKey   = sprintf('%04d-%02d', $year, $month);
+        $releases   = $allByMonth[$monthKey] ?? [];
 
-        $selectedDate = $this->request->get('date');
+        // Counts por día (para marcar el calendario)
+        $counts = [];
+        foreach ($releases as $row) {
+            $counts[$row['release_date']] = ($counts[$row['release_date']] ?? 0) + 1;
+        }
+
+        $selectedDate     = $this->request->get('date');
         $selectedReleases = $selectedDate
-            ? $this->service->getByDate($selectedDate)
+            ? $this->titleListService->getUpcomingByDate($selectedDate)
             : [];
 
         $currentMonth = new \DateTimeImmutable("{$year}-{$month}-01");

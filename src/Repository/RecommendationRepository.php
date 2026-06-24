@@ -68,6 +68,7 @@ class RecommendationRepository
                     ON dt.title_id = t.id AND dt.user_id = :uid_dt
              WHERE wi.id       IS NULL
                AND dt.title_id IS NULL
+               AND t.release_date <= CURRENT_DATE
                AND NOT EXISTS (
                    SELECT 1 FROM reviews r_exc
                    WHERE r_exc.title_id = t.id AND r_exc.user_id = :uid_rev
@@ -148,6 +149,7 @@ class RecommendationRepository
             WHERE tg.genre_id = :genre_id
             AND wi.id IS NULL
             AND dt.title_id IS NULL
+            AND t.release_date <= CURRENT_DATE
             AND NOT EXISTS (
                 SELECT 1 FROM reviews r_exc
                 WHERE r_exc.title_id = t.id AND r_exc.user_id = :uid_rev
@@ -214,6 +216,7 @@ class RecommendationRepository
             WHERE tg.genre_id = :genre_id
             AND wi.id IS NULL
             AND dt.title_id IS NULL
+            AND t.release_date <= CURRENT_DATE
             {$excludeClause}
             AND NOT EXISTS (
                 SELECT 1 FROM reviews r_exc
@@ -281,6 +284,7 @@ class RecommendationRepository
                     ON dt.title_id = t.id AND dt.user_id = :uid_dt
             WHERE wi.id       IS NULL
             AND dt.title_id IS NULL
+            AND t.release_date <= CURRENT_DATE
             {$excludeClause}
             AND NOT EXISTS (
                 SELECT 1 FROM reviews r_exc

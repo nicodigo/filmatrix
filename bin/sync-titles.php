@@ -32,12 +32,10 @@ use App\Repository\TitleRepository;
 use App\Repository\GenreRepository;
 use App\Repository\PeopleRepository;
 use App\Repository\TitleListRepository;
-use App\Repository\UpcomingReleaseRepository;
 use App\Services\GenreService;
 use App\Services\PeopleService;
 use App\Services\TitleService;
 use App\Services\TitleListService;
-use App\Services\UpcomingReleaseService;
 
 // 1. Load environment
 Dotenv::createUnsafeImmutable(__DIR__ . '/../')->safeLoad();
@@ -61,7 +59,6 @@ $titleRepository       = new TitleRepository($connection);
 $genreRepository       = new GenreRepository($connection);
 $peopleRepository      = new PeopleRepository($connection);
 $titleListRepository = new TitleListRepository($connection);
-$upcomingReleaseRepository = new UpcomingReleaseRepository($connection);
 
 // 6. TMDB client
 $tmdbClient = new TmdbClient($config);
@@ -85,8 +82,6 @@ $titleListService = new TitleListService(
     $logger
 );
 
-$upcomingReleaseService = new UpcomingReleaseService($upcomingReleaseRepository, $tmdbClient, $logger);
-
 // 8. Parse CLI arguments
 $section = 'all';
 $pages   = 1;
@@ -100,7 +95,7 @@ for ($i = 1; $i < count($argv); $i++) {
     }
 }
 
-$allowedSections = ['all', 'now_playing', 'popular', 'upcoming_release'];
+$allowedSections = ['all', 'now_playing', 'popular', 'upcoming'];
 
 if (!in_array($section, $allowedSections, true)) {
     echo "Error: sección inválida '$section'. Valores permitidos: all, now_playing, popular\n";
@@ -125,9 +120,9 @@ try {
         echo "OK\n\n";
     }
 
-    if ($section === 'all' || $section === 'upcoming_release') {
-        echo "Sincronizando upcoming_release ({$pages} página/s)...\n";
-        $upcomingReleaseService->sync($pages);
+    if ($section === 'all' || $section === 'upcoming') {
+        echo "Sincronizando upcoming ({$pages} página/s)...\n";
+        $titleListService->syncUpcoming($pages);
         echo "OK\n\n";
     }
 

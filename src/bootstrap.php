@@ -44,13 +44,10 @@ use App\Controllers\TitleController;
 use App\Controllers\ReviewController;
 use App\Controllers\UserController;
 use App\Controllers\UserListController;
+use App\Controllers\UpcomingReleaseController;
 use App\Repository\WatchlistRepository;
 use App\Services\WatchlistService;
 use App\Services\TitleListService;
-
-use App\Controllers\UpcomingReleaseController;
-use App\Repository\UpcomingReleaseRepository;
-use App\Services\UpcomingReleaseService;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
@@ -114,7 +111,6 @@ $watchlistRepository        = new WatchlistRepository($connection);
 $userListRepository         = new UserListRepository($connection);
 $genrePreferenceRepository  = new GenrePreferenceRepository($connection);
 $recommendationRepository   = new RecommendationRepository($connection);
-$upcomingReleaseRepository = new UpcomingReleaseRepository($connection);
 
 // External clients
 $tmdbClient = new TmdbClient($config);
@@ -172,13 +168,6 @@ $recommendationService = new RecommendationService(
     $genreService,
 );
 
-$upcomingReleaseService = new UpcomingReleaseService(
-    $upcomingReleaseRepository,
-    $tmdbClient,
-    $log_app
-);
-
-
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────
 try {
     $genresData = $tmdbClient->getGenres();
@@ -226,7 +215,7 @@ $makeRecommendationCtrl = fn() => new RecommendationController(
     $request,
 );
 
-$makeUpcomingCtrl = fn() => new UpcomingReleaseController($upcomingReleaseService, $twig, $request);
+$makeUpcomingCtrl = fn() => new UpcomingReleaseController($titleListService, $twig, $request);
 
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {

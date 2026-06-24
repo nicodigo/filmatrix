@@ -148,16 +148,18 @@ class TmdbClient
     public function getUpcoming(int $page = 1): array
     {
         $startDate = date('Y-m-d', strtotime('+1 day'));
-        $endDate   = date('Y-m-d', strtotime('+90 days'));
+        $endDate   = date('Y-m-d', strtotime('+120 days')); 
 
-        return $this->request('/discover/movie', [
-            'sort_by' => 'primary_release_date.asc',
-            'include_adult' => 'false',
-            'with_release_type' => '2|3',
+        $results = $this->request('/discover/movie', [
+            'sort_by'                  => 'popularity.desc',
+            'include_adult'            => 'false',
+            'with_release_type'        => '2|3',
             'primary_release_date.gte' => $startDate,
             'primary_release_date.lte' => $endDate,
-            'page' => $page,
+            'page'                     => $page,
         ]);
+        
+        return $results;
     }
 
     public function searchMovie(string $query, int $page = 1): array
@@ -168,5 +170,4 @@ class TmdbClient
             'page' => $page,
         ]);
     }
-
 }

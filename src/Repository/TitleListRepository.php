@@ -122,4 +122,83 @@ class TitleListRepository
         return $rows ?: [];
     }
 
+    public function findUpcomingGroupedByMonth(int $limit = 100): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.id,
+                t.tmdb_id,
+                t.title,
+                t.poster_url,
+                t.release_date,
+                TO_CHAR(t.release_date, 'YYYY-MM') AS month
+            FROM title_lists cl
+            JOIN titles t ON t.id = cl.title_id
+            WHERE cl.section = 'upcoming'
+            AND t.release_date >= CURRENT_DATE
+            ORDER BY t.release_date ASC
+            LIMIT :limit"
+        );
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // Agrupar por mes en PHP
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[$row['month']][] = $row;
+        }
+
+        return $grouped;
+    }
+
+    public function findUpcomingByDate(string $date): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT
+                t.id,
+                t.tmdb_id,
+                t.title,
+                t.poster_url,
+                t.release_date
+            FROM title_lists cl
+            JOIN titles t ON t.id = cl.title_id
+            WHERE cl.section = 'upcoming'
+            AND t.release_date = :date
+            ORDER BY t.title ASC"
+        );
+
+        $stmt->bindValue(':date', $date, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function countUpcomingByMonth(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT
+                TO_CHAR(t.release_date, 'YYYY-MM') AS month,
+                COUNT(*) AS total
+            FROM title_lists cl
+            JOIN titles t ON t.id = cl.title_id
+            WHERE cl.section = 'upcoming'
+            AND t.release_date >= CURRENT_DATE
+            GROUP BY month
+            ORDER BY month ASC"
+        );
+
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        // [ '2025-07' => 12, '2025-08' => 7, ... ]
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[$row['month']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
 }
