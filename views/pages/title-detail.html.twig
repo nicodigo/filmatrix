@@ -5,7 +5,10 @@
 {% block description %}{{ title.synopsis|default('Información, reparto y reseñas de la película en Filmatrix.')|slice(0, 160) }}{% endblock %}
 
 {% block og_type %}video.movie{% endblock %}
+
 {% block og_image %}{{ title.posterUrl|default('/assets/img/hero-bg.webp') }}{% endblock %}
+
+{% block canonical %}{{ app_url }}/titles/detail?{{ {'tmdb_id': tmdbId}|url_encode }}{% endblock %}
 
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/title-card.css">

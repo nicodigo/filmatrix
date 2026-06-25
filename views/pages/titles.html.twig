@@ -4,6 +4,8 @@
 
 {% block description %}Explorá el catálogo completo de películas en Filmatrix.{% endblock %}
 
+{% block canonical %}{{ app_url }}{{ canonicalPath }}{{ canonicalQuery ? '?' ~ canonicalQuery : '' }}{% endblock %}
+
 {% block styles %}
   <link rel="stylesheet" href="/assets/css/title-card.css">
   <link rel="stylesheet" href="/assets/css/titles.css">
