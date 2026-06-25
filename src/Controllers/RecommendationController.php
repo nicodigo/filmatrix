@@ -17,10 +17,6 @@ class RecommendationController
         private Request               $request,
     ) {}
 
-    /**
-     * GET /recommendations
-     * Renderiza la grilla de títulos sugeridos para el usuario autenticado.
-     */
     public function index(): void
     {
         $userId = $this->request->session('user_id');
@@ -39,14 +35,6 @@ class RecommendationController
         ]);
     }
 
-    /**
-     * POST /recommendations/discard
-     * Body JSON: { "title_id": N }
-     *
-     * Descarta el título: lo excluye de futuras recomendaciones y
-     * ajusta las preferencias de género del usuario.
-     * Responde con JSON { success: bool }.
-     */
     public function discard(): void
     {
         $userId = $this->request->session('user_id');

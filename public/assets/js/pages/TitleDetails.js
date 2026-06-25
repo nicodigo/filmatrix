@@ -24,7 +24,6 @@ if (watchlistSection) {
       inState.hidden = false;
       statusSel.value = "pending";
     } catch {
-      /* silencioso */
     }
   });
 

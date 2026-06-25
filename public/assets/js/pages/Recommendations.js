@@ -20,8 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const csrfToken =
       document.querySelector('meta[name="csrf-token"]')?.content ?? '';
-
-    // IDs visibles en este carrusel puntual (para no repetir)
+      
     const visibleIds = track
       ? Array.from(track.querySelectorAll('.reco-card')).map(
           c => parseInt(c.dataset.titleId, 10)

@@ -3,12 +3,10 @@ export class Toast {
       this.toast = document.getElementById('toast');
       if (!this.toast) return;
   
-      // Mostrar con animación
       requestAnimationFrame(() => {
         this.toast.classList.add('toast--visible');
       });
   
-      // Auto-ocultar después de 4s
       setTimeout(() => this.dismiss(), 4000);
   
       this.toast.addEventListener('click', () => this.dismiss());

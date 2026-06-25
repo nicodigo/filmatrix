@@ -40,7 +40,6 @@ export class Carousel {
     const step = this.itemsPerView;
     let next = this.currentIndex + direction * step;
 
-    // Clampear en vez de ciclar — si nos pasamos del final, quedamos en maxIndex.
     next = Math.max(0, Math.min(next, this.maxIndex));
 
     this.currentIndex = next;
@@ -64,7 +63,6 @@ export class Carousel {
   updateButtons() {
     this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
 
-    // Si no hay nada que desplazar, ocultar ambas flechas.
     const hasOverflow = this.totalItems > this.itemsPerView;
 
     this.prevBtn.style.display = hasOverflow ? '' : 'none';

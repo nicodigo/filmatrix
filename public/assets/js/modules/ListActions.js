@@ -88,9 +88,6 @@ export class ListActions {
   }
 }
 
-/* ─────────────────────────────────────
-   TOAST
-───────────────────────────────────── */
 
 function showToast(message, type = 'success') {
   const existing = document.getElementById('toast');
@@ -110,26 +107,18 @@ function showToast(message, type = 'success') {
   });
 }
 
-/* 🔥 FIX CRÍTICO: esperar render real del browser */
 function nextPaint(callback) {
   requestAnimationFrame(() => {
     requestAnimationFrame(callback);
   });
 }
 
-/* ─────────────────────────────────────
-   INIT
-───────────────────────────────────── */
 
 function init() {
   const csrfToken =
     document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
   const actions = new ListActions(csrfToken);
-
-  /* ═════════════════════════════
-     MIS LISTAS
-  ═════════════════════════════ */
 
   const createBtn = document.getElementById('lists-create-btn');
   const createDialog = document.getElementById('list-create-dialog');
@@ -172,7 +161,7 @@ function init() {
     });
   }
 
-  /* DELETE LIST */
+
   document.querySelectorAll('.list-card__delete-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const listId = parseInt(btn.dataset.listId, 10);
@@ -193,9 +182,6 @@ function init() {
     });
   });
 
-  /* ═════════════════════════════
-     DETALLE LISTA
-  ═════════════════════════════ */
 
   const editBtn = document.getElementById('list-edit-btn');
   const editDialog = document.getElementById('list-edit-dialog');

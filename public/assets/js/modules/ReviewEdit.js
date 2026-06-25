@@ -4,7 +4,6 @@ export class ReviewEdit {
     this.initMultipleReviews();
   }
 
-  // Para title-detail (una sola reseña con IDs fijos)
   initSingleReview() {
     const btnEditar    = document.getElementById('btnEditarResena');
     const btnCancelar  = document.getElementById('btnCancelarEdicion');
@@ -47,9 +46,7 @@ export class ReviewEdit {
     });
   }
 
-  // Para profile (múltiples reseñas con data-id)
   initMultipleReviews() {
-    // Editar
     document.querySelectorAll('.btn-editar-resenia[data-id]').forEach(btn => {
       const id = btn.dataset.id;
       btn.addEventListener('click', () => {
@@ -58,7 +55,7 @@ export class ReviewEdit {
       });
     });
 
-    // Cancelar edición
+
     document.querySelectorAll('.btn-cancelar[data-id]').forEach(btn => {
       const id = btn.dataset.id;
       btn.addEventListener('click', () => {
@@ -67,7 +64,6 @@ export class ReviewEdit {
       });
     });
 
-    // Abrir modal eliminar
     document.querySelectorAll('.btn-eliminar-resenia[data-id]').forEach(btn => {
       const id = btn.dataset.id;
       btn.addEventListener('click', () => {
@@ -75,7 +71,7 @@ export class ReviewEdit {
       });
     });
 
-    // Cancelar modal
+
     document.querySelectorAll('[data-modal-id]').forEach(btn => {
       const id = btn.dataset.modalId;
       btn.addEventListener('click', () => {
@@ -83,7 +79,7 @@ export class ReviewEdit {
       });
     });
 
-    // Confirmar eliminar
+    
     document.querySelectorAll('[data-confirm-id]').forEach(btn => {
       const id = btn.dataset.confirmId;
       btn.addEventListener('click', () => {
@@ -92,7 +88,7 @@ export class ReviewEdit {
       });
     });
 
-    // Cerrar modal con click fuera
+
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.remove('is-open');
