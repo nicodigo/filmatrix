@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /profile/edit
+Disallow: /profile/password
+Disallow: /my-reviews
+Disallow: /my-watchlist
+Disallow: /my-lists
+Disallow: /my-lists/detail
+Disallow: /my-lists/item
+Disallow: /my-lists/available
+Disallow: /recommendations
+Disallow: /recommendations/discard
+Disallow: /review/
+
+Sitemap: http://localhost:8000/sitemap.xml
