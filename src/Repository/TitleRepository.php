@@ -447,4 +447,12 @@ class TitleRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? Title::fromArray($row) : null;
     }
+
+    public function findAllForSitemap(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT tmdb_id, cached_at FROM titles ORDER BY id ASC'
+        );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 }

@@ -1,0 +1,20 @@
+{%- autoescape false -%}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{% for page in staticPages %}
+  <url>
+    <loc>{{ app_url }}{{ page.path }}</loc>
+    <changefreq>{{ page.changefreq }}</changefreq>
+    <priority>{{ page.priority }}</priority>
+  </url>
+{% endfor %}
+{% for title in titles %}
+  <url>
+    <loc>{{ app_url }}/titles/detail?tmdb_id={{ title.tmdb_id }}</loc>
+    {% if title.cached_at %}<lastmod>{{ title.cached_at|date('Y-m-d') }}</lastmod>{% endif %}
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+{% endfor %}
+</urlset>
+{%- endautoescape %}

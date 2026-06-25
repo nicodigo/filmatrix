@@ -16,4 +16,4 @@ Disallow: /recommendations
 Disallow: /recommendations/discard
 Disallow: /review/
 
-Sitemap: http://localhost:8000/sitemap.xml
+Sitemap: http://localhost:8080/sitemap.xml

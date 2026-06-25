@@ -288,4 +288,9 @@ class TitleService
     {
         return $this->titleRepository->findById($id);
     }
+
+    public function getAllForSitemap(): array
+    {
+        return $this->titleRepository->findAllForSitemap();
+    }
 }

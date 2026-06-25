@@ -49,6 +49,8 @@ use App\Repository\WatchlistRepository;
 use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
+use App\Controllers\SitemapController;
+
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 
@@ -272,3 +274,7 @@ $router->get('/acerca-de-nosotros', fn() => $makePageCtrl()->about());
 $router->get('/contacto', fn() => $makePageCtrl()->contact());
 
 $router->get('/upcoming', fn() => $makeUpcomingCtrl()->index());
+
+
+$makeSitemapCtrl = fn() => new SitemapController($twig, $titleService);
+$router->get('/sitemap.xml', fn() => $makeSitemapCtrl()->index());
