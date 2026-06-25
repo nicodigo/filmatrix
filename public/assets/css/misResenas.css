@@ -10,10 +10,24 @@ body {
 .perfil-main {
   max-width: 100%;
   margin: 0;
-  padding: 2.5rem 2rem 4rem;
+  padding: 1.5rem 1rem 3rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .perfil-main {
+    padding: 2rem 1.5rem 3.5rem;
+    gap: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .perfil-main {
+    padding: 2.5rem 2rem 4rem;
+    gap: 2rem;
+  }
 }
 
 @keyframes perfil-fadein {
@@ -26,23 +40,39 @@ body {
 ══════════════════════════════════════ */
 .perfil-hero {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+  .perfil-hero {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
 }
 
 .perfil-hero__info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .perfil-nombre {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 400;
   color: var(--text-primary);
   line-height: 1.2;
+  word-break: break-word;
+}
+
+@media (min-width: 768px) {
+  .perfil-nombre {
+    font-size: 1.75rem;
+  }
 }
 
 .perfil-miembro {
@@ -66,8 +96,21 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  width: 320px;
-  flex-shrink: 0;
+  width: 100%;
+  flex-shrink: 1;
+}
+
+@media (min-width: 480px) {
+  .perfil-resenia-card {
+    width: calc(50% - 0.5rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .perfil-resenia-card {
+    width: 320px;
+    flex-shrink: 0;
+  }
 }
 
 /* ══════════════════════════════════════
@@ -119,6 +162,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .resena-propia__actions {
@@ -338,4 +382,3 @@ body {
   align-items: center;
   gap: 0.75rem;
 }
-

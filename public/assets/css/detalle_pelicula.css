@@ -149,7 +149,7 @@ body {
 /* Sinopsis */
 .detalle-sinopsis {
   flex: 1;
-  min-width: 800px;
+  min-width: 0;
 }
  
 .detalle-sinopsis__texto {
