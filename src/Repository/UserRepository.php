@@ -168,14 +168,12 @@ class UserRepository
 
         // Géneros más vistos (top 3)
         $stmt = $this->pdo->prepare(
-            'SELECT g.name, COUNT(*) as cnt
-            FROM reviews r
-            JOIN title_genres tg ON tg.title_id = r.title_id
-            JOIN genres g ON g.id = tg.genre_id
-            WHERE r.user_id = :user_id
-            GROUP BY g.name
-            ORDER BY cnt DESC
-            LIMIT 3'
+            'SELECT g.name, ugp.weight AS cnt
+             FROM user_genre_preferences ugp
+             JOIN genres g ON g.id = ugp.genre_id
+             WHERE ugp.user_id = :user_id
+             ORDER BY ugp.weight DESC
+             LIMIT 3'
         );
         $stmt->execute([':user_id' => $userId]);
         $topGenres = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
