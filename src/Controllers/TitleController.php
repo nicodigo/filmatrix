@@ -96,6 +96,13 @@ class TitleController
             )),
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
+        $canonicalParams = $baseParams;
+        if ($query->page > 1) {
+            $canonicalParams['page'] = $query->page;
+        }
+        ksort($canonicalParams);
+        $canonicalQuery = http_build_query($canonicalParams);
+
         echo $this->twig->render('pages/titles.html.twig', [
             'titles'         => $result->items,
             'pagination'     => $result,
@@ -104,6 +111,8 @@ class TitleController
             'prevUrl'        => $prevUrl,
             'nextUrl'        => $nextUrl,
             'titlesJsonLd' => $titlesJsonLd,
+            'canonicalPath'  => '/titles',
+            'canonicalQuery' => $canonicalQuery,
         ]);
     }
 
@@ -119,10 +128,18 @@ class TitleController
         $page = max(1, (int) $this->request->get('page', 1));
         $result = $this->titleService->search($query, $page);
 
+        $canonicalParams = ['q' => $query];
+        if ($page > 1) {
+            $canonicalParams['page'] = $page;
+        }
+        $canonicalQuery = http_build_query($canonicalParams);
+
         echo $this->twig->render('pages/titles.html.twig', [
             'titles'       => $result->items,
             'pagination'   => $result,
             'search_query' => $query,
+            'canonicalPath'  => '/titles/search',
+            'canonicalQuery' => $canonicalQuery,
         ]);
     }
 
