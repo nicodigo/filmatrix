@@ -1,11 +1,16 @@
-{# views/macros/title-cards.html.twig #}
-{% macro titleCard(movie) %}
+{% macro titleCard(movie, options = {}) %}
   <article class="movie-card">
     <a href="/titles/detail?tmdb_id={{ movie.tmdbId }}" class="movie-card__link">
       <img src="{{ movie.posterUrl }}" alt="{{ movie.title }}">
+
       <div class="movie-card__overlay">
         <p class="movie-card__title">{{ movie.title }}</p>
-        <p class="movie-card__score">{{ movie.avgScore|default('S/P') }}</p>
+
+        {% if options.showScore is not defined or options.showScore %}
+          <p class="movie-card__score">
+            {{ movie.avgScore is not null ? movie.avgScore : 'S/P' }}
+          </p>
+        {% endif %}
       </div>
     </a>
   </article>

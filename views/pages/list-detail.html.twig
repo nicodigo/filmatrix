@@ -53,7 +53,7 @@
     {% else %}
       <div class="list-detail-grid">
         {% for item in list.items %}
-          {{ cards.titleCard(item) }}
+          {{ cards.titleCard(item, { showScore: false }) }}
         {% endfor %}
       </div>
     {% endif %}

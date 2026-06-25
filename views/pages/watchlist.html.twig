@@ -41,7 +41,7 @@
 
   <section class="watchlist-content">
     {% for item in items %}
-      {{ cards.titleCard(item) }}
+      {{ cards.titleCard(item, { showScore: false }) }}
     {% else %}
       <p class="watchlist-empty">
         {% if pagination.status == 'pending' %}

@@ -265,14 +265,21 @@ class TitleService
 
         $items = [];
         foreach ($results as $movie) {
-            $tmdbId  = (int) $movie['id'];
+            $tmdbId = (int) $movie['id'];
+
+            $local = $localScores[$tmdbId] ?? null;
+
+            $tmdbScore = isset($movie['vote_average'])
+                ? round(((float) $movie['vote_average']) / 2, 1)
+                : null;
+
             $items[] = new TitleCardDto(
                 $tmdbId,
                 $movie['title'] ?? '',
                 !empty($movie['poster_path'])
                     ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path']
                     : null,
-                $localScores[$tmdbId] ?? null,
+                $local ?? $tmdbScore ?? 0
             );
         }
 
