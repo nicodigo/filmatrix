@@ -105,4 +105,11 @@ class TitleListService
     {
         return $this->titleListRepository->countUpcomingByMonth();
     }
+
+    public function syncDiscoverPage(int $page): void
+    {
+        $response = $this->tmdbClient->getDiscoverByPage($page);
+        $this->syncSection('popular', $response['results'], ($page - 1) * 20);
+        $this->logger->info('discover page synced', ['page' => $page]);
+    }
 }

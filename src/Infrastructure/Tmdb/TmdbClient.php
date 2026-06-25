@@ -140,7 +140,7 @@ class TmdbClient
         return $this->request('/discover/movie', [
             'sort_by' => 'popularity.desc',
             'include_adult' => 'false',
-            'vote_count.gte' => 500,
+            'vote_count.gte' => 1001,
             'page' => $page,
         ]);
     }
@@ -167,6 +167,16 @@ class TmdbClient
         return $this->request('/search/movie', [
             'query' => $query,
             'include_adult' => 'false',
+            'page' => $page,
+        ]);
+    }
+
+    public function getDiscoverByPage(int $page = 1): array
+    {
+        return $this->request('/discover/movie', [
+            'sort_by' => 'primary_release_date.desc',
+            'include_adult' => 'false',
+            'vote_count.gte' => 1001,
             'page' => $page,
         ]);
     }

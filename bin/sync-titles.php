@@ -85,6 +85,8 @@ $titleListService = new TitleListService(
 // 8. Parse CLI arguments
 $section = 'all';
 $pages   = 1;
+$page    = null;
+$noClear = false;
 
 for ($i = 1; $i < count($argv); $i++) {
     $arg = $argv[$i];
@@ -92,10 +94,14 @@ for ($i = 1; $i < count($argv); $i++) {
         $section = substr($arg, strlen('--section='));
     } elseif (str_starts_with($arg, '--pages=')) {
         $pages = max(1, (int) substr($arg, strlen('--pages=')));
+    } elseif (str_starts_with($arg, '--page=')) {
+        $page = max(1, (int) substr($arg, strlen('--page=')));
+    } elseif ($arg === '--no-clear') {
+        $noClear = true;
     }
 }
 
-$allowedSections = ['all', 'now_playing', 'popular', 'upcoming'];
+$allowedSections = ['all', 'now_playing', 'popular', 'upcoming', 'discover'];
 
 if (!in_array($section, $allowedSections, true)) {
     echo "Error: sección inválida '$section'. Valores permitidos: all, now_playing, popular\n";
@@ -123,6 +129,13 @@ try {
     if ($section === 'all' || $section === 'upcoming') {
         echo "Sincronizando upcoming ({$pages} página/s)...\n";
         $titleListService->syncUpcoming($pages);
+        echo "OK\n\n";
+    }
+
+    if ($section === 'discover') {
+        $p = $page ?? 1;
+        echo "Sincronizando discover página {$p}...\n";
+        $titleListService->syncDiscoverPage($p);
         echo "OK\n\n";
     }
 
