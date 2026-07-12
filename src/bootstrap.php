@@ -50,6 +50,7 @@ use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
 use App\Controllers\SitemapController;
+use App\Repository\LoginAttemptRepository;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
@@ -115,6 +116,7 @@ $genreRepository            = new GenreRepository($connection);
 $peopleRepository           = new PeopleRepository($connection);
 $titleListRepository        = new TitleListRepository($connection);
 $reviewRepository           = new ReviewRepository($connection);
+$loginAttemptRepository     = new LoginAttemptRepository($connection);
 $watchlistRepository        = new WatchlistRepository($connection);
 $userListRepository         = new UserListRepository($connection);
 $genrePreferenceRepository  = new GenrePreferenceRepository($connection);
@@ -125,7 +127,13 @@ $tmdbClient = new TmdbClient($config);
 $tmdbClient->setLogger($log_app);
 
 // Services
-$authService    = new AuthService($userRepository, $log_app);
+$authService    = new AuthService(
+    $userRepository,
+    $log_app,
+    $loginAttemptRepository,
+    (int) $config->get('LOGIN_MAX_ATTEMPTS'),
+    (int) $config->get('LOGIN_LOCKOUT_WINDOW_SECONDS')
+);
 $userService    = new UserService($userRepository);
 $genreService   = new GenreService($genreRepository);
 $peopleService  = new PeopleService($peopleRepository);

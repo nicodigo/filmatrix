@@ -36,6 +36,7 @@ namespace App\Controllers;
 
 use App\Core\Exceptions\EmailAlreadyTakenException;
 use App\Core\Exceptions\InvalidPasswordException;
+use App\Core\Exceptions\TooManyLoginAttemptsException;
 use App\Core\Exceptions\UserNotFoundException;
 use App\Core\Exceptions\UsernameAlreadyExistsException;
 use App\Core\Request;
@@ -64,7 +65,7 @@ class UserController
         $userId = $this->authService->getCurrentUserId();
         $user = $this->userService->getUserById($userId);
         $stats = $this->userService->getStats($userId);
-    
+
         echo $this->twig->render('pages/profile.html.twig', [
             'user'  => $user,
             'stats' => $stats,
@@ -98,7 +99,8 @@ class UserController
             $error = 'El email no es válido.';
         } else {
             try {
-                $this->authService->login($email, $password);
+                $ip = $this->request->server('REMOTE_ADDR', '0.0.0.0');
+                $this->authService->login($email, $password, $ip);
                 $destination = $this->request->session('redirect_after_login', '/profile');
                 $this->request->unsetSession('redirect_after_login');
 
@@ -107,6 +109,8 @@ class UserController
             } catch (UserNotFoundException $e) {
                 $error = $e->getMessage();
             } catch (InvalidPasswordException $e) {
+                $error = $e->getMessage();
+            } catch (TooManyLoginAttemptsException $e) {
                 $error = $e->getMessage();
             }
         }
