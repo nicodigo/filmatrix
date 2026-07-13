@@ -25,6 +25,8 @@ class AdminReviewController
             'pages/admin/reviews.html.twig',
             [
                 'flaggedReviews' => $this->reviewService->getFlagged(),
+                'flashSuccess'   => $this->request->getFlash('success'),
+                'flashError'     => $this->request->getFlash('error'),
             ]
         );
     }

@@ -24,10 +24,6 @@ services:
       - .env
     ports:
       - "8080:8080"
-    volumes:
-      - ./public:/var/www/html/public:ro
-      - ./views:/var/www/html/views:ro
-      - ./src:/var/www/html/src:ro
     environment:
       - APP_ENV=development
     depends_on:

@@ -222,7 +222,7 @@ class ReviewRepository
     public function findFlagged(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT r.*, u.username, t.title
+            'SELECT r.*, u.username, t.title, t.tmdb_id
              FROM reviews r
              JOIN users u ON u.id = r.user_id
              JOIN titles t ON t.id = r.title_id

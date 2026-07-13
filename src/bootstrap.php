@@ -249,7 +249,7 @@ $protegida = fn(callable $action) => function () use ($authMiddleware, $action) 
 
 $esAdmin = fn(callable $action) => function () use ($adminMiddleware, $action) {
     $adminMiddleware->handle();
-    return $action;
+    return $action();
 };
 
 // Router
