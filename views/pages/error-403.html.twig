@@ -1,0 +1,18 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Acceso denegado - Filmatrix{% endblock %}
+
+{% block description %}Acceso no autorizado.{% endblock %}
+
+{% block content %}
+<section class="error-section">
+  <div class="error-card">
+    <h1 class="error-code">404</h1>
+    <h2 class="error-title">Página no encontrada</h2>
+    <p class="error-text">
+      No tienes autorización para visualizar esta página.
+    </p>
+    <a href="/" class="error-link">Volver al inicio</a>
+  </div>
+</section>
+{% endblock %}
