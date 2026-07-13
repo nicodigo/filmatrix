@@ -73,7 +73,7 @@ class AuthService
         session_regenerate_id(true);
 
         $_SESSION['user_id'] = $user->getId();
-        $_SESSION['user_role'] = $user->getRole();
+        $_SESSION['role'] = $user->getRole();
         $_SESSION['username'] = $user->getUsername();
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
@@ -145,7 +145,7 @@ class AuthService
 
     public function getCurrentUserRole(): ?string
     {
-        return $_SESSION['user_role'] ?? null;
+        return $_SESSION['role'] ?? null;
     }
 
     public function getCurrentUser(): ?User

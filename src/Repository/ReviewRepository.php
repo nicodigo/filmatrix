@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ReviewRepository
  * Acceso a datos de la tabla reviews y consultas relacionadas con autores.
@@ -43,6 +44,7 @@
  *   PDO    — conexión a la base de datos.
  *   Review — modelo mapeado desde los resultados de la consulta.
  */
+
 namespace App\Repository;
 
 use PDO;
@@ -212,8 +214,22 @@ class ReviewRepository
             ORDER BY r.created_at DESC
             LIMIT 1'
         );
-    
+
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
+    }
+
+    public function findFlagged(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT r.*, u.username, t.title
+             FROM reviews r
+             JOIN users u ON u.id = r.user_id
+             JOIN titles t ON t.id = r.title_id
+             WHERE r.is_flagged = true
+             ORDER BY r.updated_at DESC'
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

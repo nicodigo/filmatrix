@@ -138,4 +138,45 @@ class ReviewService
     {
         return $this->reviewRepository->findByTitleIdWithAuthorUsername($titleId);
     }
+
+    public function getFlagged(): array
+    {
+        return $this->reviewRepository->findFlagged();
+    }
+
+    public function hideReview(int $reviewId): bool
+    {
+        $review = $this->reviewRepository->findById($reviewId);
+
+        if (!$review) {
+            return false;
+        }
+
+        $review->hide();
+        return $this->reviewRepository->update($review);
+    }
+
+    public function showReview(int $reviewId): bool
+    {
+        $review = $this->reviewRepository->findById($reviewId);
+
+        if (!$review) {
+            return false;
+        }
+
+        $review->show();
+        return $this->reviewRepository->update($review);
+    }
+
+    public function unflagReview(int $reviewId): bool
+    {
+        $review = $this->reviewRepository->findById($reviewId);
+
+        if (!$review) {
+            return false;
+        }
+
+        $review->unflag();
+        return $this->reviewRepository->update($review);
+    }
 }

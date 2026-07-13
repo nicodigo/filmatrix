@@ -4,6 +4,7 @@ namespace App;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Controllers\AdminReviewController;
 use App\Controllers\RecommendationController;
 use App\Controllers\WatchlistController;
 use Monolog\Logger;
@@ -50,6 +51,7 @@ use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
 use App\Controllers\SitemapController;
+use App\Middleware\AdminMiddleware;
 use App\Repository\LoginAttemptRepository;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
@@ -103,7 +105,7 @@ $twig->addGlobal('csrf_token', $_SESSION['csrf_token']);
 $twig->addGlobal('app', [
     'user_logged_in' => !empty($_SESSION['user_id']),
     'username' => $_SESSION['username'] ?? null,
-    'user_role' => $_SESSION['user_role'] ?? null,
+    'role' => $_SESSION['role'] ?? null,
 ]);
 
 $twig->addGlobal('app_url', rtrim($config->get('APP_URL'), '/'));
@@ -197,8 +199,9 @@ try {
 // ──────────────────────────────────────────────────────────────────────────
 
 
-// Middleware
+// Middlewares
 $authMiddleware = new AuthMiddleware();
+$adminMiddleware = new AdminMiddleware();
 
 // Controllers factories
 $makeUserCtrl = fn() => new UserController(
@@ -236,10 +239,17 @@ $makeRecommendationCtrl = fn() => new RecommendationController(
 
 $makeUpcomingCtrl = fn() => new UpcomingReleaseController($titleListService, $twig, $request);
 
+$makeAdminReviewCtrl = fn() => new AdminReviewController($twig, $reviewService, $request);
+
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
     return $action();
+};
+
+$esAdmin = fn(callable $action) => function () use ($adminMiddleware, $action) {
+    $adminMiddleware->handle();
+    return $action;
 };
 
 // Router
@@ -292,3 +302,11 @@ $router->get('/upcoming', fn() => $makeUpcomingCtrl()->index());
 
 $makeSitemapCtrl = fn() => new SitemapController($twig, $titleService);
 $router->get('/sitemap.xml', fn() => $makeSitemapCtrl()->index());
+
+
+// Rutas de admin
+$router->get('/admin/reviews', $esAdmin(fn() => $makeAdminReviewCtrl()->index()));
+$router->post('/admin/reviews/hide', $esAdmin(fn() => $makeAdminReviewCtrl()->hide()));
+$router->post('/admin/reviews/show', $esAdmin(fn() => $makeAdminReviewCtrl()->show()));
+$router->post('/admin/reviews/unflag', $esAdmin(fn() => $makeAdminReviewCtrl()->unflag()));
+$router->post('/admin/reviews/delete', $esAdmin(fn() => $makeAdminReviewCtrl()->delete()));

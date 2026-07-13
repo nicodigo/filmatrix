@@ -1,0 +1,62 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block content %}
+<section class="admin-reviews">
+  <h1>Reseñas reportadas</h1>
+
+  {% if flaggedReviews is empty %}
+    <p>No hay reseñas reportadas.</p>
+  {% else %}
+    <table class="admin-reviews__table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Película</th>
+          <th>Score</th>
+          <th>Texto</th>
+          <th>Visible</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in flaggedReviews %}
+          <tr>
+            <td>{{ review.username }}</td>
+            <td>{{ review.title }}</td>
+            <td>{{ review.score }}</td>
+            <td>{{ review.body|default('') }}</td>
+            <td>{{ review.is_visible ? 'Sí' : 'No' }}</td>
+            <td>
+              <form action="/admin/reviews/unflag" method="POST" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="review_id" value="{{ review.id }}">
+                <button type="submit">Descartar reporte</button>
+              </form>
+
+              {% if review.is_visible %}
+                <form action="/admin/reviews/hide" method="POST" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="review_id" value="{{ review.id }}">
+                  <button type="submit">Ocultar</button>
+                </form>
+              {% else %}
+                <form action="/admin/reviews/show" method="POST" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="review_id" value="{{ review.id }}">
+                  <button type="submit">Restaurar</button>
+                </form>
+              {% endif %}
+
+              <form action="/admin/reviews/delete" method="POST" style="display:inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="review_id" value="{{ review.id }}">
+                <button type="submit">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+</section>
+{% endblock %}
