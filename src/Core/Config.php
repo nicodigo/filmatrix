@@ -29,6 +29,10 @@ class Config
 
         $this->configs['LOGIN_MAX_ATTEMPTS'] = getenv('LOGIN_MAX_ATTEMPTS') ?: 5;
         $this->configs['LOGIN_LOCKOUT_WINDOW_SECONDS'] = getenv('LOGIN_LOCKOUT_WINDOW_SECONDS') ?: 900;
+
+        $this->configs['TRUSTED_PROXY_CIDRS'] = getenv('TRUSTED_PROXY_CIDRS')
+            ? explode(',', getenv('TRUSTED_PROXY_CIDRS'))
+            : [];
     }
 
     public function get($name)

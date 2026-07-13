@@ -64,4 +64,53 @@ class Request
         unset($_SESSION['_flash'][$key]);
         return $value;
     }
+
+    public function clientIp(array $trustedProxyCidrs = []): string
+    {
+        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        if (!$this->ipMatchesAny($remoteAddr, $trustedProxyCidrs)) {
+            return $remoteAddr;
+        }
+
+        $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+
+        if ($forwardedFor) {
+            $ips = array_map('trim', explode(',', $forwardedFor));
+            return $ips[0];
+        }
+
+        return $_SERVER['HTTP_X_REAL_IP'] ?? $remoteAddr;
+    }
+
+    private function ipMatchesAny(string $ip, array $cidrs): bool
+    {
+        foreach ($cidrs as $cidr) {
+            if ($this->ipInCidr($ip, trim($cidr))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function ipInCidr(string $ip, string $cidr): bool
+    {
+        if (!str_contains($cidr, '/')) {
+            return $ip === $cidr;
+        }
+
+        [$subnet, $bits] = explode('/', $cidr);
+        $bits = (int) $bits;
+
+        $ipLong = ip2long($ip);
+        $subnetLong = ip2long($subnet);
+
+        if ($ipLong === false || $subnetLong === false) {
+            return false;
+        }
+
+        $mask = -1 << (32 - $bits);
+        return ($ipLong & $mask) === ($subnetLong & $mask);
+    }
 }

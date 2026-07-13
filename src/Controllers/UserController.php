@@ -51,13 +51,15 @@ class UserController
     private AuthService $authService;
     private UserService $userService;
     private Request $request;
+    private array $trustedProxyCIDRS;
 
-    public function __construct(Environment $twig, AuthService $authService, UserService $userService, Request $request)
+    public function __construct(Environment $twig, AuthService $authService, UserService $userService, Request $request, array $trustedProxyCIDRS)
     {
         $this->twig = $twig;
         $this->authService = $authService;
         $this->userService = $userService;
         $this->request = $request;
+        $this->trustedProxyCIDRS = $trustedProxyCIDRS;
     }
 
     public function profile()
@@ -99,7 +101,7 @@ class UserController
             $error = 'El email no es válido.';
         } else {
             try {
-                $ip = $this->request->server('REMOTE_ADDR', '0.0.0.0');
+                $ip = $this->request->clientIp($this->trustedProxyCIDRS);
                 $this->authService->login($email, $password, $ip);
                 $destination = $this->request->session('redirect_after_login', '/profile');
                 $this->request->unsetSession('redirect_after_login');

@@ -201,7 +201,13 @@ try {
 $authMiddleware = new AuthMiddleware();
 
 // Controllers factories
-$makeUserCtrl = fn() => new UserController($twig, $authService, $userService, $request);
+$makeUserCtrl = fn() => new UserController(
+    $twig,
+    $authService,
+    $userService,
+    $request,
+    $config->get('TRUSTED_PROXY_CIDRS')
+);
 
 $makePageCtrl = fn() => new PageController($twig, $titleListRepository, $reviewRepository, $request);
 
