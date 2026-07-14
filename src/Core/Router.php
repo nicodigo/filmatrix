@@ -57,7 +57,7 @@ class Router
 
             $action = $this->getAction($path, $http_method);
 
-            if (in_array($http_method, ['POST', 'PATCH', 'DELETE'], true)) {
+            if (in_array($http_method, ['POST', 'PATCH', 'DELETE'], true) && !str_starts_with($path, '/api/')) {
                 $this->verifyCsrfToken($request);
             }
 
