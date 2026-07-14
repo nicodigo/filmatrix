@@ -21,12 +21,21 @@ class AdminReviewController
 
     public function index(): void
     {
+        $filters = [
+            'filter' => $this->request->get('filter', 'all'),
+            'sort'   => $this->request->get('sort', 'date'),
+            'dir'    => $this->request->get('dir', 'desc'),
+        ];
+
         echo $this->twig->render(
             'pages/admin/reviews.html.twig',
             [
-                'flaggedReviews' => $this->reviewService->getFlagged(),
+                'flaggedReviews' => $this->reviewService->getFlagged($filters),
                 'flashSuccess'   => $this->request->getFlash('success'),
                 'flashError'     => $this->request->getFlash('error'),
+                'currentFilter'  => $filters['filter'],
+                'currentSort'    => $filters['sort'],
+                'currentDir'     => $filters['dir'],
             ]
         );
     }
@@ -35,31 +44,38 @@ class AdminReviewController
     {
         $this->reviewService->hideReview((int) $this->request->post('review_id'));
         $this->request->setFlash('success', 'Reseña ocultada.');
-        header('Location: /admin/reviews');
-        exit;
+        $this->redirectWithFilters();
     }
 
     public function show(): void
     {
         $this->reviewService->showReview((int) $this->request->post('review_id'));
         $this->request->setFlash('success', 'Reseña restaurada.');
-        header('Location: /admin/reviews');
-        exit;
+        $this->redirectWithFilters();
     }
 
     public function unflag(): void
     {
         $this->reviewService->unflagReview((int) $this->request->post('review_id'));
         $this->request->setFlash('success', 'Reporte descartado.');
-        header('Location: /admin/reviews');
-        exit;
+        $this->redirectWithFilters();
     }
 
     public function delete(): void
     {
         $this->reviewService->deleteReview((int) $this->request->post('review_id'));
         $this->request->setFlash('success', 'Reseña eliminada.');
-        header('Location: /admin/reviews');
+        $this->redirectWithFilters();
+    }
+
+    private function redirectWithFilters(): void
+    {
+        $query = http_build_query([
+            'filter' => $this->request->post('current_filter', 'all'),
+            'sort'   => $this->request->post('current_sort', 'date'),
+            'dir'    => $this->request->post('current_dir', 'desc'),
+        ]);
+        header("Location: /admin/reviews?{$query}");
         exit;
     }
 }

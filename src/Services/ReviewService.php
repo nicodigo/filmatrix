@@ -145,9 +145,9 @@ class ReviewService
         return $this->reviewRepository->findByTitleIdWithAuthorUsername($titleId);
     }
 
-    public function getFlagged(): array
+    public function getFlagged(array $filters = []): array
     {
-        return $this->reviewRepository->findFlagged();
+        return $this->reviewRepository->findFlagged($filters);
     }
 
     public function hideReview(int $reviewId): bool

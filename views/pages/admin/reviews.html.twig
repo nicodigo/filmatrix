@@ -14,6 +14,30 @@
 
   <div class="admin-header">
     <span class="admin-header__count">{{ flaggedReviews|length }} reporte{{ flaggedReviews|length != 1 ? 's' : '' }}</span>
+
+    <nav class="admin-filters">
+      <a href="?filter=all&sort={{ currentSort }}&dir={{ currentDir }}"      class="admin-filter-pill{{ currentFilter == 'all'     ? ' admin-filter-pill--active' : '' }}">Todos</a>
+      <a href="?filter=visible&sort={{ currentSort }}&dir={{ currentDir }}" class="admin-filter-pill{{ currentFilter == 'visible' ? ' admin-filter-pill--active' : '' }}">Visibles</a>
+      <a href="?filter=hidden&sort={{ currentSort }}&dir={{ currentDir }}"  class="admin-filter-pill{{ currentFilter == 'hidden'  ? ' admin-filter-pill--active' : '' }}">Ocultas</a>
+    </nav>
+
+    <div class="admin-sort">
+      <span class="admin-sort__label">Ordenar:</span>
+      {% set dateDir  = (currentSort == 'date'    and currentDir == 'asc') ? 'desc' : 'asc' %}
+      {% set reportDir = (currentSort == 'reports' and currentDir == 'asc') ? 'desc' : 'asc' %}
+      <a href="?filter={{ currentFilter }}&sort=date&dir={{ dateDir }}" class="admin-sort__link{{ currentSort == 'date' ? ' admin-sort__link--active' : '' }}">
+        Fecha
+        {% if currentSort == 'date' %}
+          {{ currentDir == 'asc' ? '↑' : '↓' }}
+        {% endif %}
+      </a>
+      <a href="?filter={{ currentFilter }}&sort=reports&dir={{ reportDir }}" class="admin-sort__link{{ currentSort == 'reports' ? ' admin-sort__link--active' : '' }}">
+        Reportes
+        {% if currentSort == 'reports' %}
+          {{ currentDir == 'asc' ? '↑' : '↓' }}
+        {% endif %}
+      </a>
+    </div>
   </div>
 
   {% if flaggedReviews is empty %}
@@ -60,6 +84,9 @@
           <form action="/admin/reviews/unflag" method="POST" style="display:contents;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="review_id" value="{{ review.id }}">
+            <input type="hidden" name="current_filter" value="{{ currentFilter }}">
+            <input type="hidden" name="current_sort" value="{{ currentSort }}">
+            <input type="hidden" name="current_dir" value="{{ currentDir }}">
             <button type="submit" class="admin-btn admin-btn--ghost">Descartar reporte</button>
           </form>
 
@@ -67,12 +94,18 @@
             <form action="/admin/reviews/hide" method="POST" style="display:contents;">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               <input type="hidden" name="review_id" value="{{ review.id }}">
+              <input type="hidden" name="current_filter" value="{{ currentFilter }}">
+              <input type="hidden" name="current_sort" value="{{ currentSort }}">
+              <input type="hidden" name="current_dir" value="{{ currentDir }}">
               <button type="submit" class="admin-btn admin-btn--danger">Ocultar reseña</button>
             </form>
           {% else %}
             <form action="/admin/reviews/show" method="POST" style="display:contents;">
               <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
               <input type="hidden" name="review_id" value="{{ review.id }}">
+              <input type="hidden" name="current_filter" value="{{ currentFilter }}">
+              <input type="hidden" name="current_sort" value="{{ currentSort }}">
+              <input type="hidden" name="current_dir" value="{{ currentDir }}">
               <button type="submit" class="admin-btn admin-btn--restore">Restaurar visibilidad</button>
             </form>
           {% endif %}
@@ -80,6 +113,9 @@
           <form action="/admin/reviews/delete" method="POST" style="display:contents;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="review_id" value="{{ review.id }}">
+            <input type="hidden" name="current_filter" value="{{ currentFilter }}">
+            <input type="hidden" name="current_sort" value="{{ currentSort }}">
+            <input type="hidden" name="current_dir" value="{{ currentDir }}">
             <button type="submit" class="admin-btn admin-btn--danger">Eliminar</button>
           </form>
         </div>

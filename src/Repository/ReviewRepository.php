@@ -220,16 +220,40 @@ class ReviewRepository
         return $row ?: null;
     }
 
-    public function findFlagged(): array
+    private const ALLOWED_FILTERS = ['all', 'visible', 'hidden'];
+    private const ALLOWED_SORTS   = ['date', 'reports'];
+    private const ALLOWED_DIRS    = ['asc', 'desc'];
+
+    public function findFlagged(array $filters = []): array
     {
-        $stmt = $this->pdo->query(
-            'SELECT r.*, u.username, t.title, t.tmdb_id
-             FROM reviews r
-             JOIN users u ON u.id = r.user_id
-             JOIN titles t ON t.id = r.title_id
-             WHERE r.is_flagged = true
-             ORDER BY r.updated_at DESC'
-        );
+        $filter = in_array($filters['filter'] ?? '', self::ALLOWED_FILTERS, true)
+            ? $filters['filter'] : 'all';
+        $sort   = in_array($filters['sort'] ?? '', self::ALLOWED_SORTS, true)
+            ? $filters['sort'] : 'date';
+        $dir    = in_array($filters['dir'] ?? '', self::ALLOWED_DIRS, true)
+            ? $filters['dir'] : 'desc';
+
+        $where = 'WHERE r.is_flagged = true';
+        if ($filter === 'visible') {
+            $where .= ' AND r.is_visible = true';
+        } elseif ($filter === 'hidden') {
+            $where .= ' AND r.is_visible = false';
+        }
+
+        $selectExtra = '';
+        if ($sort === 'reports') {
+            $selectExtra = ', (SELECT COUNT(*) FROM review_reports WHERE review_id = r.id) AS report_count';
+        }
+
+        $orderColumn = $sort === 'reports' ? 'report_count' : 'r.updated_at';
+        $sql = "SELECT r.*, u.username, t.title, t.tmdb_id{$selectExtra}
+                FROM reviews r
+                JOIN users u ON u.id = r.user_id
+                JOIN titles t ON t.id = r.title_id
+                {$where}
+                ORDER BY {$orderColumn} {$dir}";
+
+        $stmt = $this->pdo->query($sql);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
