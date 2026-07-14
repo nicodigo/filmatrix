@@ -6,6 +6,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AdminReviewController;
 use App\Controllers\Api\AuthTokenController;
+use App\Controllers\Api\ReviewApiController;
 use App\Controllers\RecommendationController;
 use App\Controllers\WatchlistController;
 use Monolog\Logger;
@@ -261,6 +262,8 @@ $makeAdminReviewCtrl = fn() => new AdminReviewController($twig, $reviewService, 
 
 $makeAuthTokenCtrl = fn() => new AuthTokenController($apiTokenService, $userRepository, $request);
 
+$makeReviewApiCtrl = fn() => new ReviewApiController($reviewService, $reviewRepository, $request);
+
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
@@ -363,3 +366,9 @@ $router->post('/api/v1/auth/tokens', function () use ($makeAuthTokenCtrl) {
 });
 $router->get('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenCtrl()->index($userId)));
 $router->delete('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenCtrl()->destroy($userId)));
+
+
+$router->get('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->index($userId)));
+$router->post('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->store($userId)));
+$router->patch('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->update($userId)));
+$router->delete('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->destroy($userId)));
