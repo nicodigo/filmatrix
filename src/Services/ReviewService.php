@@ -123,6 +123,10 @@ class ReviewService
         float $score,
         ?string $body = null
     ): bool {
+        if ($score < 1 || $score > 5) {
+            throw new InvalidValueFormatException('La puntuación debe estar entre 1 y 5.');
+        }
+
         $review = $this->reviewRepository->findById($reviewId);
 
         if (!$review) {

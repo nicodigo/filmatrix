@@ -257,4 +257,17 @@ class ReviewRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function findByUserId(int $userId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM reviews WHERE user_id = :user_id ORDER BY created_at DESC'
+        );
+        $stmt->execute([':user_id' => $userId]);
+
+        return array_map(
+            fn($row) => Review::fromArray($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC)
+        );
+    }
 }
