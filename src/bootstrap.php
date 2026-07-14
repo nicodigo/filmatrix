@@ -5,6 +5,7 @@ namespace App;
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AdminReviewController;
+use App\Controllers\Api\AuthTokenController;
 use App\Controllers\RecommendationController;
 use App\Controllers\WatchlistController;
 use Monolog\Logger;
@@ -53,8 +54,14 @@ use App\Services\WatchlistService;
 use App\Services\TitleListService;
 
 use App\Controllers\SitemapController;
+use App\Core\Exceptions\InvalidApiTokenException;
+use App\Core\Exceptions\InvalidCredentialsException;
+use App\Core\Http\ApiResponse;
 use App\Middleware\AdminMiddleware;
+use App\Middleware\ApiAuthMiddleware;
+use App\Repository\ApiTokenRepository;
 use App\Repository\LoginAttemptRepository;
+use App\Services\ApiTokenService;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
@@ -126,6 +133,8 @@ $userListRepository         = new UserListRepository($connection);
 $genrePreferenceRepository  = new GenrePreferenceRepository($connection);
 $recommendationRepository   = new RecommendationRepository($connection);
 
+$apiTokenRepository = new ApiTokenRepository($connection);
+
 // External clients
 $tmdbClient = new TmdbClient($config);
 $tmdbClient->setLogger($log_app);
@@ -190,6 +199,9 @@ $recommendationService = new RecommendationService(
     $genreService,
 );
 
+// --- Api Services ---
+$apiTokenService = new ApiTokenService($apiTokenRepository);
+
 // ─── Sincronizar géneros al arrancar ───────────────────────────────────────
 try {
     $genresData = $tmdbClient->getGenres();
@@ -206,6 +218,8 @@ try {
 // Middlewares
 $authMiddleware = new AuthMiddleware();
 $adminMiddleware = new AdminMiddleware();
+
+$apiAuthMiddleware = new ApiAuthMiddleware($apiTokenService);
 
 // Controllers factories
 $makeUserCtrl = fn() => new UserController(
@@ -245,6 +259,8 @@ $makeUpcomingCtrl = fn() => new UpcomingReleaseController($titleListService, $tw
 
 $makeAdminReviewCtrl = fn() => new AdminReviewController($twig, $reviewService, $request);
 
+$makeAuthTokenCtrl = fn() => new AuthTokenController($apiTokenService, $userRepository, $request);
+
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
@@ -254,6 +270,16 @@ $protegida = fn(callable $action) => function () use ($authMiddleware, $action) 
 $esAdmin = fn(callable $action) => function () use ($adminMiddleware, $action) {
     $adminMiddleware->handle();
     return $action();
+};
+
+$apiProtegida = fn(callable $action) => function () use ($apiAuthMiddleware, $action, $request) {
+    try {
+        $userId = $apiAuthMiddleware->authenticate($request);
+    } catch (InvalidApiTokenException $e) {
+        ApiResponse::error(401, $e->getMessage());
+        return;
+    }
+    return $action($userId);
 };
 
 // Router
@@ -315,3 +341,25 @@ $router->post('/admin/reviews/hide', $esAdmin(fn() => $makeAdminReviewCtrl()->hi
 $router->post('/admin/reviews/show', $esAdmin(fn() => $makeAdminReviewCtrl()->show()));
 $router->post('/admin/reviews/unflag', $esAdmin(fn() => $makeAdminReviewCtrl()->unflag()));
 $router->post('/admin/reviews/delete', $esAdmin(fn() => $makeAdminReviewCtrl()->delete()));
+
+
+// ─── API v1 ─────────────────────────────────────────────────────────────
+$router->get('/api/v1', function () {
+    ApiResponse::json([
+        'links' => \App\Core\Http\Links::build([
+            'auth-tokens' => ['href' => '/api/v1/auth/tokens', 'method' => 'POST'],
+            'reviews'     => ['href' => '/api/v1/reviews', 'method' => 'GET'],
+            'watchlist'   => ['href' => '/api/v1/watchlist', 'method' => 'GET'],
+        ]),
+    ]);
+});
+
+$router->post('/api/v1/auth/tokens', function () use ($makeAuthTokenCtrl) {
+    try {
+        $makeAuthTokenCtrl()->store();
+    } catch (InvalidCredentialsException $e) {
+        ApiResponse::error(401, $e->getMessage());
+    }
+});
+$router->get('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenCtrl()->index($userId)));
+$router->delete('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenCtrl()->destroy($userId)));
