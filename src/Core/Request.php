@@ -113,4 +113,28 @@ class Request
         $mask = -1 << (32 - $bits);
         return ($ipLong & $mask) === ($subnetLong & $mask);
     }
+
+    public function bearerToken(): ?string
+    {
+        $header = $this->server('HTTP_AUTHORIZATION');
+
+        if ($header === null && function_exists('getallheaders')) {
+            $headers = getallheaders();
+            $header = $headers['Authorization'] ?? $headers['authorization'] ?? null;
+        }
+
+        if ($header === null || !str_starts_with($header, 'Bearer ')) {
+            return null;
+        }
+
+        return trim(substr($header, 7));
+    }
+
+    public function jsonBody(): array
+    {
+        $raw = file_get_contents('php://input');
+        $decoded = json_decode($raw, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
 }
