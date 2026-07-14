@@ -531,7 +531,7 @@ body {
   flex-direction: column;
   gap: 0.75rem;
 }
- 
+
 .resenia-card__header {
   display: flex;
   align-items: center;
@@ -587,7 +587,37 @@ body {
   flex-shrink: 0;
   align-self: flex-start;
 }
- 
+
+.resenia-card__report-form {
+  margin-left: auto;
+}
+
+.resenia-card__report-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.resenia-card__report-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
 .resenia-card__texto {
   font-family: var(--font-ui);
   font-size: 14px;

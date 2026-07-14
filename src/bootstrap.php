@@ -36,6 +36,8 @@ use App\Services\UserListService;
 use App\Services\GenrePreferenceService;
 use App\Services\RecommendationService;
 
+use App\Repository\ReviewReportRepository;
+
 use App\Middleware\AuthMiddleware;
 
 use App\Infrastructure\Tmdb\TmdbClient;
@@ -169,11 +171,13 @@ $watchlistService = new WatchlistService(
 );
 
 // ReviewService: recibe GenrePreferenceService para actualizar pesos al reseñar.
+$reviewReportRepository = new ReviewReportRepository($connection);
 $reviewService = new ReviewService(
     $reviewRepository,
     $watchlistService,
     $log_app,
     $genrePreferenceService,
+    $reviewReportRepository,
 );
 
 $userListService = new UserListService($userListRepository);
@@ -275,6 +279,7 @@ $router->get('/profile/password', $protegida(fn() => $makeUserCtrl()->getUpdateP
 $router->post('/review/post', $protegida(fn() => $makeReviewCtrl()->postReview()));
 $router->post('/review/update', $protegida(fn() => $makeReviewCtrl()->update()));
 $router->post('/review/delete', $protegida(fn() => $makeReviewCtrl()->delete()));
+$router->post('/review/report', $protegida(fn() => $makeReviewCtrl()->report()));
 $router->get('/my-reviews', $protegida(fn() => $makeUserCtrl()->myReviews()));
 
 $router->get('/my-watchlist', $protegida(fn() => $makeWatchlistCtrl()->index()));

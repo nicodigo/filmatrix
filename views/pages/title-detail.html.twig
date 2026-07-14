@@ -293,6 +293,16 @@
                 </div>
               </div>
               <time class="resenia-card__fecha">{{ review.created_at|date('d M Y') }}</time>
+              {% if app.user_logged_in and review.user_id != app.user_id %}
+                <form action="/review/report" method="POST" class="resenia-card__report-form">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="review_id" value="{{ review.id }}">
+                  <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
+                  <button type="submit" class="resenia-card__report-btn" title="Reportar esta reseña">
+                    Reportar
+                  </button>
+                </form>
+              {% endif %}
             </header>
             <p class="resenia-card__texto">{{ review.body|default('') }}</p>
           </article>

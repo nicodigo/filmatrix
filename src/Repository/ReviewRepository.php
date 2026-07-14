@@ -196,6 +196,7 @@ class ReviewRepository
         JOIN users u ON u.id = r.user_id
         WHERE r.title_id = :title_id
         AND r.body IS NOT NULL
+        AND r.is_visible = true
         ORDER BY r.created_at DESC'
         );
         $stmt->execute([':title_id' => $titleId]);

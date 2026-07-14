@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Core\Exceptions\InvalidValueFormatException;
 use App\Core\Exceptions\ReviewAlreadyExistException;
+use App\Core\Exceptions\ReviewAlreadyReportedException;
 use App\Models\Review;
+use App\Repository\ReviewReportRepository;
 use App\Repository\ReviewRepository;
+use PDOException;
 use Psr\Log\LoggerInterface;
 
 class ReviewService
@@ -14,17 +17,20 @@ class ReviewService
     private WatchlistService $watchlistService;
     private ?GenrePreferenceService $preferenceService;
     private LoggerInterface $logger;
+    private ReviewReportRepository $reviewReportRepository;
 
     public function __construct(
         ReviewRepository        $reviewRepository,
         WatchlistService        $watchlistService,
         LoggerInterface         $logger,
         ?GenrePreferenceService $preferenceService = null,
+        ?ReviewReportRepository $reviewReportRepository = null,
     ) {
-        $this->reviewRepository  = $reviewRepository;
-        $this->watchlistService  = $watchlistService;
-        $this->logger            = $logger;
-        $this->preferenceService = $preferenceService;
+        $this->reviewRepository       = $reviewRepository;
+        $this->watchlistService       = $watchlistService;
+        $this->logger                 = $logger;
+        $this->preferenceService      = $preferenceService;
+        $this->reviewReportRepository = $reviewReportRepository;
     }
 
     /**
@@ -178,5 +184,47 @@ class ReviewService
 
         $review->unflag();
         return $this->reviewRepository->update($review);
+    }
+
+    /**
+     * Registra un reporte de un usuario sobre una reseña.
+     * Marca la reseña como flagged en el primer reporte.
+     * Si alcanza el umbral configurado, se oculta automáticamente.
+     *
+     * @throws ReviewAlreadyReportedException si el usuario ya reportó esta reseña
+     */
+    public function reportReview(int $reviewId, int $userId): bool
+    {
+        try {
+            $this->reviewReportRepository->create($reviewId, $userId);
+        } catch (PDOException $e) {
+            if (str_contains($e->getMessage(), '23505')) {
+                throw new ReviewAlreadyReportedException();
+            }
+            throw $e;
+        }
+
+        $this->flagReview($reviewId);
+
+        $count = $this->reviewReportRepository->countByReviewId($reviewId);
+        $threshold = (int) ($_ENV['REVIEW_REPORT_THRESHOLD'] ?? 3);
+
+        if ($count >= $threshold) {
+            $this->hideReview($reviewId);
+        }
+
+        return true;
+    }
+
+    private function flagReview(int $reviewId): void
+    {
+        $review = $this->reviewRepository->findById($reviewId);
+
+        if (!$review) {
+            return;
+        }
+
+        $review->flag();
+        $this->reviewRepository->update($review);
     }
 }
