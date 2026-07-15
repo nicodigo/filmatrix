@@ -7,6 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Controllers\AdminReviewController;
 use App\Controllers\Api\AuthTokenController;
 use App\Controllers\Api\ReviewApiController;
+use App\Controllers\Api\WatchlistApiController;
 use App\Controllers\RecommendationController;
 use App\Controllers\WatchlistController;
 use Monolog\Logger;
@@ -264,6 +265,8 @@ $makeAuthTokenCtrl = fn() => new AuthTokenController($apiTokenService, $userRepo
 
 $makeReviewApiCtrl = fn() => new ReviewApiController($reviewService, $reviewRepository, $request);
 
+$makeWatchlistApiCtrl = fn() => new WatchlistApiController($watchlistService, $request);
+
 // Protected helper
 $protegida = fn(callable $action) => function () use ($authMiddleware, $action) {
     $authMiddleware->handle();
@@ -368,7 +371,18 @@ $router->get('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenC
 $router->delete('/api/v1/auth/tokens', $apiProtegida(fn($userId) => $makeAuthTokenCtrl()->destroy($userId)));
 
 
-$router->get('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->index($userId)));
+$router->get('/api/v1/reviews', $apiProtegida(function ($userId) use ($makeReviewApiCtrl, $request) {
+    $ctrl = $makeReviewApiCtrl();
+    $request->get('id') !== null ? $ctrl->show($userId) : $ctrl->index($userId);
+}));
 $router->post('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->store($userId)));
 $router->patch('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->update($userId)));
 $router->delete('/api/v1/reviews', $apiProtegida(fn($userId) => $makeReviewApiCtrl()->destroy($userId)));
+
+$router->get('/api/v1/watchlist', $apiProtegida(function ($userId) use ($makeWatchlistApiCtrl, $request) {
+    $ctrl = $makeWatchlistApiCtrl();
+    $request->get('title_id') !== null ? $ctrl->show($userId) : $ctrl->index($userId);
+}));
+$router->post('/api/v1/watchlist', $apiProtegida(fn($userId) => $makeWatchlistApiCtrl()->store($userId)));
+$router->patch('/api/v1/watchlist', $apiProtegida(fn($userId) => $makeWatchlistApiCtrl()->update($userId)));
+$router->delete('/api/v1/watchlist', $apiProtegida(fn($userId) => $makeWatchlistApiCtrl()->destroy($userId)));
