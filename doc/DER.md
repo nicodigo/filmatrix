@@ -33,7 +33,6 @@
 | id | INTEGER | NO | | PK |
 | tmdb_person_id | INTEGER | NO | | UNIQUE |
 | name | VARCHAR(150) | NO | | |
-| profile_url | VARCHAR(255) | YES | | |
 | cached_at | TIMESTAMP | NO | | |
 
 - **PK**: id
@@ -51,13 +50,15 @@
 | poster_url | VARCHAR(255) | YES | | |
 | trailer_url | VARCHAR(255) | YES | | |
 | release_year | SMALLINT | YES | | |
+| release_date | DATE | YES | | |
 | language | VARCHAR(10) | YES | | |
 | duration_minutes | SMALLINT | YES | | |
-| tmdb_rating | NUMERIC(3,1) | YES | | |
+| tmdb_vote_average | NUMERIC(3,1) | YES | | |
 | cached_at | TIMESTAMP | NO | | |
 
 - **PK**: id
 - **UNIQUE**: tmdb_id
+- **INDEX**: release_date
 
 ## title_genres
 
@@ -91,7 +92,7 @@
 | id | INTEGER | NO | | PK |
 | user_id | INTEGER | NO | | FK |
 | title_id | INTEGER | NO | | FK |
-| status | VARCHAR(20) | NO | | CHECK (status IN ('pending','watching','watched')) |
+| status | VARCHAR(20) | NO | | CHECK (status IN ('pending','watched')) |
 | added_at | TIMESTAMP | NO | | |
 | updated_at | TIMESTAMP | NO | | |
 
@@ -130,6 +131,20 @@
 - **UNIQUE**: (user_id, title_id)
 - **FK**: user_id → users(id) ON DELETE CASCADE
 - **FK**: title_id → titles(id) ON DELETE CASCADE
+
+## review_reports
+
+| Column | Type | Nullable | Default | Constraints |
+|--------|------|----------|---------|-------------|
+| id | INTEGER | NO | | PK |
+| review_id | INTEGER | NO | | FK |
+| user_id | INTEGER | NO | | FK |
+| created_at | TIMESTAMP | NO | CURRENT_TIMESTAMP | |
+
+- **PK**: id
+- **UNIQUE**: (review_id, user_id)
+- **FK**: review_id → reviews(id) ON DELETE CASCADE
+- **FK**: user_id → users(id) ON DELETE CASCADE
 
 ## user_genre_preferences
 
@@ -185,7 +200,7 @@
 - **FK**: list_id → lists(id) ON DELETE CASCADE
 - **FK**: title_id → titles(id) ON DELETE CASCADE
 
-## films_lists
+## title_lists
 
 | Column | Type | Nullable | Default | Constraints |
 |--------|------|----------|---------|-------------|
@@ -197,7 +212,38 @@
 
 - **PK**: id
 - **UNIQUE**: (section, title_id)
+- **INDEX**: section
 - **FK**: title_id → titles(id) ON DELETE CASCADE
+
+## login_attempts
+
+| Column | Type | Nullable | Default | Constraints |
+|--------|------|----------|---------|-------------|
+| id | INTEGER | NO | | PK |
+| ip_address | VARCHAR(45) | NO | | |
+| successful | BOOLEAN | NO | false | |
+| attempted_at | TIMESTAMP | NO | CURRENT_TIMESTAMP | |
+
+- **PK**: id
+- **INDEX**: (ip_address, attempted_at)
+
+## api_tokens
+
+| Column | Type | Nullable | Default | Constraints |
+|--------|------|----------|---------|-------------|
+| id | INTEGER | NO | | PK |
+| user_id | INTEGER | NO | | FK |
+| token_hash | VARCHAR(255) | NO | | UNIQUE |
+| label | VARCHAR(100) | YES | | |
+| last_used_at | TIMESTAMP | YES | | |
+| created_at | TIMESTAMP | NO | CURRENT_TIMESTAMP | |
+| revoked_at | TIMESTAMP | YES | | |
+
+- **PK**: id
+- **UNIQUE**: token_hash
+- **FK**: user_id → users(id) ON DELETE CASCADE
+
+---
 
 ## Relationships
 
@@ -211,6 +257,8 @@
 - discarded_titles.title_id → titles.id
 - reviews.user_id → users.id
 - reviews.title_id → titles.id
+- review_reports.review_id → reviews.id
+- review_reports.user_id → users.id
 - user_genre_preferences.user_id → users.id
 - user_genre_preferences.genre_id → genres.id
 - featured_titles.title_id → titles.id
@@ -218,4 +266,5 @@
 - lists.user_id → users.id
 - list_items.list_id → lists.id
 - list_items.title_id → titles.id
-- films_lists.title_id → titles.id
+- title_lists.title_id → titles.id
+- api_tokens.user_id → users.id

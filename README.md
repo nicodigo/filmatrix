@@ -13,6 +13,7 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 - Composer
 - Phinx (migraciones)
 - Monolog (logging)
+- Twig (motor de plantillas)
 - HTML / CSS / JavaScript vanilla
 
 ## Diagrama Entidad-Relacion
@@ -41,25 +42,37 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 ├── bin/
 │   └── sync-titles.php               # Script CLI para poblar la DB desde TMDB
 ├── db/
-│   └── migrations/                   # Migraciones de Phinx
-│       ├── 20260506125601_create_filmatrix_schema.php
-│       ├── 20260506130000_create_films_lists.php
-│       └── 20260517000000_rename_films_lists_to_title_lists.php
+│   ├── migrations/                   # Migraciones de Phinx
+│   │   ├── 20260506125601_create_filmatrix_schema.php
+│   │   ├── 20260506130000_create_films_lists.php
+│   │   ├── 20260517000000_rename_films_lists_to_title_lists.php
+│   │   ├── 20260619135529_add_tmdb_vote_average_to_titles.php
+│   │   ├── 20260620140001_create_upcoming_releases.php
+│   │   ├── 20260624144101_add_release_date_to_titles_and_drop_upcoming_releases.php
+│   │   ├── 20260712000000_create_login_attempts.php
+│   │   ├── 20260713000000_create_review_reports.php
+│   │   └── 20260714000000_create_api_tokens.php
+│   └── seeds/
+│       └── AdminUserSeed.php          # Seeder para usuario admin inicial
 ├── doc/
-│   ├── DER.md
-│   ├── PROJECT_OVERVIEW.md
+│   ├── DER.md                         # Documentación del esquema de BD
+│   ├── PROJECT_OVERVIEW.md            # Visión general del proyecto
 │   └── imgs/
 │       ├── logoPAW.svg
 │       ├── sitemap.png
-│       └── Tp_integrador-DERsvg.svg  # Diagrama entidad-relación
-├── public/                           # Web root (Apache apunta aquí)
-│   ├── .htaccess                     # Reescritura de URLs al front controller
+│       └── Tp_integrador-DERsvg.svg   # Diagrama entidad-relación
+├── public/                            # Web root (Apache apunta aquí)
+│   ├── .htaccess                      # Reescritura de URLs al front controller
 │   ├── favicon.ico
-│   ├── index.php                     # Front controller
+│   ├── index.php                      # Front controller
+│   ├── robots.txt
 │   └── assets/
 │       ├── css/
-│       │   ├── auth.css
-│       │   ├── base.css              # Tokens y estilos globales
+│       │   ├── about.css
+│       │   ├── admin-reviews.css
+│       │   ├── auth.css               # Estilos de autenticación
+│       │   ├── base.css               # Tokens y estilos globales
+│       │   ├── contact.css
 │       │   ├── detalle_pelicula.css
 │       │   ├── editar_perfil.css
 │       │   ├── films.css
@@ -67,11 +80,15 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 │       │   ├── header.css
 │       │   ├── hero.css
 │       │   ├── home.css
+│       │   ├── lists.css
 │       │   ├── miPerfil.css
+│       │   ├── misResenas.css
 │       │   ├── movie-card.css
+│       │   ├── recommendations.css
 │       │   ├── title-card.css
 │       │   ├── title-detail.css
 │       │   ├── titles.css
+│       │   ├── upcoming-releases.css
 │       │   └── watchlist.css
 │       ├── img/
 │       │   ├── filmatrix_isotipo.webp
@@ -81,107 +98,160 @@ Filmatrix permite a los usuarios explorar un catálogo de títulos (películas y
 │       │   ├── tmdb_logo.svg
 │       │   └── user_avatar.png
 │       └── js/
-│           ├── app.js                # Entry point JS
+│           ├── app.js                 # Entry point JS
 │           ├── modules/
-│           │   ├── CatalogFilters.js
-│           │   ├── NavMenu.js
-│           │   ├── ReviewEdit.js
-│           │   ├── SearchToggle.js
-│           │   ├── Toast.js
-│           │   ├── utils.js
-│           │   └── WatchlistActions.js
+│           │   ├── Carousel.js        # Carrusel de imágenes
+│           │   ├── CatalogFilters.js  # Filtros del catálogo
+│           │   ├── ListActions.js     # Acciones sobre listas de usuario
+│           │   ├── NavMenu.js         # Menú de navegación
+│           │   ├── ReviewEdit.js      # Edición de reseñas
+│           │   ├── SearchToggle.js    # Toggle de búsqueda
+│           │   ├── Toast.js           # Notificaciones toast
+│           │   ├── utils.js           # Utilidades compartidas
+│           │   └── WatchlistActions.js# Acciones sobre watchlist
 │           └── pages/
 │               ├── home.js
 │               ├── TitleDetails.js
 │               └── Titles.js
 ├── src/
-│   ├── bootstrap.php                 # Composición del contenedor, rutas y arranque
+│   ├── bootstrap.php                  # Composición del contenedor, rutas y arranque
 │   ├── Controllers/
-│   │   ├── ErrorController.php       # Manejo de errores HTTP (404, 500)
-│   │   ├── PageController.php        # Páginas estáticas (home, etc.)
-│   │   ├── ReviewController.php      # CRUD de reseñas
-│   │   ├── TitleController.php       # Catálogo y detalle de títulos
-│   │   ├── UserController.php        # Perfil, registro y autenticación
-│   │   └── WatchlistController.php   # Gestión de watchlist
+│   │   ├── AdminReviewController.php  # Moderación de reseñas (admin)
+│   │   ├── Api/
+│   │   │   ├── AuthTokenController.php    # API de tokens de autenticación
+│   │   │   ├── ReviewApiController.php    # API de reseñas
+│   │   │   └── WatchlistApiController.php # API de watchlist
+│   │   ├── ErrorController.php        # Manejo de errores HTTP (403, 404, 500)
+│   │   ├── PageController.php         # Páginas estáticas (home, about, contact)
+│   │   ├── RecommendationController.php # Motor de recomendaciones
+│   │   ├── ReviewController.php       # CRUD de reseñas
+│   │   ├── SitemapController.php      # Generación de sitemap.xml
+│   │   ├── TitleController.php        # Catálogo y detalle de títulos
+│   │   ├── UpcomingReleaseController.php # Próximos lanzamientos
+│   │   ├── UserController.php         # Perfil, registro y autenticación
+│   │   ├── UserListController.php     # Gestión de listas de usuario
+│   │   └── WatchlistController.php    # Gestión de watchlist
 │   ├── Core/
-│   │   ├── Config.php                # Lectura de variables de entorno
-│   │   ├── Request.php               # Abstracción de la petición HTTP
-│   │   ├── Router.php                # Enrutador HTTP
+│   │   ├── Config.php                 # Lectura de variables de entorno
+│   │   ├── Request.php                # Abstracción de la petición HTTP
+│   │   ├── Router.php                 # Enrutador HTTP
 │   │   ├── Database/
-│   │   │   └── ConnectionBuilder.php # Construcción de la conexión PDO
-│   │   ├── Exceptions/               # Excepciones de dominio
+│   │   │   └── ConnectionBuilder.php  # Construcción de la conexión PDO
+│   │   ├── Exceptions/                # Excepciones de dominio
 │   │   │   ├── EmailAlreadyTakenException.php
+│   │   │   ├── ForbiddenAccessException.php
+│   │   │   ├── InvalidApiTokenException.php
+│   │   │   ├── InvalidCredentialsException.php
 │   │   │   ├── InvalidPasswordException.php
 │   │   │   ├── InvalidValueFormatException.php
+│   │   │   ├── ListItemAlreadyExistsException.php
+│   │   │   ├── ListNotFoundException.php
 │   │   │   ├── ReviewAlreadyExistException.php
+│   │   │   ├── ReviewAlreadyReportedException.php
 │   │   │   ├── RouteNotFoundException.php
 │   │   │   ├── TmdbApiException.php
+│   │   │   ├── TooManyLoginAttemptsException.php
+│   │   │   ├── UnauthorizedListAccessException.php
 │   │   │   ├── UsernameAlreadyExistsException.php
 │   │   │   ├── UserNotFoundException.php
 │   │   │   ├── WatchlistItemAlreadyExistsException.php
 │   │   │   └── WatchlistItemNotFoundException.php
+│   │   ├── Http/
+│   │   │   ├── ApiResponse.php        # Estructura de respuesta JSON para API
+│   │   │   └── Links.php              # Helper de links HATEOAS para API
 │   │   └── Traits/
-│   │       └── Loggable.php          # Trait para inyectar logger Monolog
-│   ├── Infrastructure/
-│   │   └── Tmdb/
-│   │       └── TmdbClient.php        # Cliente HTTP para la API de TMDB
-│   ├── Middleware/
-│   │   └── AuthMiddleware.php        # Protección de rutas autenticadas
-│   ├── Models/                       # DTOs y entidades de dominio
+│   │       └── Loggable.php           # Trait para inyectar logger Monolog
+│   ├── Dtos/                          # Objetos de transferencia de datos
 │   │   ├── CatalogQuery.php
 │   │   ├── CatalogResult.php
+│   │   ├── ListCardDto.php
+│   │   ├── ListDetailResult.php
+│   │   ├── ListItemEntry.php
+│   │   ├── ReviewResource.php
+│   │   ├── TitleCardDto.php
+│   │   ├── WatchlistEntry.php
+│   │   ├── WatchlistQuery.php
+│   │   ├── WatchlistResource.php
+│   │   └── WatchlistResult.php
+│   ├── Infrastructure/
+│   │   └── Tmdb/
+│   │       └── TmdbClient.php         # Cliente HTTP para la API de TMDB
+│   ├── Middleware/
+│   │   ├── AdminMiddleware.php        # Protección de rutas de administrador
+│   │   ├── ApiAuthMiddleware.php      # Autenticación por token para API
+│   │   └── AuthMiddleware.php         # Protección de rutas autenticadas
+│   ├── Models/                        # Entidades de dominio
 │   │   ├── Genre.php
+│   │   ├── ListItem.php
 │   │   ├── People.php
 │   │   ├── Review.php
 │   │   ├── Title.php
-│   │   ├── TitleCardDto.php
 │   │   ├── User.php
-│   │   ├── WatchlistEntry.php
+│   │   ├── UserList.php
 │   │   └── WatchlistItem.php
-│   ├── Repository/                   # Acceso a datos (solo SQL con PDO)
+│   ├── Repository/                    # Acceso a datos (solo SQL con PDO)
+│   │   ├── ApiTokenRepository.php
+│   │   ├── GenrePreferenceRepository.php
 │   │   ├── GenreRepository.php
+│   │   ├── LoginAttemptRepository.php
 │   │   ├── PeopleRepository.php
+│   │   ├── RecommendationRepository.php
+│   │   ├── ReviewReportRepository.php
 │   │   ├── ReviewRepository.php
 │   │   ├── TitleListRepository.php
 │   │   ├── TitleRepository.php
+│   │   ├── UserListRepository.php
 │   │   ├── UserRepository.php
 │   │   └── WatchlistRepository.php
-│   └── Services/                     # Lógica de negocio
+│   └── Services/                      # Lógica de negocio
+│       ├── ApiTokenService.php
 │       ├── AuthService.php
+│       ├── GenrePreferenceService.php
 │       ├── GenreService.php
 │       ├── PeopleService.php
+│       ├── RecommendationService.php
 │       ├── ReviewService.php
 │       ├── TitleListService.php
 │       ├── TitleService.php
+│       ├── UserListService.php
 │       ├── UserService.php
 │       └── WatchlistService.php
 ├── storage/
-│   ├── cache/                        # Caché de Twig
-│   ├── logs/
-│   │   └── app.log
-│   └── uploads/
-├── tests/                            # (pendiente)
-└── views/                            # Plantillas Twig
+│   ├── cache/                         # Caché de Twig
+│   └── uploads/                       # Archivos subidos por usuarios
+├── tests/                             # (pendiente)
+└── views/                             # Plantillas Twig
     ├── layout/
-    │   └── main.html.twig            # Layout base
+    │   └── main.html.twig             # Layout base
     ├── macros/
-    │   └── title-cards.html.twig     # Macro reutilizable de tarjetas
+    │   ├── stars.html.twig            # Macro de estrellas para puntuación
+    │   └── title-cards.html.twig      # Macro reutilizable de tarjetas
     ├── pages/
+    │   ├── about.html.twig
+    │   ├── admin/
+    │   │   └── reviews.html.twig      # Panel de moderación de reseñas
     │   ├── change-password.html.twig
+    │   ├── contact.html.twig
     │   ├── edit-profile.html.twig
+    │   ├── error-403.html.twig
     │   ├── error-404.html.twig
     │   ├── error-500.html.twig
     │   ├── home.html.twig
+    │   ├── list-detail.html.twig
     │   ├── login.html.twig
+    │   ├── my-lists.html.twig
     │   ├── my-reviews.html.twig
     │   ├── profile.html.twig
+    │   ├── recommendations.html.twig
     │   ├── register.html.twig
     │   ├── title-detail.html.twig
     │   ├── titles.html.twig
+    │   ├── upcoming-releases.html.twig
     │   └── watchlist.html.twig
-    └── partials/
-        ├── footer.html.twig
-        └── header.html.twig
+    ├── partials/
+    │   ├── footer.html.twig
+    │   └── header.html.twig
+    └── sitemap.xml.twig                # Plantilla del sitemap
 ```
 
 ## Requisitos previos

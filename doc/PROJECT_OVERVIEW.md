@@ -4,7 +4,7 @@ Una aplicación web desarrollada en PHP vanilla para la reseña y gestión de pe
 
 ## Resumen General
 
-Filmatrix permite a los usuarios registrarse, iniciar sesión (autenticación nativa con sesiones de PHP), gestionar su perfil y escribir reseñas de películas. El sistema se integra con la API externa de **The Movie Database (TMDB)** para obtener metadatos detallados de películas, implementando una capa de caché local en la base de datos para optimizar los tiempos de carga y evitar el consumo innecesivo de cuotas de la API.
+Filmatrix permite a los usuarios registrarse, iniciar sesión (autenticación nativa con sesiones de PHP), gestionar su perfil, crear listas personalizadas, mantener una watchlist y escribir reseñas de películas. El sistema se integra con la API externa de **The Movie Database (TMDB)** para obtener metadatos detallados de películas, implementando una capa de caché local en la base de datos para optimizar los tiempos de carga y evitar el consumo innecesario de cuotas de la API.
 
 La arquitectura sigue el patrón **Controlador-Servicio-Repositorio** sin utilizar ningún framework externo de PHP, promoviendo una separación estricta de responsabilidades.
 
@@ -13,21 +13,25 @@ La arquitectura sigue el patrón **Controlador-Servicio-Repositorio** sin utiliz
 ## Estructura del Proyecto
 
 ```
-├── config/               # Archivos de configuración de la aplicación
+├── .env.example          # Plantilla para variables de entorno
 ├── db/migrations/        # Migraciones de base de datos administradas con Phinx
+├── db/seeds/             # Seeders de datos iniciales (ej: AdminUserSeed)
 ├── doc/                  # Documentación del proyecto (DER, overview)
 ├── public/               # Raíz pública del servidor web (entry point, CSS, JS, imágenes)
 │   └── index.php         # Controlador frontal (inicia sesión, carga el bootstrap)
 ├── src/                  # Lógica interna de la aplicación
 │   ├── bootstrap.php     # Configuración de dependencias, inicialización y ruteo
 │   ├── Controllers/      # Controladores que reciben peticiones HTTP y manejan las respuestas
+│   │   └── Api/          # Controladores de API REST (tokens, reseñas, watchlist)
 │   ├── Services/         # Capa de negocio (lógica, validación y coordinación de repositorios)
 │   ├── Repository/       # Capa de acceso a datos (consultas SQL parametrizadas con PDO)
 │   ├── Models/           # Objetos del dominio o entidades (User, Title, Review, etc.)
-│   ├── Middleware/        # Filtros de peticiones (ej: verificación de autenticación)
+│   ├── Dtos/             # Objetos de transferencia de datos (CatalogQuery, WatchlistResource, etc.)
+│   ├── Middleware/       # Filtros de peticiones (Auth, Admin, ApiAuth)
 │   ├── Core/             # Clases del núcleo (Router, Request, Config, DB, Excepciones)
 │   │   ├── Database/     # Gestión de conexiones y construcción de PDO
 │   │   ├── Exceptions/   # Definición de excepciones de negocio y de sistema
+│   │   ├── Http/         # Helpers HTTP (ApiResponse, Links para HATEOAS)
 │   │   └── Traits/       # Traits reutilizables (ej: Loggable)
 │   └── Infrastructure/   # Adaptadores de infraestructura externa
 │       └── Tmdb/         # Cliente HTTP y excepciones para la API de TMDB
@@ -35,10 +39,10 @@ La arquitectura sigue el patrón **Controlador-Servicio-Repositorio** sin utiliz
 ├── tests/                # Pruebas unitarias e integración (esqueleto)
 ├── views/                # Plantillas de renderizado usando el motor Twig
 │   ├── layout/           # Estructura base (layout global)
-│   ├── macros/           # Macros auxiliares de Twig
+│   ├── macros/           # Macros auxiliares de Twig (stars, title-cards)
 │   ├── pages/            # Plantillas de páginas específicas (home, login, detail, etc.)
+│   │   └── admin/        # Vistas del panel de administración
 │   └── partials/         # Componentes de interfaz reutilizables (cabecera, pie de página)
-├── .env.example          # Plantilla para variables de entorno
 └── composer.json         # Declaración de dependencias y mapeo de clases PSR-4
 ```
 
@@ -125,13 +129,10 @@ Durante una revisión exhaustiva del código del proyecto, se identificaron los 
 * **Conflicto**: Si el TTL de 30 días de una película expira, el repositorio la excluye de las consultas normales de caché (`findByTmdbId` retorna `null`), obligando al servicio a resincronizarla contra TMDB de manera inmediata. Si la API de TMDB se encuentra fuera de línea, tiene problemas de conexión o el token ha expirado, el sistema lanzará una excepción y detendrá el renderizado de la página, a pesar de contar con toda la información anterior almacenada en la base de datos local.
 * **Solución Propuesta**: Implementar un patrón de tolerancia a fallos como *Stale-While-Revalidate* o un bloque `try-catch` en la llamada a la API que devuelva los datos locales expirados de la base de datos a modo de contingencia en lugar de fallar la petición completa del usuario.
 
-### 4. Tablas Huérfanas / Esquemas sin Implementación ("Ghost Tables")
-* **Conflicto**: La base de datos posee esquemas y migraciones creados para las tablas `watchlist_items`, `discarded_titles` y `user_genre_preferences` (que definen las preferencias de los usuarios para el motor de recomendación). Sin embargo, **ninguna de estas tablas cuenta con clases de modelo, repositorios, servicios ni controladores asociados en la base de código actual**. Representan lógica de negocio sin desarrollar que contamina el DER.
-* **Solución Propuesta**: Desarrollar los módulos correspondientes o documentar formalmente que se trata de tablas reservadas para futuras implementaciones.
+### 4. Tablas sin Implementación Completa ("Ghost Tables")
+* **Conflicto**: La base de datos posee la tabla `discarded_titles`, que define títulos descartados por el usuario para el motor de recomendación. Sin embargo, **esta tabla no cuenta con clases de modelo, repositorios, servicios ni controladores asociados en la base de código actual**. Representa lógica de negocio sin desarrollar. Las tablas `watchlist_items` y `user_genre_preferences` sí cuentan con implementación completa (modelos, repositorios, servicios y controladores).
+* **Solución Propuesta**: Desarrollar el módulo de descarte de títulos o evaluar si la funcionalidad de recomendación actual es suficiente sin él.
 
-### 5. Inconsistencias de Nomenclatura en Documentación y Comentarios
-* **Conflicto**: 
-  * En la documentación de base de datos (`doc/DER.md`), la tabla que asocia los listados de películas se describe como `films_lists`. Sin embargo, en el código y en las migraciones de Phinx, dicha tabla se renombró a `title_lists` mediante la migración `RenameFilmsListsToTitleLists`.
-  * En la cabecera de `PageController.php`, los comentarios documentan el uso de `FilmListRepository` y sugieren un reemplazo futuro por `FilmSyncService`, nombres obsoletos que no coinciden con `TitleListRepository` y `TitleListService` / `TitleService`.
-  * La documentación anterior indicaba falsamente que las vistas se manejaban mediante archivos PHP planos, cuando en realidad se utiliza Twig.
-* **Solución Propuesta**: Mantener sincronizada la documentación técnica y corregir las referencias obsoletas en los docstrings de los controladores y repositorios para evitar confusiones en el equipo de desarrollo.
+### 5. Fragilidad de Rutas con Parámetros Hardcodeados en el Frontend
+* **Conflicto**: Los módulos JavaScript del frontend (como `ListActions.js`) construyen rutas para peticiones internas concatenando segmentos de URL manualmente (ej: `action="/lists/${listId}/add-title/${titleId}"`). Esto es frágil ante cambios de ruteo y dificulta el mantenimiento.
+* **Solución Propuesta**: Centralizar las rutas internas usadas por el frontend en un objeto de configuración compartido (ej: `window.AppRoutes`) generado por PHP desde el servidor, o documentar formalmente todas las rutas de API que espera el frontend.
