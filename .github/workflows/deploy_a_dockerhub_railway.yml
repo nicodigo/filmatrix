@@ -45,15 +45,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Redeploy Railway
-        run: |
-          curl -s -X POST https://backboard.railway.app/graphql/v2 \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "query": "mutation { serviceInstanceRedeploy(serviceId: \"${{ vars.RAILWAY_SERVICE_ID }}\", environmentId: \"${{ vars.RAILWAY_ENVIRONMENT_ID }}\") }"
-            }'
-
       - name: Crear Release en GitHub
         uses: softprops/action-gh-release@v2
         with:
