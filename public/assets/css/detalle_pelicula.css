@@ -399,7 +399,11 @@ body {
   justify-content: flex-end;
   gap: 4px;
 }
- 
+
+.resena-form__stars--half {
+  gap: 0;
+}
+
 .star-input {
   position: absolute;
   width: 1px;
@@ -407,7 +411,55 @@ body {
   opacity: 0;
   pointer-events: none;
 }
- 
+
+/* ── Interactive half-star widget ── */
+.star-half {
+  width: 15px;
+  overflow: hidden;
+  font-size: 28px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--border);
+  transition: color 0.18s ease;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.star-half__char {
+  display: inline-block;
+  color: inherit;
+  transition: transform 0.15s ease;
+}
+
+.star-half--left .star-half__char {
+  transform: translateX(0);
+}
+
+.star-half--right .star-half__char {
+  transform: translateX(-15px);
+}
+
+.star-half--lit {
+  color: var(--rating);
+}
+
+.star-half:hover .star-half__char,
+.star-half:hover ~ .star-half .star-half__char {
+  transform: scale(1.18);
+}
+
+.star-half--lit:hover,
+.star-half--lit:hover ~ .star-half,
+.star-half:hover ~ .star-half--lit {
+  color: var(--rating);
+}
+
+.star-half:hover ~ .star-half:not(.star-half--lit) {
+  color: var(--border);
+}
+
 .star-label {
   font-size: 28px;
   color: var(--border);
@@ -416,7 +468,6 @@ body {
   user-select: none;
 }
  
-/* Coloreamos la estrella sobre la que se hace hover y todas las anteriores (en RTL = las de la derecha) */
 .star-label:hover,
 .star-label:hover ~ .star-label,
 .star-input:checked ~ .star-label {

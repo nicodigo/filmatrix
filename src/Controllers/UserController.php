@@ -85,24 +85,24 @@ class UserController
 
         echo $this->twig->render('pages/login.html.twig', [
             'error' => $error,
-            'emailValue' => '',
+            'loginValue' => '',
         ]);
     }
 
     public function handleLogin()
     {
-        $email = trim($this->request->post('email', ''));
+        $login = trim($this->request->post('login', ''));
         $password = $this->request->post('password', '');
         $error = '';
 
-        if (empty($email) || empty($password)) {
+        if (empty($login) || empty($password)) {
             $error = 'Completá todos los campos.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'El email no es válido.';
+        } elseif (strlen($login) > 150) {
+            $error = 'El dato ingresado es demasiado largo.';
         } else {
             try {
                 $ip = $this->request->clientIp($this->trustedProxyCIDRS);
-                $this->authService->login($email, $password, $ip);
+                $this->authService->login($login, $password, $ip);
                 $destination = $this->request->session('redirect_after_login', '/profile');
                 $this->request->unsetSession('redirect_after_login');
 
@@ -119,7 +119,7 @@ class UserController
 
         echo $this->twig->render('pages/login.html.twig', [
             'error' => $error,
-            'emailValue' => $email,
+            'loginValue' => $login,
         ]);
     }
 

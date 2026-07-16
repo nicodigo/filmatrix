@@ -1,0 +1,102 @@
+{#
+ # Stars macro — reusable half-star rendering for filmatrix.
+ #
+ # halfStarInput(name, selectedValue, idPrefix)
+ #   Renders 9 hidden radios + 10 visible half-star labels
+ #   with inline JS for interactive fill and hover preview.
+ #
+ # halfStarDisplay(score)
+ #   Renders 10 half-star spans as read-only display.
+ #   Score is a float (e.g. 3.5 → 7 of 10 half-units lit).
+ #}
+
+{% macro halfStarInput(name, selectedValue, idPrefix) %}
+  <div class="resena-form__stars resena-form__stars--half"
+       role="group" aria-label="Puntuación"
+       data-score-name="{{ name }}">
+    {# Hidden radios for the 9 selectable values #}
+    {% set values = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1] %}
+    {% for val in values %}
+      {% set suffix = val|replace({'.': '_'}) %}
+      <input type="radio" id="{{ idPrefix }}_{{ suffix }}" name="{{ name }}" value="{{ val }}"
+        class="star-input"{% if selectedValue is not null and selectedValue == val %} checked{% endif %}>
+    {% endfor %}
+    {# Visual half-stars — 10 labels, each points to the correct radio #}
+    {# Mapping: half-1(left-1)→r1, half-2(right-1)→r1, half-3(left-2)→r1_5, half-4(right-2)→r2, ... #}
+    {% set radioMap = {1: '1', 2: '1', 3: '1_5', 4: '2', 5: '2_5', 6: '3', 7: '3_5', 8: '4', 9: '4_5', 10: '5'} %}
+    {% for i in 10..1 %}
+      {% set isRight = (i % 2 == 0) %}
+      {% set radioSuffix = radioMap[i] %}
+      <label for="{{ idPrefix }}_{{ radioSuffix }}"
+             class="star-half{% if isRight %} star-half--right{% else %} star-half--left{% endif %}"
+             data-half="{{ i }}" title="" aria-label="">
+        <span class="star-half__char">★</span>
+      </label>
+    {% endfor %}
+  </div>
+  <script>
+  (function(){
+    var container = document.currentScript.previousElementSibling;
+    var radios = container.querySelectorAll('.star-input');
+    var halves = container.querySelectorAll('.star-half');
+    var totalHalfs = halves.length; // 10
+
+    function fillUpTo(n) {
+      for (var h = 0; h < totalHalfs; h++) {
+        // DOM order: half-10 … half-1  → in row-reverse visual: half-1 … half-10
+        // data-half is the 1-based index (1=leftmost visually)
+        var halfIdx = parseInt(halves[h].getAttribute('data-half'), 10);
+        if (halfIdx <= n) {
+          halves[h].classList.add('star-half--lit');
+        } else {
+          halves[h].classList.remove('star-half--lit');
+        }
+      }
+    }
+
+    function getCheckedRadioValue() {
+      for (var r = 0; r < radios.length; r++) {
+        if (radios[r].checked) return parseFloat(radios[r].value);
+      }
+      return 0;
+    }
+
+    function updateDisplay() {
+      var val = getCheckedRadioValue();
+      if (val > 0) fillUpTo(Math.round(val * 2));
+      else         fillUpTo(0);
+    }
+
+    // Radio change
+    for (var r = 0; r < radios.length; r++) {
+      radios[r].addEventListener('change', updateDisplay);
+    }
+
+    // Hover preview
+    for (var h = 0; h < totalHalfs; h++) {
+      halves[h].addEventListener('mouseenter', function(){
+        var n = parseInt(this.getAttribute('data-half'), 10);
+        fillUpTo(n);
+      });
+      halves[h].addEventListener('mouseleave', function(){
+        updateDisplay();
+      });
+    }
+
+    // Initial fill
+    updateDisplay();
+  })();
+  </script>
+{% endmacro %}
+
+{% macro halfStarDisplay(score) %}
+  <div class="resenia-card__estrellas resenia-card__estrellas--half" aria-label="{{ score }} de 5 estrellas">
+    {% set halfUnits = (score * 2)|round(0, 'floor') %}
+    {% for i in 1..10 %}
+      {% set isRight = (i % 2 == 0) %}
+      <span class="resenia-card__half{% if isRight %} resenia-card__half--right{% else %} resenia-card__half--left{% endif %}{% if i <= halfUnits %} resenia-card__half--filled{% endif %}">
+        <span class="resenia-card__half__char">★</span>
+      </span>
+    {% endfor %}
+  </div>
+{% endmacro %}

@@ -29,7 +29,7 @@ class AuthService
         $this->lockoutWindowSeconds = $lockoutWindowSeconds;
     }
 
-    public function login(string $email, string $password, string $ip): void
+    public function login(string $login, string $password, string $ip): void
     {
 
         $recentFailed = $this->loginAttemptRepository->countRecentFailedAttempts(
@@ -54,18 +54,18 @@ class AuthService
             );
         }
 
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findByEmailOrUsername($login);
 
         if (!$user) {
             $this->loginAttemptRepository->record($ip, false);
-            $this->logger->warning('Login attempt with unknown email', ['email' => $email]);
-            throw new UserNotFoundException("User with email {$email} not found");
+            $this->logger->warning('Login attempt with unknown credentials', ['login' => $login]);
+            throw new UserNotFoundException('Credenciales inválidas');
         }
 
         if (!$user->verifyPassword($password)) {
             $this->loginAttemptRepository->record($ip, false);
-            $this->logger->warning('Login attempt with wrong password', ['email' => $email]);
-            throw new InvalidPasswordException("Invalid password");
+            $this->logger->warning('Login attempt with wrong password', ['login' => $login]);
+            throw new InvalidPasswordException('Credenciales inválidas');
         }
 
         $this->loginAttemptRepository->record($ip, true);

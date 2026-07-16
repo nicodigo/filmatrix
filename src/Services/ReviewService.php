@@ -61,9 +61,9 @@ class ReviewService
             throw new InvalidValueFormatException('El ID del título no es válido.');
         }
 
-        if ($score < 1 || $score > 5) {
+        if ($score < 1 || $score > 5 || fmod($score * 2, 1) != 0) {
             throw new InvalidValueFormatException(
-                'La puntuación debe estar entre 1 y 5.'
+                'La puntuación debe ser un valor entre 1 y 5 en pasos de 0.5.'
             );
         }
 
@@ -123,8 +123,8 @@ class ReviewService
         float $score,
         ?string $body = null
     ): bool {
-        if ($score < 1 || $score > 5) {
-            throw new InvalidValueFormatException('La puntuación debe estar entre 1 y 5.');
+        if ($score < 1 || $score > 5 || fmod($score * 2, 1) != 0) {
+            throw new InvalidValueFormatException('La puntuación debe ser un valor entre 1 y 5 en pasos de 0.5.');
         }
 
         $review = $this->reviewRepository->findById($reviewId);

@@ -165,12 +165,28 @@ body {
   flex-shrink: 0;
 }
 
-.admin-review-card__star {
+/* ── Half-star display for admin reviews ── */
+.admin-review-card__star--half {
+  width: 9px;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  font-size: 16px;
+  line-height: 1;
   color: var(--rating);
+  vertical-align: middle;
+}
+
+.admin-review-card__star--right {
+  direction: rtl;
 }
 
 .admin-review-card__star--empty {
   color: var(--border);
+}
+
+.admin-review-card__star {
+  color: var(--rating);
 }
 
 .admin-review-card__body {

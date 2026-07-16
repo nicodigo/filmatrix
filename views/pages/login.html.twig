@@ -37,15 +37,15 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
       <div class="auth-field">
-        <label class="auth-label" for="email">Email</label>
+        <label class="auth-label" for="login">Email o nombre de usuario</label>
         <input
           class="auth-input {{ error ? 'auth-input--error' : '' }}"
-          type="email"
-          id="email"
-          name="email"
-          value="{{ emailValue|default('') }}"
-          placeholder="tu@email.com"
-          autocomplete="email"
+          type="text"
+          id="login"
+          name="login"
+          value="{{ loginValue|default('') }}"
+          placeholder="tu@email.com o tu usuario"
+          autocomplete="username"
           required
         >
       </div>

@@ -509,6 +509,10 @@ body {
   gap: 4px;
 }
 
+.resena-form__stars--half {
+  gap: 0;
+}
+
 .star-input {
   position: absolute;
   width: 1px;
@@ -517,18 +521,56 @@ body {
   pointer-events: none;
 }
 
-.star-label {
+/* ── Interactive half-star widget ── */
+.star-half {
+  width: 15px;
+  overflow: hidden;
   font-size: 28px;
-  color: var(--border);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
   cursor: pointer;
-  transition: color 0.15s ease;
+  color: var(--border);
+  transition: color 0.18s ease;
   user-select: none;
+  vertical-align: middle;
 }
 
-.star-label:hover,
-.star-label:hover ~ .star-label,
-.star-input:checked ~ .star-label {
+.star-half__char {
+  display: inline-block;
+  color: inherit;
+  transition: transform 0.15s ease;
+}
+
+.star-half--left .star-half__char {
+  transform: translateX(0);
+}
+
+.star-half--right .star-half__char {
+  transform: translateX(-15px);
+}
+
+/* Lit state (set by JS) */
+.star-half--lit {
   color: var(--rating);
+}
+
+/* Subtle scale pop on the hovered star */
+.star-half:hover .star-half__char,
+.star-half:hover ~ .star-half .star-half__char {
+  transform: scale(1.18);
+}
+
+/* Stars already lit should stay gold on sibling hover */
+.star-half--lit:hover,
+.star-half--lit:hover ~ .star-half,
+.star-half:hover ~ .star-half--lit {
+  color: var(--rating);
+}
+
+/* Unlit stars get a subtle preview tint on sibling hover */
+.star-half:hover ~ .star-half:not(.star-half--lit) {
+  color: var(--border);
 }
 
 .resena-form__textarea {
@@ -771,6 +813,39 @@ body {
   display: flex;
   gap: 2px;
 }
+.resenia-card__estrellas--half {
+  gap: 0;
+}
+/* ── Read-only half-star display ── */
+.resenia-card__half {
+  width: 7px;
+  overflow: hidden;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  color: var(--border);
+  vertical-align: middle;
+}
+
+.resenia-card__half__char {
+  display: inline-block;
+  color: inherit;
+}
+
+.resenia-card__half--left .resenia-card__half__char {
+  transform: translateX(0);
+}
+
+.resenia-card__half--right .resenia-card__half__char {
+  transform: translateX(-7px);
+}
+
+.resenia-card__half--filled {
+  color: var(--rating);
+}
+
+/* Keep old classes for backward compatibility with any cached pages */
 .resenia-card__star {
   font-size: 13px;
   color: var(--border);

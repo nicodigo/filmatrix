@@ -89,6 +89,25 @@ class UserRepository
         return User::fromArray($row);
     }
 
+    public function findByEmailOrUsername(string $login): ?User
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM users WHERE email = :login OR username = :login LIMIT 1'
+        );
+
+        $stmt->execute([
+            ':login' => $login
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        return User::fromArray($row);
+    }
+
     public function findByUsername(string $username): ?User
     {
         $stmt = $this->pdo->prepare(

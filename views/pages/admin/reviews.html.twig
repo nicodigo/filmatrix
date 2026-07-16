@@ -1,4 +1,5 @@
 {% extends 'layout/main.html.twig' %}
+{% import 'macros/stars.html.twig' as stars %}
 
 {% block title %}Panel de administración — Filmatrix{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
@@ -65,8 +66,10 @@
 
           <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
             <div class="admin-review-card__stars" aria-label="Puntuación: {{ review.score }} de 5">
-              {% for i in 1..5 %}
-                <span class="admin-review-card__star{{ i > review.score|round(0) ? ' admin-review-card__star--empty' : '' }}">&#9733;</span>
+              {% set halfUnits = (review.score * 2)|round(0, 'floor') %}
+              {% for i in 1..10 %}
+                {% set isRight = (i % 2 == 0) %}
+                <span class="admin-review-card__star admin-review-card__star--half{{ isRight ? ' admin-review-card__star--right' : ' admin-review-card__star--left' }}{{ i > halfUnits ? ' admin-review-card__star--empty' : '' }}">&#9733;</span>
               {% endfor %}
             </div>
 

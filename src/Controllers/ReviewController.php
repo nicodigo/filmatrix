@@ -102,8 +102,8 @@ class ReviewController
 
         if (!$titleId || !is_numeric($titleId) || (int) $titleId <= 0) {
             $error = 'El título seleccionado no es válido.';
-        } elseif (!$score || !is_numeric($score) || (float) $score < 1 || (float) $score > 5) {
-            $error = 'La puntuación debe ser un número entre 1 y 5.';
+        } elseif (!$score || !is_numeric($score) || (float) $score < 1 || (float) $score > 5 || fmod((float) $score * 2, 1) != 0) {
+            $error = 'La puntuación debe ser un valor entre 1 y 5 en pasos de 0.5.';
         }
 
         if ($error) {
@@ -150,8 +150,8 @@ class ReviewController
             exit;
         }
 
-        if ($score < 1 || $score > 5) {
-            $this->request->setFlash('error', 'La puntuación debe ser entre 1 y 5.');
+        if ($score < 1 || $score > 5 || fmod($score * 2, 1) != 0) {
+            $this->request->setFlash('error', 'La puntuación debe ser un valor entre 1 y 5 en pasos de 0.5.');
             $redirect = $this->request->post('redirect', '/titles/detail?tmdb_id=' . $tmdbId);
             header("Location: {$redirect}");
             exit;

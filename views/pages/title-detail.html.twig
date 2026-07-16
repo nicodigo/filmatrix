@@ -1,4 +1,5 @@
 {% extends 'layout/main.html.twig' %}
+{% import 'macros/stars.html.twig' as stars %}
 
 {% block title %}{{ title.title }} ({{ title.releaseYear|default('S/D') }}) — Filmatrix{% endblock %}
 
@@ -199,11 +200,7 @@
               </form>
             </div>
           </div>
-          <div class="resena-propia__estrellas">
-            {% for i in 1..5 %}
-              <span class="resenia-card__star {{ i <= userReview.score ? 'resenia-card__star--filled' : '' }}">★</span>
-            {% endfor %}
-          </div>
+          {{ stars.halfStarDisplay(userReview.score) }}
           <p class="resena-propia__texto">{{ userReview.body|default('Sin comentario.') }}</p>
         </div>
 
@@ -212,13 +209,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="review_id" value="{{ userReview.id }}">
             <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
-            <div class="resena-form__stars" role="group" aria-label="Puntuación">
-              {% for i in range(5, 1) %}
-                <input type="radio" id="editStar{{ i }}" name="score" value="{{ i }}"
-                  class="star-input" {{ userReview.score == i ? 'checked' : '' }}>
-                <label for="editStar{{ i }}" class="star-label" aria-label="{{ i }} estrellas">★</label>
-              {% endfor %}
-            </div>
+            {{ stars.halfStarInput('score', userReview.score, 'editStar') }}
             <textarea
               class="resena-form__textarea"
               name="review_body"
@@ -248,12 +239,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="title_id" value="{{ title.id }}">
             <input type="hidden" name="tmdb_id" value="{{ tmdbId }}">
-            <div class="resena-form__stars" role="group" aria-label="Puntuación">
-              {% for i in range(5, 1) %}
-                <input type="radio" id="star{{ i }}" name="score" value="{{ i }}" class="star-input">
-                <label for="star{{ i }}" class="star-label" aria-label="{{ i }} estrellas">★</label>
-              {% endfor %}
-            </div>
+            {{ stars.halfStarInput('score', null, 'star') }}
             <textarea
               class="resena-form__textarea"
               name="review_body"
@@ -286,11 +272,7 @@
                 alt="Avatar de {{ review.username }}">
               <div class="resenia-card__meta">
                 <span class="resenia-card__usuario">{{ review.username }}</span>
-                <div class="resenia-card__estrellas" aria-label="{{ review.score|round }} estrellas">
-                  {% for i in 1..5 %}
-                    <span class="resenia-card__star {{ i <= review.score|round(0) ? 'resenia-card__star--filled' : '' }}">★</span>
-                  {% endfor %}
-                </div>
+                {{ stars.halfStarDisplay(review.score) }}
               </div>
               <time class="resenia-card__fecha">{{ review.created_at|date('d M Y') }}</time>
               {% if app.user_logged_in and review.user_id != app.user_id %}
