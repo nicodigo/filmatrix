@@ -165,6 +165,10 @@ body {
   flex-shrink: 0;
 }
 
+.admin-review-card__stars--half {
+  gap: 0;
+}
+
 /* ── Half-star display for admin reviews ── */
 .admin-review-card__star--half {
   width: 9px;
@@ -177,8 +181,17 @@ body {
   vertical-align: middle;
 }
 
-.admin-review-card__star--right {
-  direction: rtl;
+.admin-review-card__star__char {
+  display: inline-block;
+  color: inherit;
+}
+
+.admin-review-card__star--left .admin-review-card__star__char {
+  transform: translateX(0);
+}
+
+.admin-review-card__star--right .admin-review-card__star__char {
+  transform: translateX(-8px);
 }
 
 .admin-review-card__star--empty {

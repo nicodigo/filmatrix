@@ -297,9 +297,12 @@ body {
   color: var(--rating);
 }
 
-.star-half:hover .star-half__char,
-.star-half:hover ~ .star-half .star-half__char {
-  transform: scale(1.18);
+.star-half--left:hover .star-half__char {
+  transform: translateX(0) scale(1.18);
+}
+
+.star-half--right:hover .star-half__char {
+  transform: translateX(-13px) scale(1.18);
 }
 
 .star-half--lit:hover,
