@@ -5,3 +5,7 @@ vendor/**
 .env
 
 .git
+
+# Uploads de admin (hero image, etc.)
+/storage/uploads/*
+!/storage/uploads/.gitkeep

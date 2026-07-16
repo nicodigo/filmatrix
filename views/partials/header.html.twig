@@ -20,13 +20,16 @@
       <a href="/upcoming" class="nav-menu-item">Próximos Estrenos</a>
 
       {% if app.user_logged_in %}
-        <a href="/my-reviews" class="nav-menu-item">Mis Reseñas</a>
-        <a href="/my-watchlist" class="nav-menu-item">Mi Watchlist</a>
-        <a href="/my-lists" class="nav-menu-item">Mis Listas</a>
-        <a href="/recommendations" class="nav-menu-item">Recomendaciones</a>
-        <a href="/profile" class="nav-menu-item">Mi Perfil</a>
         {% if app.role == 'admin' %}
-          <a href="/admin/reviews" class="nav-menu-item">Admin</a>
+          <a href="/profile" class="nav-menu-item">Mi Perfil</a>
+          <a href="/admin/reviews" class="nav-menu-item">Reseñas</a>
+          <a href="/admin/hero" class="nav-menu-item">Editar Hero</a>
+        {% else %}
+          <a href="/my-reviews" class="nav-menu-item">Mis Reseñas</a>
+          <a href="/my-watchlist" class="nav-menu-item">Mi Watchlist</a>
+          <a href="/my-lists" class="nav-menu-item">Mis Listas</a>
+          <a href="/recommendations" class="nav-menu-item">Recomendaciones</a>
+          <a href="/profile" class="nav-menu-item">Mi Perfil</a>
         {% endif %}
       {% else %}
         <a href="/login" class="nav-menu-item">Iniciar Sesión</a>

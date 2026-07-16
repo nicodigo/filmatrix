@@ -22,6 +22,16 @@ sed -i "s/^Listen 80$/Listen ${APP_PORT}/" /etc/apache2/ports.conf
 
 mkdir -p /var/www/html/cache
 chown -R www-data:www-data /var/www/html/cache
+
+# Asegurar permisos para uploads del admin (hero image)
+mkdir -p /var/www/html/storage/uploads
+chown -R www-data:www-data /var/www/html/storage/uploads
+
+# PHP upload limits para hero image
+cat > /usr/local/etc/php/conf.d/uploads.ini <<EOF
+upload_max_filesize = 10M
+post_max_size = 10M
+EOF
 vendor/bin/phinx migrate
 vendor/bin/phinx seed:run
 

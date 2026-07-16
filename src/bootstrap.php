@@ -5,6 +5,7 @@ namespace App;
 require __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AdminReviewController;
+use App\Controllers\AdminHeroController;
 use App\Controllers\Api\AuthTokenController;
 use App\Controllers\Api\ReviewApiController;
 use App\Controllers\Api\WatchlistApiController;
@@ -261,6 +262,8 @@ $makeUpcomingCtrl = fn() => new UpcomingReleaseController($titleListService, $tw
 
 $makeAdminReviewCtrl = fn() => new AdminReviewController($twig, $reviewService, $request);
 
+$makeAdminHeroCtrl = fn() => new AdminHeroController($twig, $request);
+
 $makeAuthTokenCtrl = fn() => new AuthTokenController($apiTokenService, $userRepository, $request);
 
 $makeReviewApiCtrl = fn() => new ReviewApiController($reviewService, $reviewRepository, $request);
@@ -340,6 +343,9 @@ $router->get('/upcoming', fn() => $makeUpcomingCtrl()->index());
 $makeSitemapCtrl = fn() => new SitemapController($twig, $titleService);
 $router->get('/sitemap.xml', fn() => $makeSitemapCtrl()->index());
 
+// Ruta pública para servir la imagen del hero (desde PVC o fallback)
+$router->get('/assets/hero-image', fn() => $makeAdminHeroCtrl()->serve());
+
 
 // Rutas de admin
 $router->get('/admin/reviews', $esAdmin(fn() => $makeAdminReviewCtrl()->index()));
@@ -347,6 +353,11 @@ $router->post('/admin/reviews/hide', $esAdmin(fn() => $makeAdminReviewCtrl()->hi
 $router->post('/admin/reviews/show', $esAdmin(fn() => $makeAdminReviewCtrl()->show()));
 $router->post('/admin/reviews/unflag', $esAdmin(fn() => $makeAdminReviewCtrl()->unflag()));
 $router->post('/admin/reviews/delete', $esAdmin(fn() => $makeAdminReviewCtrl()->delete()));
+
+// Hero image admin
+$router->get('/admin/hero', $esAdmin(fn() => $makeAdminHeroCtrl()->index()));
+$router->post('/admin/hero/upload', $esAdmin(fn() => $makeAdminHeroCtrl()->upload()));
+$router->post('/admin/hero/reset', $esAdmin(fn() => $makeAdminHeroCtrl()->reset()));
 
 
 // ─── API v1 ─────────────────────────────────────────────────────────────

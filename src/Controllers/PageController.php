@@ -64,6 +64,7 @@ class PageController
             'popular'       => $popular,
             'dailyReview'   => $dailyReview,
             'popularJsonLd' => $popularJsonLd,
+            'heroImageUrl'  => $this->getHeroImageUrl(),
         ]);
     }
     
@@ -75,5 +76,15 @@ class PageController
     public function contact(): void
     {
         echo $this->twig->render('pages/contact.html.twig');
+    }
+
+    private function getHeroImageUrl(): string
+    {
+        $uploadedPath = __DIR__ . '/../../storage/uploads/hero-bg.webp';
+        if (file_exists($uploadedPath)) {
+            $timestamp = filemtime($uploadedPath);
+            return '/assets/hero-image?v=' . $timestamp;
+        }
+        return '/assets/img/hero-bg.webp';
     }
 }

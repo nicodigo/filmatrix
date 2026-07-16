@@ -48,6 +48,13 @@ class Request
         unset($_SESSION[$key]);
     }
 
+    public function file(string $key): ?array
+    {
+        return isset($_FILES[$key]) && $_FILES[$key]['error'] !== UPLOAD_ERR_NO_FILE
+            ? $_FILES[$key]
+            : null;
+    }
+
     public function server(string $key, mixed $default = null): mixed
     {
         return $_SERVER[$key] ?? $default;

@@ -1,0 +1,65 @@
+{% extends 'layout/main.html.twig' %}
+
+{% block title %}Hero Image — Filmatrix{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="/assets/css/admin-reviews.css">
+  <link rel="stylesheet" href="/assets/css/admin-hero.css">
+{% endblock %}
+
+{% block main_class %}admin-main{% endblock %}
+
+{% block content %}
+  <div class="admin-hero-header">
+    <h1>Imagen del Hero</h1>
+  </div>
+
+  {# ── Vista previa ── #}
+  <section class="hero-preview-section">
+    <h2 class="section-label">Vista previa actual</h2>
+    <div class="hero-preview" style="background-image: url('{{ currentImageUrl }}')">
+      <div class="hero-preview__overlay">
+        <h1>Filmatrix</h1>
+        <h2>Donde brillan tus reseñas</h2>
+      </div>
+    </div>
+  </section>
+
+  {# ── Formulario de carga ── #}
+  <section class="hero-upload-section">
+    <h2 class="section-label">Subir nueva imagen</h2>
+    <form action="/admin/hero/upload" method="POST" enctype="multipart/form-data" class="hero-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+      <div class="hero-form__field">
+        <label for="hero_image" class="hero-form__label">Seleccionar imagen</label>
+        <input type="file" id="hero_image" name="hero_image"
+               accept="image/jpeg,image/png,image/webp" required
+               class="hero-form__file">
+        <p class="hero-form__hint">JPEG, PNG o WebP &middot; Máx 5 MB &middot; Mín 1200&times;600 px</p>
+      </div>
+
+      <div class="hero-form__actions">
+        <button type="submit" class="admin-btn admin-btn--primary">
+          Subir y convertir a WebP
+        </button>
+      </div>
+    </form>
+  </section>
+
+  {# ── Restaurar por defecto ── #}
+  <section class="hero-reset-section">
+    <h2 class="section-label">Restaurar por defecto</h2>
+    <form action="/admin/hero/reset" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <p class="hero-form__hint" style="margin-bottom:0.75rem;">
+        Elimina la imagen subida y vuelve a mostrar la imagen original del repositorio.
+      </p>
+      <button type="submit" class="admin-btn admin-btn--danger"
+              onclick="return confirm('¿Estás seguro? Se perderá la imagen actual.')">
+        Restaurar imagen original
+      </button>
+    </form>
+  </section>
+{% endblock %}

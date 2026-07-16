@@ -12,7 +12,7 @@
 
 {% block content %}
   <script type="application/ld+json">{{ popularJsonLd|raw }}</script>
-  <section class="hero">
+  <section class="hero" style="background-image: url('{{ heroImageUrl }}')">
     <h1>Filmatrix</h1>
     <h2>Donde brillan tus reseñas</h2>
   </section>
@@ -73,6 +73,8 @@
     </section>
   {% endif %}
 {% endblock %}
+
+{% block og_image %}{{ app_url ~ heroImageUrl }}{% endblock %}
 
 {% block scripts %}
   <script type="module" src="/assets/js/pages/home.js"></script>
