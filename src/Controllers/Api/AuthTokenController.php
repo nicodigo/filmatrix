@@ -27,15 +27,15 @@ class AuthTokenController
     public function store(): void
     {
         $body  = $this->request->jsonBody();
-        $email = $body['email'] ?? null;
+        $login = $body['login'] ?? null;
         $password = $body['password'] ?? null;
         $label = $body['label'] ?? null;
 
-        if (!$email || !$password) {
-            ApiResponse::error(422, 'email y password son obligatorios');
+        if (!$login || !$password) {
+            ApiResponse::error(422, 'email/username y password son obligatorios');
         }
 
-        $user = $this->userRepository->findByEmail($email);
+        $user = $this->userRepository->findByEmailOrUsername($login);
 
         if (!$user || !$user->verifyPassword($password)) {
             throw new InvalidCredentialsException();
